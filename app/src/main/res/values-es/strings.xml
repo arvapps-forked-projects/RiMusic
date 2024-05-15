@@ -511,9 +511,9 @@
     <string name="vimusic_show_search_button_in_navigation_bar">Mostrar botón de búsqueda en la barra de navegación</string>
     <string name="vismusic_only_in_left_right_navigation_bar">Only for ViMusic ui mode in left/right navigation bar</string>
     <string name="enable_monthly_playlists_creation">Activar la creación de listas de reproducción mensuales</string>
-    <string name="info_no_singles_yet">No singles yet</string>
-    <string name="info_no_albums_yet">No albums yet</string>
-    <string name="info_no_songs_yet">No songs yet</string>
+    <string name="info_no_singles_yet">Aún no hay sencillos</string>
+    <string name="info_no_albums_yet">Aún no hay álbumes</string>
+    <string name="info_no_songs_yet">Aún no hay canciones</string>
     <string name="theme_customized">Personalizado</string>
     <string name="do_you_really_want_to_reset_the_custom_light_theme_colors">¿Quieres restablecer los colores personalizados del tema claro?</string>
     <string name="do_you_really_want_to_reset_the_custom_dark_theme_colors">¿Quieres restablecer los colores personalizados del tema oscuro?</string>
@@ -530,12 +530,12 @@
     <string name="color_text">Texto</string>
     <string name="color_text_secondary">Texto secundario</string>
     <string name="color_text_disabled">Texto deshabilitado</string>
-    <string name="color_icon_button_player">Icon button player</string>
+    <string name="color_icon_button_player">Icono del botón reproductor</string>
     <string name="color_accent">Acento</string>
     <string name="title_customized_dark_theme_colors">Colores personalizados del tema oscuro</string>
     <string name="title_reset_customized_dark_colors">Restablecer los colores oscuros personalizados</string>
     <string name="click_to_reset_default_dark_colors">Pulsa para restablecer los colores oscuros personalizados</string>
     <string name="info_color_s_applied">Color %s aplicado</string>
-    <string name="effect_crossfade_songs">Crossfade songs</string>
+    <string name="effect_crossfade_songs">Crossfade de canciones</string>
     <string name="time_seconds">segundos</string>
 </resources>

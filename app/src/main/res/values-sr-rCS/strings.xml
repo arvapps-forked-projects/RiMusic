@@ -529,13 +529,13 @@
     <string name="color_background_5">Pozadina 5</string>
     <string name="color_text">Tekst</string>
     <string name="color_text_secondary">Tekst sekundarni</string>
-    <string name="color_text_disabled">Text disabled</string>
-    <string name="color_icon_button_player">Icon button player</string>
-    <string name="color_accent">Accent</string>
-    <string name="title_customized_dark_theme_colors">Customized dark theme colors</string>
-    <string name="title_reset_customized_dark_colors">Reset customized dark colors</string>
-    <string name="click_to_reset_default_dark_colors">Click to reset default dark colors</string>
-    <string name="info_color_s_applied">Color %s applied</string>
-    <string name="effect_crossfade_songs">Crossfade songs</string>
-    <string name="time_seconds">seconds</string>
+    <string name="color_text_disabled">Tekst je onemogućen</string>
+    <string name="color_icon_button_player">Ikona dugme za plejer</string>
+    <string name="color_accent">Naglašena boja</string>
+    <string name="title_customized_dark_theme_colors">Prilagođene tamne boje teme</string>
+    <string name="title_reset_customized_dark_colors">Resetujte prilagođene tamne boje</string>
+    <string name="click_to_reset_default_dark_colors">Kliknite da biste resetovali podrazumevane tamne boje</string>
+    <string name="info_color_s_applied">Boja %s je primenjena</string>
+    <string name="effect_crossfade_songs">Prelaz između pesama</string>
+    <string name="time_seconds">sekunde</string>
 </resources>

@@ -469,7 +469,7 @@
     <string name="show_equalizer">Näytä taajuuskorjain</string>
     <string name="theme_pure_black">Kokonaan musta</string>
     <string name="theme_modern_black">Moderni musta</string>
-    <string name="theme_mode_pitch_black">Pitch Black</string>
+    <string name="theme_mode_pitch_black">Pikimusta</string>
     <string name="show_actions_bar">Näytä toimintopalkki</string>
     <string name="transition_effect">Siirtymäefekti</string>
     <string name="te_expand">Laajentuminen</string>
@@ -509,7 +509,7 @@
     <string name="bg_colors_gradient_background_from_cover">Liukuva taustaväri kannesta</string>
     <string name="bg_colors_gradient_background_from_theme">Liukuva taustaväri teemasta</string>
     <string name="vimusic_show_search_button_in_navigation_bar">Näytä hakupainike navigointipalkissa</string>
-    <string name="vismusic_only_in_left_right_navigation_bar">Only for ViMusic ui mode in left/right navigation bar</string>
+    <string name="vismusic_only_in_left_right_navigation_bar">Vain ViMusic ui -tilassa vasemman-/oikeanpuoleisessa navigointipalkissa</string>
     <string name="enable_monthly_playlists_creation">Ota kuukausittain luotavat soittolistat käyttöön</string>
     <string name="info_no_singles_yet">Ei vielä sinkkuja</string>
     <string name="info_no_albums_yet">Ei vielä albumeita</string>

@@ -195,7 +195,7 @@
     <string name="moods_and_genres">מצבי רוח וז\'אנרים</string>
     <string name="search_queries">" שאילתות חיפוש"</string>
     <string name="not_find_battery_optimization_settings">לא ניתן היה למצוא את הגדרות אופטימיזציית הסוללה, נא לרשום היתרים באופן ידני</string>
-    <string name="search">Search...</string>
+    <string name="search">לחפש</string>
     <string name="no">לא</string>
     <string name="stop">עצור</string>
     <string name="listen_on_youtube">האזינו ביוטיוב</string>
