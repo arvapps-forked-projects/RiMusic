@@ -527,15 +527,15 @@
     <string name="color_background_3">Background 3</string>
     <string name="color_background_4">Background 4</string>
     <string name="color_background_5">Background 5</string>
-    <string name="color_text">Text</string>
+    <string name="color_text">Texto</string>
     <string name="color_text_secondary">Text secondary</string>
-    <string name="color_text_disabled">Text disabled</string>
+    <string name="color_text_disabled">Texto desativado</string>
     <string name="color_icon_button_player">Icon button player</string>
-    <string name="color_accent">Accent</string>
+    <string name="color_accent">Cor Destaque</string>
     <string name="title_customized_dark_theme_colors">Customized dark theme colors</string>
     <string name="title_reset_customized_dark_colors">Reset customized dark colors</string>
     <string name="click_to_reset_default_dark_colors">Click to reset default dark colors</string>
     <string name="info_color_s_applied">Color %s applied</string>
     <string name="effect_crossfade_songs">Crossfade songs</string>
-    <string name="time_seconds">seconds</string>
+    <string name="time_seconds">segundos</string>
 </resources>
