@@ -134,6 +134,7 @@ fun About() {
                     "Ahmad Al Juwaisri \n"+
                     "Alnoer \n"+
                     "AntoniNowak \n" +
+                    "beez276 \n"+
                     "CiccioDerole \n"+
                     "Conk \n"+
                     "Corotyest \n" +
@@ -167,6 +168,7 @@ fun About() {
                     "NEVARLeVrai \n"+
                     "NikunjKhangwal \n"+
                     "NiXT0y \n"+
+                    "opcitgv \n"+
                     "OlimitLolli \n"+
                     "OrangeZXZ \n"+
                     "RegularWater \n"+

@@ -147,7 +147,7 @@ import it.fast4x.rimusic.utils.navigationBarPositionKey
 import it.fast4x.rimusic.utils.navigationBarTypeKey
 import it.fast4x.rimusic.utils.pauseBetweenSongsKey
 import it.fast4x.rimusic.utils.persistentQueueKey
-import it.fast4x.rimusic.utils.playbackCrossfadeDurationKey
+import it.fast4x.rimusic.utils.playbackFadeDurationKey
 import it.fast4x.rimusic.utils.playerPlayButtonTypeKey
 import it.fast4x.rimusic.utils.playerThumbnailSizeKey
 import it.fast4x.rimusic.utils.playerTimelineTypeKey
@@ -307,7 +307,7 @@ fun  UiSettings() {
 
     var resetCustomLightThemeDialog by rememberSaveable { mutableStateOf(false) }
     var resetCustomDarkThemeDialog by rememberSaveable { mutableStateOf(false) }
-    var playbackCrossfadeDuration by rememberPreference(playbackCrossfadeDurationKey, DurationInSeconds.Disabled)
+    var playbackFadeDuration by rememberPreference(playbackFadeDurationKey, DurationInSeconds.Disabled)
 
 
     Column(
@@ -503,6 +503,7 @@ fun  UiSettings() {
                         Languages.Dutch -> stringResource(R.string.lang_dutch)
                         Languages.English -> stringResource(R.string.english)
                         Languages.Esperanto -> stringResource(R.string.esperanto)
+                        Languages.Estonian -> stringResource(R.string.lang_estonian)
                         Languages.Finnish -> stringResource(R.string.lang_finnish)
                         Languages.French -> stringResource(R.string.french)
                         Languages.German -> stringResource(R.string.german)
@@ -595,11 +596,11 @@ fun  UiSettings() {
             )
 
 
-        if (filter.isNullOrBlank() || stringResource(R.string.effect_crossfade_songs).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.effect_fade_songs).contains(filterCharSequence,true))
             EnumValueSelectorSettingsEntry(
-                title = stringResource(R.string.effect_crossfade_songs),
-                selectedValue = playbackCrossfadeDuration,
-                onValueSelected = { playbackCrossfadeDuration = it },
+                title = stringResource(R.string.effect_fade_songs),
+                selectedValue = playbackFadeDuration,
+                onValueSelected = { playbackFadeDuration = it },
                 valueText = {
                     when (it) {
                         DurationInSeconds.Disabled -> stringResource(R.string.vt_disabled)
@@ -646,6 +647,10 @@ fun  UiSettings() {
                 valueText = {
                     when (it) {
                         MaxSongs.Unlimited -> stringResource(R.string.unlimited)
+                        MaxSongs.`50` -> MaxSongs.`50`.name
+                        MaxSongs.`100` -> MaxSongs.`100`.name
+                        MaxSongs.`200` -> MaxSongs.`200`.name
+                        MaxSongs.`300` -> MaxSongs.`300`.name
                         MaxSongs.`500` -> MaxSongs.`500`.name
                         MaxSongs.`1000` -> MaxSongs.`1000`.name
                         MaxSongs.`2000` -> MaxSongs.`2000`.name

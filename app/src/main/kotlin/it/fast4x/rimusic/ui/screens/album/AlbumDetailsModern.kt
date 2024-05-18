@@ -596,6 +596,32 @@ fun AlbumDetailsModern(
                                 .fillMaxWidth()
                         ) {
                             //headerContent {
+                            HeaderIconButton(
+                                icon = if (album?.bookmarkedAt == null) {
+                                    R.drawable.bookmark_outline
+                                } else {
+                                    R.drawable.bookmark
+                                },
+                                color = colorPalette.accent,
+                                modifier = Modifier
+                                    .padding(horizontal = 25.dp)
+                                    .combinedClickable(
+                                        onClick = {
+                                            val bookmarkedAt =
+                                                if (album?.bookmarkedAt == null) System.currentTimeMillis() else null
+
+                                            query {
+                                                album
+                                                    ?.copy(bookmarkedAt = bookmarkedAt)
+                                                    ?.let(Database::update)
+                                            }
+                                        },
+                                        onLongClick = {
+                                            SmartToast(context.getString(R.string.info_bookmark_album))
+                                        }
+                                    ),
+                                onClick = {}
+                            )
                                 HeaderIconButton(
                                     icon = R.drawable.downloaded,
                                     color = colorPalette.text,

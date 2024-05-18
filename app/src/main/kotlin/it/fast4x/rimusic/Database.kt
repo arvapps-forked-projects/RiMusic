@@ -653,7 +653,11 @@ interface Database {
     fun playlistWithSongs(id: Long): Flow<PlaylistWithSongs?>
 
     @Transaction
-    @Query("SELECT * FROM Playlist WHERE name = :name")
+    @Query("SELECT * FROM Playlist WHERE trim(name) COLLATE NOCASE = trim(:name) COLLATE NOCASE")
+    fun playlistWithSongsNoFlow(name: String): PlaylistWithSongs?
+
+    @Transaction
+    @Query("SELECT * FROM Playlist WHERE trim(name) COLLATE NOCASE = trim(:name) COLLATE NOCASE")
     fun playlistWithSongs(name: String): Flow<PlaylistWithSongs?>
 
     @Transaction

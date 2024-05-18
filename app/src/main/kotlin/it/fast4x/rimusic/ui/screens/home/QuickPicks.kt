@@ -309,7 +309,6 @@ fun QuickPicks(
 
 
 
-
     PullToRefreshBox(
         refreshing = refreshing,
         onRefresh = { refresh() }

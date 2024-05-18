@@ -79,6 +79,7 @@ import it.fast4x.rimusic.ui.styling.px
 import it.fast4x.rimusic.utils.BehindMotionSwipe
 import it.fast4x.rimusic.utils.LeftAction
 import it.fast4x.rimusic.utils.RightActions
+import it.fast4x.rimusic.utils.addNext
 import it.fast4x.rimusic.utils.asMediaItem
 import it.fast4x.rimusic.utils.center
 import it.fast4x.rimusic.utils.color
@@ -325,10 +326,10 @@ fun HistoryList(
                         },
                         leftActionsContent = {
                             LeftAction(
-                                icon = R.drawable.enqueue,
+                                icon = R.drawable.play_skip_forward,
                                 backgroundColor = Color.Transparent, //colorPalette.background4,
                                 onClick = {
-                                    binder?.player?.enqueue( event.song.asMediaItem )
+                                    binder?.player?.addNext( event.song.asMediaItem )
                                 }
                             )
                         },

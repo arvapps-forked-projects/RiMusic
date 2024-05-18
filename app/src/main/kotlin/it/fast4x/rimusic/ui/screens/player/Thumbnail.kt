@@ -13,9 +13,14 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -42,6 +51,7 @@ import it.fast4x.rimusic.Database
 import it.fast4x.rimusic.LocalPlayerServiceBinder
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.ClickLyricsText
+import it.fast4x.rimusic.enums.UiType
 import it.fast4x.rimusic.service.LoginRequiredException
 import it.fast4x.rimusic.service.MyDownloadService
 import it.fast4x.rimusic.service.PlayableFormatNonSupported
@@ -52,10 +62,17 @@ import it.fast4x.rimusic.service.VideoIdMismatchException
 import it.fast4x.rimusic.service.isLocal
 import it.fast4x.rimusic.ui.styling.Dimensions
 import it.fast4x.rimusic.ui.styling.LocalAppearance
+import it.fast4x.rimusic.ui.styling.favoritesIcon
+import it.fast4x.rimusic.ui.styling.favoritesOverlay
+import it.fast4x.rimusic.ui.styling.overlay
 import it.fast4x.rimusic.ui.styling.px
 import it.fast4x.rimusic.utils.DisposableListener
+import it.fast4x.rimusic.utils.UiTypeKey
 import it.fast4x.rimusic.utils.clickLyricsTextKey
 import it.fast4x.rimusic.utils.currentWindow
+import it.fast4x.rimusic.utils.doubleShadowDrop
+import it.fast4x.rimusic.utils.dropShadow
+import it.fast4x.rimusic.utils.fadingEdge
 import it.fast4x.rimusic.utils.intent
 import it.fast4x.rimusic.utils.rememberPreference
 import it.fast4x.rimusic.utils.thumbnail
@@ -168,13 +185,29 @@ fun Thumbnail(
         },
         contentAlignment = Alignment.Center, label = ""
     ) { currentWindow ->
-        Box(
-            modifier = modifier
-                .aspectRatio(1f)
-                .clip(LocalAppearance.current.thumbnailShape)
-                .size(thumbnailSizeDp)
-        ) {
 
+        val uiType  by rememberPreference(UiTypeKey, UiType.RiMusic)
+        var modifierUiType by remember { mutableStateOf(modifier) }
+        if (uiType == UiType.RiMusic)
+            modifierUiType = modifier
+                .aspectRatio(1f)
+                //.size(thumbnailSizeDp)
+                .fillMaxSize()
+                //.dropShadow(LocalAppearance.current.thumbnailShape, LocalAppearance.current.colorPalette.overlay.copy(0.1f), 6.dp, 2.dp, 2.dp)
+                //.dropShadow(LocalAppearance.current.thumbnailShape, LocalAppearance.current.colorPalette.overlay.copy(0.1f), 6.dp, (-2).dp, (-2).dp)
+                //.clip(LocalAppearance.current.thumbnailShape)
+                .doubleShadowDrop(LocalAppearance.current.thumbnailShape, 4.dp, 8.dp)
+                //.padding(14.dp)
+        else modifierUiType = modifier
+            .aspectRatio(1f)
+            //.size(thumbnailSizeDp)
+            .fillMaxSize()
+            .clip(LocalAppearance.current.thumbnailShape)
+            .padding(14.dp)
+
+        Box(
+            modifier = modifierUiType
+        ) {
             if(artImageAvailable)
                 AsyncImage(
                     model = currentWindow.mediaItem.mediaMetadata.artworkUri.thumbnail(
@@ -203,6 +236,9 @@ fun Thumbnail(
 
                         }
                         .fillMaxSize()
+                        .clip(LocalAppearance.current.thumbnailShape)
+
+
                 )
 
             if(!artImageAvailable)
@@ -223,7 +259,8 @@ fun Thumbnail(
                             )
 
                         }
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .clip(LocalAppearance.current.thumbnailShape),
                     contentDescription = "Background Image",
                     contentScale = ContentScale.Fit
                 )

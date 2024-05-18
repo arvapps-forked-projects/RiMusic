@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 
 fun Modifier.verticalFadingEdge() =
-    graphicsLayer(alpha = 0.99f)
+    graphicsLayer(alpha = 0.95f)
         .drawWithContent {
             drawContent()
             drawRect(

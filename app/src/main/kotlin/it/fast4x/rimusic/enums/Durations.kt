@@ -30,13 +30,18 @@ enum class DurationInSeconds {
             `12` -> 12
         } * 1000
 
+
     val fadeOutRange: ClosedFloatingPointRange<Float>
         get() = when (this) {
         Disabled -> 0f..0f
-        `11`, `12` -> 95.00f..95.50f
-        `9`, `10` -> 96.00f..96.50f
-        `7`, `8` -> 97.00f..97.50f
-        `5`, `6` -> 98.00f..98.50f
-        `3`, `4` -> 99.00f..99.50f
+        `11`, `12` -> 96.00f..96.20f
+        `9`, `10` -> 97.00f..97.20f
+        `7`, `8` -> 98.00f..98.20f
+        `5`, `6` -> 98.21f..99.20f
+        `3`, `4` -> 99.21f..99.99f
     }
+
+    val fadeInRange: ClosedFloatingPointRange<Float>
+        get() = 00.00f..00.00f
+
 }

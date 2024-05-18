@@ -24,6 +24,7 @@ object Dimensions {
     val bottomSpacer = 100.dp
     val fadeSpacingTop = 30.dp
     val fadeSpacingBottom = 64.dp
+    val fadeSpacing = 30.dp
 
 
     object thumbnails {

@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.toUpperCase
 import it.fast4x.rimusic.LocalPlayerAwareWindowInsets
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.CheckUpdateState
@@ -52,6 +53,7 @@ import it.fast4x.rimusic.utils.isInvincibilityEnabledKey
 import it.fast4x.rimusic.utils.isKeepScreenOnEnabledKey
 import it.fast4x.rimusic.utils.isProxyEnabledKey
 import it.fast4x.rimusic.utils.navigationBarPositionKey
+import it.fast4x.rimusic.utils.parentalControlEnabledKey
 import it.fast4x.rimusic.utils.preferences
 import it.fast4x.rimusic.utils.proxyHostnameKey
 import it.fast4x.rimusic.utils.proxyModeKey
@@ -123,6 +125,8 @@ fun OtherSettings() {
             mutableStateOf(emptyList())
         }
     }
+
+    var parentalControlEnabled by rememberPreference(parentalControlEnabledKey, false)
 
     Column(
         modifier = Modifier
@@ -308,6 +312,19 @@ fun OtherSettings() {
             isChecked = isInvincibilityEnabled,
             onCheckedChange = { isInvincibilityEnabled = it }
         )
+
+        SettingsGroupSpacer()
+
+        SettingsEntryGroupText(title = "Parental control".uppercase())
+
+        SwitchSettingEntry(
+            title = "Parental control",
+            text = "Prevent play songs with age limitation",
+            isChecked = parentalControlEnabled,
+            onCheckedChange = { parentalControlEnabled = it }
+        )
+
+
 
         Spacer(modifier = Modifier.height(Dimensions.bottomSpacer))
 

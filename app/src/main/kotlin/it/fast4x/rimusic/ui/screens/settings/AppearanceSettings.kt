@@ -96,6 +96,7 @@ import it.fast4x.rimusic.utils.showLikeButtonBackgroundPlayerKey
 import it.fast4x.rimusic.utils.backgroundProgressKey
 import it.fast4x.rimusic.utils.clickLyricsTextKey
 import it.fast4x.rimusic.utils.playerBackgroundColorsKey
+import it.fast4x.rimusic.utils.showBackgroundLyricsKey
 import it.fast4x.rimusic.utils.showButtonPlayerSystemEqualizerKey
 import it.fast4x.rimusic.utils.showNextSongsInPlayerKey
 import it.fast4x.rimusic.utils.showRemainingSongTimeKey
@@ -149,7 +150,7 @@ fun AppearanceSettings() {
     var showNextSongsInPlayer by rememberPreference(showNextSongsInPlayerKey, false)
     var showRemainingSongTime by rememberPreference(showRemainingSongTimeKey, true)
     var clickLyricsText by rememberPreference(clickLyricsTextKey, ClickLyricsText.FullScreen)
-
+    var showBackgroundLyrics by rememberPreference(showBackgroundLyricsKey, false)
     val (colorPalette, typography, thumbnailShape) = LocalAppearance.current
     var searching by rememberSaveable { mutableStateOf(false) }
     var filter: String? by rememberSaveable { mutableStateOf(null) }
@@ -363,6 +364,9 @@ fun AppearanceSettings() {
                         PlayerBackgroundColors.ThemeColor -> stringResource(R.string.bg_colors_background_from_theme)
                         PlayerBackgroundColors.CoverColorGradient -> stringResource(R.string.bg_colors_gradient_background_from_cover)
                         PlayerBackgroundColors.ThemeColorGradient -> stringResource(R.string.bg_colors_gradient_background_from_theme)
+                        PlayerBackgroundColors.FluidThemeColorGradient -> stringResource(R.string.bg_colors_fluid_gradient_background_from_theme)
+                        PlayerBackgroundColors.FluidCoverColorGradient -> stringResource(R.string.bg_colors_fluid_gradient_background_from_cover)
+                        PlayerBackgroundColors.BlurredCoverColor -> stringResource(R.string.bg_colors_blurred_cover_background)
                     }
                 },
             )
@@ -437,6 +441,14 @@ fun AppearanceSettings() {
                         ClickLyricsText.Both -> stringResource(R.string.both)
                     }
                 },
+            )
+
+        if (filter.isNullOrBlank() || stringResource(R.string.show_background_in_lyrics).contains(filterCharSequence,true))
+            SwitchSettingEntry(
+                title = stringResource(R.string.show_background_in_lyrics),
+                text = "",
+                isChecked = showBackgroundLyrics,
+                onCheckedChange = { showBackgroundLyrics = it }
             )
 
         if (filter.isNullOrBlank() || stringResource(R.string.background_progress_bar).contains(filterCharSequence,true))

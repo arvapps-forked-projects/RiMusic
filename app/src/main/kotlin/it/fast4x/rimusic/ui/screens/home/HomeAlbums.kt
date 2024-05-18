@@ -455,6 +455,7 @@ fun HomeAlbums(
             item(
                 key = "footer",
                 contentType = 0,
+                span = { GridItemSpan(maxLineSpan) }
             ) {
                 Spacer(modifier = Modifier.height(Dimensions.bottomSpacer))
             }
@@ -480,14 +481,5 @@ fun HomeAlbums(
          */
 
 
-
-
-
     }
-}
-
-fun PlayNextAlbum(
-    album: Album
-){
-
 }

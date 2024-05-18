@@ -113,7 +113,7 @@ const val showPlaylistsKey = "showPlaylists"
 const val isGradientBackgroundEnabledKey = "isGradientBackgroundEnabled"
 const val playbackSpeedKey = "playbackSpeed"
 const val playbackPitchKey = "playbackPitch"
-const val playbackCrossfadeDurationKey = "playbackCrossfadeDuration"
+const val playbackFadeDurationKey = "playbackFadeDuration"
 const val showTotalTimeQueueKey = "showTotalTimeQueue"
 const val backgroundProgressKey = "backgroundProgress"
 const val maxSongsInQueueKey = "maxSongsInQueue"
@@ -121,6 +121,7 @@ const val showFoldersOnDeviceKey = "showFoldersOnDevice"
 const val showNextSongsInPlayerKey = "showNextSongsInPlayer"
 const val showRemainingSongTimeKey = "showRemainingSongTime"
 const val lyricsFontSizeKey = "lyricsFontSize"
+const val showBackgroundLyricsKey = "showBackgroundLyrics"
 const val includeLocalSongsKey = "includeLocalSongs"
 const val clickLyricsTextKey = "clickLyricsText"
 const val defaultFolderKey = "defaultFolder"
@@ -169,6 +170,8 @@ const val customThemeDark_textDisabledKey = "customThemeDark_textDisabled"
 const val customThemeDark_iconButtonPlayerKey = "customThemeDark_iconButtonPlayer"
 const val customThemeDark_accentKey = "customThemeDark_accent"
 /**** CUSTOM THEME **** */
+
+const val parentalControlEnabledKey = "parentalControlEnabled"
 
 inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,

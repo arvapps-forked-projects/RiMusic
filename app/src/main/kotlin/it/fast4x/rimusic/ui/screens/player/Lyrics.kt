@@ -73,6 +73,7 @@ import it.fast4x.rimusic.LocalPlayerServiceBinder
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.LyricsFontSize
 import it.fast4x.rimusic.enums.PopupType
+import it.fast4x.rimusic.enums.UiType
 import it.fast4x.rimusic.models.Lyrics
 import it.fast4x.rimusic.query
 import it.fast4x.rimusic.transaction
@@ -94,6 +95,7 @@ import it.fast4x.rimusic.ui.styling.overlay
 import it.fast4x.rimusic.ui.styling.px
 import it.fast4x.rimusic.utils.SynchronizedLyrics
 import it.fast4x.rimusic.utils.TextCopyToClipboard
+import it.fast4x.rimusic.utils.UiTypeKey
 import it.fast4x.rimusic.utils.bold
 import it.fast4x.rimusic.utils.center
 import it.fast4x.rimusic.utils.color
@@ -104,6 +106,7 @@ import it.fast4x.rimusic.utils.lyricsFontSizeKey
 import it.fast4x.rimusic.utils.medium
 import it.fast4x.rimusic.utils.rememberPreference
 import it.fast4x.rimusic.utils.semiBold
+import it.fast4x.rimusic.utils.showBackgroundLyricsKey
 import it.fast4x.rimusic.utils.thumbnail
 import it.fast4x.rimusic.utils.toast
 import it.fast4x.rimusic.utils.verticalFadingEdge
@@ -192,6 +195,7 @@ fun Lyrics(
         }
 
         var fontSize by rememberPreference(lyricsFontSizeKey, LyricsFontSize.Medium)
+        val showBackgroundLyrics by rememberPreference(showBackgroundLyricsKey, false)
 
         LaunchedEffect(mediaId, isShowingSynchronizedLyrics) {
             withContext(Dispatchers.IO) {
@@ -531,13 +535,15 @@ fun Lyrics(
                         }
                     }
 
+                    var modifierBG = Modifier.verticalFadingEdge()
+                    if (showBackgroundLyrics) modifierBG = modifierBG.background(colorPalette.accent)
+
                     LazyColumn(
                         state = lazyListState,
                         userScrollEnabled = true,
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .verticalFadingEdge()
+                        modifier = modifierBG
                     ) {
                         item(key = "header", contentType = 0) {
                             Spacer(modifier = Modifier.height(thumbnailSize))

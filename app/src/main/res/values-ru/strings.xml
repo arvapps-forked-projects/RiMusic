@@ -536,6 +536,12 @@
     <string name="title_reset_customized_dark_colors">Сбросить пользовательские цвета темной темы</string>
     <string name="click_to_reset_default_dark_colors">Нажмите для сброса до стандартных цветов тёмной темы</string>
     <string name="info_color_s_applied">Цвет %s применён</string>
-    <string name="effect_crossfade_songs">Плавный переход между треками</string>
     <string name="time_seconds">секунды</string>
+    <string name="info_bookmark_album">Добавить альбом в закладки</string>
+    <string name="effect_fade_songs">Плавный переход между песнями</string>
+    <string name="bg_colors_fluid_gradient_background_from_theme">\"Жидкий\" градиентный фон из темы</string>
+    <string name="bg_colors_fluid_gradient_background_from_cover">\"Жидкий\" градиентный фон из обложки</string>
+    <string name="show_background_in_lyrics">Показывать цвет фона в текстах песен</string>
+    <string name="bg_colors_blurred_cover_background">Размытая обложка на фоне</string>
+    <string name="lang_estonian">Эстонский (eesti keel)</string>
 </resources>

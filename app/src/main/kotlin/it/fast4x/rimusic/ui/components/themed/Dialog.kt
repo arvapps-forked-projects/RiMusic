@@ -79,7 +79,6 @@ import it.fast4x.rimusic.utils.bold
 import it.fast4x.rimusic.utils.center
 import it.fast4x.rimusic.utils.drawCircle
 import it.fast4x.rimusic.utils.medium
-import it.fast4x.rimusic.utils.playbackCrossfadeDurationKey
 import it.fast4x.rimusic.utils.playbackPitchKey
 import it.fast4x.rimusic.utils.playbackSpeedKey
 import it.fast4x.rimusic.utils.rememberPreference

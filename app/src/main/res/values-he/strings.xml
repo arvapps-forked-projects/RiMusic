@@ -368,7 +368,7 @@
     <string name="add_folder">Add folder</string>
     <string name="this_folder_already_exists">This folder already exists.</string>
     <string name="are_you_sure_you_want_to_remove_this_folder_from_the_blacklist">Are you sure you want to remove this folder from the blacklist?</string>
-    <string name="player_appearance">Appearance</string>
+    <string name="player_appearance">Player Appearance</string>
     <string name="player_action_bar">PLAYER ACTION BAR</string>
     <string name="tab_data">Data</string>
     <string name="image_cache_max_size">Image cache max size</string>
@@ -425,14 +425,14 @@
     <string name="click_lyrics_text">Click lyrics text</string>
     <string name="folder_that_will_show_when_you_open_on_device_page">Folder that will show when you open On device page.</string>
     <string name="folder_was_not_found">Folder was not found</string>
-    <string name="direction_top">Top</string>
+    <string name="direction_top">Direction Top</string>
     <string name="pick_from">Pick from</string>
     <string name="download_cover">Download cover</string>
     <string name="menu_style">Menu style</string>
     <string name="style_grid">Grid</string>
     <string name="style_list">List</string>
     <string name="click_to_switch_to">Click to switch to</string>
-    <string name="direction_bottom">Bottom</string>
+    <string name="direction_bottom">Direction bottom</string>
     <string name="event_shake">Shake</string>
     <string name="shake_to_change_song">Shake to change song</string>
     <string name="history">History</string>
@@ -536,6 +536,12 @@
     <string name="title_reset_customized_dark_colors">Reset customized dark colors</string>
     <string name="click_to_reset_default_dark_colors">Click to reset default dark colors</string>
     <string name="info_color_s_applied">Color %s applied</string>
-    <string name="effect_crossfade_songs">Crossfade songs</string>
     <string name="time_seconds">seconds</string>
+    <string name="info_bookmark_album">Bookmark album</string>
+    <string name="effect_fade_songs">Fade songs</string>
+    <string name="bg_colors_fluid_gradient_background_from_theme">Fluid gradient background from theme</string>
+    <string name="bg_colors_fluid_gradient_background_from_cover">Fluid gradient background from cover</string>
+    <string name="show_background_in_lyrics">Show background color in Lyrics</string>
+    <string name="bg_colors_blurred_cover_background">Blurred cover background</string>
+    <string name="lang_estonian">Estonian</string>
 </resources>

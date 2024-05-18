@@ -3,6 +3,7 @@ package it.fast4x.rimusic.ui.screens.player
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
 import android.media.audiofx.AudioEffect
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,13 +19,16 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -65,12 +69,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -79,6 +86,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -95,6 +103,9 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.offline.Download
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import it.fast4x.rimusic.Database
 import it.fast4x.rimusic.LocalPlayerServiceBinder
 import it.fast4x.rimusic.R
@@ -123,14 +134,18 @@ import it.fast4x.rimusic.ui.components.themed.MiniPlayerMenu
 import it.fast4x.rimusic.ui.components.themed.PlayerMenu
 import it.fast4x.rimusic.ui.components.themed.SecondaryTextButton
 import it.fast4x.rimusic.ui.components.themed.SmartToast
+import it.fast4x.rimusic.ui.components.themed.animateBrushRotation
 import it.fast4x.rimusic.ui.styling.Dimensions
 import it.fast4x.rimusic.ui.styling.LocalAppearance
 import it.fast4x.rimusic.ui.styling.collapsedPlayerProgressBar
 import it.fast4x.rimusic.ui.styling.dynamicColorPaletteOf
 import it.fast4x.rimusic.ui.styling.favoritesOverlay
 import it.fast4x.rimusic.ui.styling.px
+import it.fast4x.rimusic.utils.BlurTransformation
 import it.fast4x.rimusic.utils.DisposableListener
 import it.fast4x.rimusic.utils.UiTypeKey
+import it.fast4x.rimusic.utils.audioFadeIn
+import it.fast4x.rimusic.utils.audioFadeOut
 import it.fast4x.rimusic.utils.backgroundProgressKey
 import it.fast4x.rimusic.utils.colorPaletteModeKey
 import it.fast4x.rimusic.utils.colorPaletteNameKey
@@ -140,17 +155,16 @@ import it.fast4x.rimusic.utils.disablePlayerHorizontalSwipeKey
 import it.fast4x.rimusic.utils.downloadedStateMedia
 import it.fast4x.rimusic.utils.durationTextToMillis
 import it.fast4x.rimusic.utils.effectRotationKey
+import it.fast4x.rimusic.utils.fadingEdge
 import it.fast4x.rimusic.utils.forceSeekToNext
 import it.fast4x.rimusic.utils.forceSeekToPrevious
 import it.fast4x.rimusic.utils.formatAsDuration
 import it.fast4x.rimusic.utils.formatAsTime
 import it.fast4x.rimusic.utils.getBitmapFromUrl
 import it.fast4x.rimusic.utils.getDownloadState
-import it.fast4x.rimusic.utils.getDynamicColorPaletteFromBitmap
-import it.fast4x.rimusic.utils.isGradientBackgroundEnabledKey
 import it.fast4x.rimusic.utils.isLandscape
 import it.fast4x.rimusic.utils.manageDownload
-import it.fast4x.rimusic.utils.playbackCrossfadeDurationKey
+import it.fast4x.rimusic.utils.playbackFadeDurationKey
 import it.fast4x.rimusic.utils.playerBackgroundColorsKey
 import it.fast4x.rimusic.utils.playerThumbnailSizeKey
 import it.fast4x.rimusic.utils.playerVisualizerTypeKey
@@ -170,8 +184,6 @@ import it.fast4x.rimusic.utils.showButtonPlayerSystemEqualizerKey
 import it.fast4x.rimusic.utils.showNextSongsInPlayerKey
 import it.fast4x.rimusic.utils.showTotalTimeQueueKey
 import it.fast4x.rimusic.utils.shuffleQueue
-import it.fast4x.rimusic.utils.startFadeIn
-import it.fast4x.rimusic.utils.startFadeOut
 import it.fast4x.rimusic.utils.thumbnail
 import it.fast4x.rimusic.utils.thumbnailTapEnabledKey
 import it.fast4x.rimusic.utils.trackLoopEnabledKey
@@ -218,6 +230,7 @@ fun Player(
     var disablePlayerHorizontalSwipe by rememberPreference(disablePlayerHorizontalSwipeKey, false)
 
     val (colorPalette, typography, thumbnailShape) = LocalAppearance.current
+
     val binder = LocalPlayerServiceBinder.current
 
     binder?.player ?: return
@@ -249,26 +262,26 @@ fun Player(
         PlayerVisualizerType.Disabled
     )
 
-    val playbackCrossfadeDuration by rememberPreference(playbackCrossfadeDurationKey, DurationInSeconds.Disabled)
-    var fadeInOut by remember { mutableStateOf(true) }
-    //var fade by remember { mutableStateOf(false) }
+    val playbackFadeDuration by rememberPreference(playbackFadeDurationKey, DurationInSeconds.Disabled)
+
+    val context = LocalContext.current
 
     binder.player.DisposableListener {
         object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 nullableMediaItem = mediaItem
                 //println("mediaItem onMediaItemTransition")
-                if (playbackCrossfadeDuration != DurationInSeconds.Disabled) {
+                if (playbackFadeDuration != DurationInSeconds.Disabled) {
                     binder.player.volume = 0f
-                    fadeInOut = true
+                    //println("mediaItem volume startFadeIn initial volume ${binder.player.volume}")
+                    audioFadeIn(binder.player, playbackFadeDuration.seconds, context)
                 }
             }
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 shouldBePlaying = binder.player.shouldBePlaying
                 //println("mediaItem onPlayWhenReadyChanged $playWhenReady")
-                //if (playbackCrossfadeDuration != DurationInSeconds.Disabled) {
-                //    fadeInOut = false
+                //if (playbackFadeDuration != DurationInSeconds.Disabled) {
                 //}
             }
 
@@ -282,41 +295,41 @@ fun Player(
     val mediaItem = nullableMediaItem ?: return
 
     val positionAndDuration by binder.player.positionAndDurationState()
+    var timeRemaining by remember { mutableIntStateOf(0) }
+    timeRemaining = positionAndDuration.second.toInt() - positionAndDuration.first.toInt()
+    //println("mediaItem timeRemaining $timeRemaining")
 
-
-    if (playbackCrossfadeDuration != DurationInSeconds.Disabled) {
+    if (playbackFadeDuration != DurationInSeconds.Disabled) {
         val songProgressFloat =
             ((positionAndDuration.first.toFloat() * 100) / positionAndDuration.second.absoluteValue)
                 .toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
         //val songProgressInt = songProgressFloat.toInt()
-        if (songProgressFloat in playbackCrossfadeDuration.fadeOutRange && !fadeInOut) {
+        if (songProgressFloat in playbackFadeDuration.fadeOutRange && binder.player.shouldBePlaying) {
+        //if (timeRemaining in playbackFadeDuration.fadeOutRange) {
             //println("mediaItem volume startFadeOut $fadeInOut")
-            fadeInOut = true
-            startFadeOut(binder, playbackCrossfadeDuration.seconds)
+            audioFadeOut(binder.player, playbackFadeDuration.seconds, context)
+            //fadeInOut = true
+            //startFadeOut(binder, playbackFadeDuration.seconds)
             //fade = !fade
         }
 
-        if (songProgressFloat <= 0.20 && fadeInOut) {
-            binder.player.volume = 0f
-            //println("mediaItem volume startFadeIn $fadeInOut")
-            fadeInOut = false
-            startFadeIn(binder, playbackCrossfadeDuration.seconds)
-            //fade = !fade
-        }
+
         /*
-        LaunchedEffect(fade) {
-            println("mediaItem launcheffect startFade")
-            startFade(binder, playbackCrossfadeDuration.seconds, fadeInOut)
+        if (songProgressFloat in playbackFadeDuration.fadeInRange && binder.player.shouldBePlaying) {
+            //binder.player.volume = 0f
+            println("mediaItem volume startFadeIn")
+            audioFadeIn(binder.player, playbackFadeDuration.seconds, context)
+            //fadeInOut = false
+            //startFadeIn(binder, playbackFadeDuration.seconds)
+            //fade = !fade
         }
          */
 
         //println("mediaItem positionAndDuration $positionAndDuration % ${(positionAndDuration.first.toInt()*100) / positionAndDuration.second.toInt()}")
-        //println("mediaItem progress float $songProgressFloat playbackCrossfadeDuration ${playbackCrossfadeDuration} $fadeInOut")
+        //println("mediaItem progress float $songProgressFloat playbackFadeDuration ${playbackFadeDuration} $fadeInOut")
     }
 
 
-    var timeRemaining by remember { mutableIntStateOf(0) }
-    timeRemaining = positionAndDuration.second.toInt() - positionAndDuration.first.toInt()
 
     val windowInsets = WindowInsets.systemBars
 
@@ -614,6 +627,93 @@ fun Player(
         mutableIntStateOf(0)
     }
 
+    var dynamicColorPalette by remember { mutableStateOf(colorPalette) }
+    val colorPaletteMode by rememberPreference(colorPaletteModeKey, ColorPaletteMode.Light)
+    val playerBackgroundColors by rememberPreference(playerBackgroundColorsKey, PlayerBackgroundColors.ThemeColor)
+    val isGradientBackgroundEnabled = playerBackgroundColors == PlayerBackgroundColors.ThemeColorGradient ||
+            playerBackgroundColors == PlayerBackgroundColors.CoverColorGradient ||
+            playerBackgroundColors == PlayerBackgroundColors.FluidThemeColorGradient ||
+            playerBackgroundColors == PlayerBackgroundColors.FluidCoverColorGradient
+
+    if (playerBackgroundColors == PlayerBackgroundColors.CoverColorGradient ||
+        playerBackgroundColors == PlayerBackgroundColors.CoverColor ||
+        playerBackgroundColors == PlayerBackgroundColors.FluidCoverColorGradient) {
+        val context = LocalContext.current
+        val isSystemDarkMode = isSystemInDarkTheme()
+        LaunchedEffect(mediaItem.mediaId) {
+            dynamicColorPalette = dynamicColorPaletteOf(
+                getBitmapFromUrl(
+                    context,
+                    binder.player.currentWindow?.mediaItem?.mediaMetadata?.artworkUri.toString()
+                ),
+                isSystemDarkMode,
+                colorPaletteMode == ColorPaletteMode.PitchBlack
+            ) ?: colorPalette
+        }
+    }
+
+   /*  */
+        var sizeShader by remember { mutableStateOf(Size.Zero) }
+
+        val shaderA = LinearGradientShader(
+            Offset(sizeShader.width / 2f, 0f),
+            Offset(sizeShader.width / 2f, sizeShader.height),
+            listOf(
+                dynamicColorPalette.background2,
+                colorPalette.background2,
+            ),
+            listOf(0f, 1f)
+        )
+
+        val shaderB = LinearGradientShader(
+            Offset(sizeShader.width / 2f, 0f),
+            Offset(sizeShader.width / 2f, sizeShader.height),
+            listOf(
+                colorPalette.background1,
+                dynamicColorPalette.accent,
+            ),
+            listOf(0f, 1f)
+        )
+
+        val shaderMask = LinearGradientShader(
+            Offset(sizeShader.width / 2f, 0f),
+            Offset(sizeShader.width / 2f, sizeShader.height),
+            listOf(
+                //Color.White,
+                colorPalette.background2,
+                Color.Transparent,
+            ),
+            listOf(0f, 1f)
+        )
+
+        val brushA by animateBrushRotation(shaderA, sizeShader, 20_000, true)
+        val brushB by animateBrushRotation(shaderB, sizeShader, 12_000, false)
+        val brushMask by animateBrushRotation(shaderMask, sizeShader, 15_000, true)
+    /*  */
+
+    val (thumbnailSizeDp, thumbnailSizePx) = Dimensions.thumbnails.player.song.let {
+        it to (it - 64.dp).px
+    }
+
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(mediaItem.mediaMetadata.artworkUri.thumbnail(
+                thumbnailSizePx
+            ))
+            .size(coil.size.Size.ORIGINAL)
+            .transformations(
+                listOf(
+                    BlurTransformation(
+                        scale = 0.5f,
+                        radius = 25
+                    )
+                )
+            )
+            .build()
+    )
+
+    //val imageState = painter.state
+
     /*
     OnGlobalRoute {
         layoutState.collapseSoft()
@@ -890,58 +990,62 @@ fun Player(
             layoutState.expandedBound
         )
 
-        val colorPaletteName by rememberPreference(colorPaletteNameKey, ColorPaletteName.ModernBlack)
-        val playerBackgroundColors by rememberPreference(playerBackgroundColorsKey, PlayerBackgroundColors.ThemeColor)
-        //val isGradientBackgroundEnabled by rememberPreference(isGradientBackgroundEnabledKey, false)
-        val isGradientBackgroundEnabled = playerBackgroundColors == PlayerBackgroundColors.ThemeColorGradient ||
-                playerBackgroundColors == PlayerBackgroundColors.CoverColorGradient
-        var dynamicColorPalette by remember{ mutableStateOf(colorPalette) }
-
-        if (colorPaletteName != ColorPaletteName.MaterialYou &&
-            (playerBackgroundColors == PlayerBackgroundColors.CoverColorGradient ||
-                    playerBackgroundColors== PlayerBackgroundColors.CoverColor)
-            ) {
-            val context = LocalContext.current
-            LaunchedEffect(mediaItem.mediaId) {
-                dynamicColorPalette = getDynamicColorPaletteFromBitmap(
-                    getBitmapFromUrl(
-                        context,
-                        binder.player.currentWindow?.mediaItem?.mediaMetadata?.artworkUri.toString()
-                    )
-                )
-            }
-        }
 
 
-        val containerModifier =
-            if (!isGradientBackgroundEnabled)
-                Modifier
-                    .background(
-                        dynamicColorPalette.background1
-                    )
-                    .padding(
-                        windowInsets
-                            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                            .asPaddingValues()
-                    )
-                    .padding(bottom = playerSheetState.collapsedBound)
-            else
-                Modifier
-                    //.clip(shape)
-                    .background(
-                        Brush.verticalGradient(
-                            0.0f to dynamicColorPalette.background0,
-                            1.0f to dynamicColorPalette.background2,
-                            startY = 0.0f,
-                            endY = 1500.0f
+
+        var containerModifier = Modifier
+            /*
+            .padding(
+                windowInsets
+                    .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                    .asPaddingValues()
+            )
+             */
+            .padding(bottom = playerSheetState.collapsedBound)
+
+            if (!isGradientBackgroundEnabled) {
+                if (playerBackgroundColors == PlayerBackgroundColors.BlurredCoverColor) {
+                    containerModifier = containerModifier
+                        .background(dynamicColorPalette.background1)
+                        .paint(painter = painter, contentScale = ContentScale.Crop, sizeToIntrinsics = false)
+                } else {
+                    containerModifier = containerModifier
+                        .background(
+                            dynamicColorPalette.background1
+                            //colorPalette.background1
                         )
-                    )
-                    .padding(
-                        windowInsets
-                            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                            .asPaddingValues()
-                    )
-                    .padding(bottom = playerSheetState.collapsedBound)
+                }
+            } else {
+                when (playerBackgroundColors) {
+                    PlayerBackgroundColors.FluidThemeColorGradient,
+                    PlayerBackgroundColors.FluidCoverColorGradient -> {
+                        containerModifier = containerModifier
+                            .onSizeChanged {
+                                sizeShader = Size(it.width.toFloat(), it.height.toFloat())
+                            }
+                            .drawBehind {
+                                drawRect(brush = brushA)
+                                drawRect(brush = brushMask, blendMode = BlendMode.DstOut)
+                                drawRect(brush = brushB, blendMode = BlendMode.DstAtop)
+                            }
+                    }
+                    else -> {
+                        containerModifier = containerModifier
+                            .background(
+                                Brush.verticalGradient(
+                                    0.5f to dynamicColorPalette.background2,
+                                    1.0f to colorPalette.background2,
+                                    //0.0f to colorPalette.background0,
+                                    //1.0f to colorPalette.background2,
+                                    startY = 0.0f,
+                                    endY = 1500.0f
+                                )
+                            )
+
+                    }
+                }
+
+            }
 
         val thumbnailContent: @Composable (modifier: Modifier) -> Unit = { modifier ->
             var deltaX by remember { mutableStateOf(0f) }
@@ -1118,10 +1222,11 @@ fun Player(
             var deltaX by remember { mutableStateOf(0f) }
             var direction by remember { mutableStateOf(-1)}
              */
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = containerModifier
-                    .padding(top = 10.dp)
+                    //.padding(top = 10.dp)
                     .drawBehind {
                         if (backgroundProgress == BackgroundProgress.Both || backgroundProgress == BackgroundProgress.Player) {
                             drawRect(
@@ -1135,6 +1240,7 @@ fun Player(
                             )
                         }
                     }
+
                     /*
                     .pointerInput(Unit) {
                         detectHorizontalDragGestures(
@@ -1171,6 +1277,11 @@ fun Player(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
+                            .padding(
+                                windowInsets
+                                    .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                                    .asPaddingValues()
+                            )
                             .fillMaxWidth(0.9f)
                             .height(30.dp)
                     ) {
@@ -1216,19 +1327,6 @@ fun Player(
                                 .size(24.dp)
 
                         )
-                        /*
-                        IconButton(
-                            icon = R.drawable.app_icon,
-                            color = colorPalette.text,
-                            enabled = true,
-                            onClick = {
-                                onGoToHome()
-                            },
-                            modifier = Modifier
-                                //.padding(horizontal = 4.dp)
-                                .size(24.dp)
-                        )
-                         */
 
                         if(!showButtonPlayerMenu)
                             Image(

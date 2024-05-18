@@ -1429,10 +1429,10 @@ fun LocalPlaylistSongs(
                 leftActionsContent = {
                     if (!reorderingState.isDragging)
                         LeftAction(
-                            icon = R.drawable.enqueue,
+                            icon = R.drawable.play_skip_forward,
                             backgroundColor = Color.Transparent, //colorPalette.background4,
                             onClick = {
-                                binder?.player?.enqueue( song.asMediaItem )
+                                binder?.player?.addNext( song.asMediaItem )
                             }
                         )
                 },

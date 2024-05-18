@@ -12,7 +12,7 @@ enum class PlayerPlayButtonType {
             Default, Disabled -> 60
             Rectangular -> 70
             CircularRibbed -> 100
-            Square -> 75
+            Square -> 80
         }
 
     val width: Int
@@ -20,7 +20,7 @@ enum class PlayerPlayButtonType {
             Default, Disabled -> 60
             Rectangular -> 110
             CircularRibbed -> 100
-            Square -> 75
+            Square -> 80
 
         }
 }

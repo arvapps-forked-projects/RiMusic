@@ -9,6 +9,7 @@ enum class Languages {
     Danish,
     English,
     Esperanto,
+    Estonian,
     ChineseSimplified,
     ChineseTraditional,
     Czech,
@@ -55,6 +56,7 @@ enum class Languages {
             Dutch -> "nl"
             English -> "en"
             Esperanto -> "eo"
+            Estonian -> "et"
             Finnish -> "fi"
             Italian -> "it"
             Indonesian -> "in"
