@@ -442,10 +442,10 @@
     <string name="by_casual_played_song">By Casual played song</string>
     <string name="theme_material_you">Material You</string>
     <string name="show_statistics_in_navigation_bar">Show statistics in navigation bar</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Inställningar</string>
     <string name="page_not_been_loaded">The page has not been loaded correctly, try to refresh the page.</string>
     <string name="sorry_tips_are_not_available">Sorry, tips are not available for now.</string>
-    <string name="library_collections">Collections</string>
+    <string name="library_collections">Samlingar</string>
     <string name="info_show_hide_hidden_songs">Show/hide hidden songs</string>
     <string name="info_shuffle">Shuffle</string>
     <string name="info_includes_excludes_songs_on_the_device">Includes/Excludes songs on the device</string>
@@ -453,7 +453,7 @@
     <string name="info_download_all_songs">Download all songs</string>
     <string name="info_remove_all_downloaded_songs">Remove all downloaded songs</string>
     <string name="info_start_radio">Start radio</string>
-    <string name="info_translation">Translation</string>
+    <string name="info_translation">Översättning</string>
     <string name="info_find_the_song_that_is_playing">Find the song that is playing</string>
     <string name="info_smart_recommendation">Smart recommendation</string>
     <string name="info_clean_cached_congs">Clean cached congs</string>

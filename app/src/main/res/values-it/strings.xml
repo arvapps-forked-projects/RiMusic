@@ -179,7 +179,7 @@
     <string name="romanian">Rumeno</string>
     <string name="russian">Russo</string>
     <string name="turkish">Turco</string>
-    <string name="polish">Polish</string>
+    <string name="polish">Polacco (Polski)</string>
     <string name="dark">Scuro</string>
     <string name="system">Sistema</string>
     <string name="unlimited">Illimitato</string>
@@ -537,11 +537,11 @@
     <string name="click_to_reset_default_dark_colors">Clicca per resettare i colori scuri predefiniti</string>
     <string name="info_color_s_applied">Colore %s applicato</string>
     <string name="time_seconds">secondi</string>
-    <string name="info_bookmark_album">Bookmark album</string>
-    <string name="effect_fade_songs">Fade songs</string>
-    <string name="bg_colors_fluid_gradient_background_from_theme">Fluid gradient background from theme</string>
-    <string name="bg_colors_fluid_gradient_background_from_cover">Fluid gradient background from cover</string>
-    <string name="show_background_in_lyrics">Show background color in Lyrics</string>
-    <string name="bg_colors_blurred_cover_background">Blurred cover background</string>
-    <string name="lang_estonian">Estonian</string>
+    <string name="info_bookmark_album">Segnalibro album</string>
+    <string name="effect_fade_songs">Dissolvenza canzoni</string>
+    <string name="bg_colors_fluid_gradient_background_from_theme">Sfondo gradiente fluido dal tema</string>
+    <string name="bg_colors_fluid_gradient_background_from_cover">Sfondo gradiente fluido dalla copertina</string>
+    <string name="show_background_in_lyrics">Mostra colore di sfondo nel Testo</string>
+    <string name="bg_colors_blurred_cover_background">Sfondo copertina sfocata</string>
+    <string name="lang_estonian">Estone</string>
 </resources>

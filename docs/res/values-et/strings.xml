@@ -14,5 +14,5 @@
     <string name="repository">Hoidla</string>
     <string name="releases">Väljalasked</string>
     <string name="issue_tracker">Vigade jälgija</string>
-    <string name="custom_version">Custom version</string>
+    <string name="custom_version">Kohandatud versioon</string>
 </resources>

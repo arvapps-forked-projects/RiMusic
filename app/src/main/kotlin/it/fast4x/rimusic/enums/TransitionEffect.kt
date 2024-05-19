@@ -5,5 +5,6 @@ enum class TransitionEffect {
     SlideHorizontal,
     Scale,
     Fade,
-    Expand
+    Expand,
+    None,
 }

@@ -3,6 +3,8 @@ package it.fast4x.rimusic.ui.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -174,6 +176,7 @@ fun ScaffoldTB(
                 targetState = tabIndex,
                 transitionSpec = {
                     when (transitionEffect) {
+                        TransitionEffect.None-> EnterTransition.None togetherWith ExitTransition.None
                         TransitionEffect.Expand -> expandIn(animationSpec = tween(350, easing = LinearOutSlowInEasing), expandFrom = Alignment.TopStart).togetherWith(
                             shrinkOut(animationSpec = tween(350, easing = FastOutSlowInEasing),shrinkTowards = Alignment.TopStart)
                         )

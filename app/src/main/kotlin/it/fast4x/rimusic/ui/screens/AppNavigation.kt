@@ -1,6 +1,8 @@
 package it.fast4x.rimusic.ui.screens
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -97,6 +99,7 @@ fun AppNavigation(
         startDestination = NavRoutes.home.name,
         enterTransition = {
             when (transitionEffect) {
+                TransitionEffect.None -> EnterTransition.None
                 TransitionEffect.Expand -> expandIn(animationSpec = tween(350, easing = LinearOutSlowInEasing), expandFrom = Alignment.TopStart)
                 TransitionEffect.Fade -> fadeIn(animationSpec = tween(350))
                 TransitionEffect.Scale -> scaleIn(animationSpec = tween(350))
@@ -106,6 +109,7 @@ fun AppNavigation(
         },
         exitTransition = {
             when (transitionEffect) {
+                TransitionEffect.None -> ExitTransition.None
                 TransitionEffect.Expand -> shrinkOut(animationSpec = tween(350, easing = FastOutSlowInEasing),shrinkTowards = Alignment.TopStart)
                 TransitionEffect.Fade -> fadeOut(animationSpec = tween(350))
                 TransitionEffect.Scale -> scaleOut(animationSpec = tween(350))
@@ -115,6 +119,7 @@ fun AppNavigation(
         },
         popEnterTransition = {
             when (transitionEffect) {
+                TransitionEffect.None -> EnterTransition.None
                 TransitionEffect.Expand -> expandIn(animationSpec = tween(350, easing = LinearOutSlowInEasing), expandFrom = Alignment.TopStart)
                 TransitionEffect.Fade -> fadeIn(animationSpec = tween(350))
                 TransitionEffect.Scale -> scaleIn(animationSpec = tween(350))
@@ -124,6 +129,7 @@ fun AppNavigation(
         },
         popExitTransition = {
             when (transitionEffect) {
+                TransitionEffect.None -> ExitTransition.None
                 TransitionEffect.Expand -> shrinkOut(animationSpec = tween(350, easing = FastOutSlowInEasing),shrinkTowards = Alignment.TopStart)
                 TransitionEffect.Fade -> fadeOut(animationSpec = tween(350))
                 TransitionEffect.Scale -> scaleOut(animationSpec = tween(350))

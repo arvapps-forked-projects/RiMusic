@@ -539,11 +539,11 @@
     <string name="click_to_reset_default_dark_colors">Cliquez pour réinitialiser les couleurs sombres par défaut</string>
     <string name="info_color_s_applied">Couleurs %s appliquées</string>
     <string name="time_seconds">secondes</string>
-    <string name="info_bookmark_album">Bookmark album</string>
-    <string name="effect_fade_songs">Fade songs</string>
-    <string name="bg_colors_fluid_gradient_background_from_theme">Fluid gradient background from theme</string>
-    <string name="bg_colors_fluid_gradient_background_from_cover">Fluid gradient background from cover</string>
-    <string name="show_background_in_lyrics">Show background color in Lyrics</string>
-    <string name="bg_colors_blurred_cover_background">Blurred cover background</string>
-    <string name="lang_estonian">Estonian</string>
+    <string name="info_bookmark_album">Marquer l\'album</string>
+    <string name="effect_fade_songs">Fondu des titres</string>
+    <string name="bg_colors_fluid_gradient_background_from_theme">Fond de gradient fluide à partir du thème</string>
+    <string name="bg_colors_fluid_gradient_background_from_cover">Fond de gradient fluide à partir de la pochette d\'album</string>
+    <string name="show_background_in_lyrics">Afficher la couleur d\'arrière-plan dans les paroles</string>
+    <string name="bg_colors_blurred_cover_background">Arrière-plan de la pochette d\'album floue</string>
+    <string name="lang_estonian">Estonien (eesti keel)</string>
 </resources>

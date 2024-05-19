@@ -1084,6 +1084,7 @@ fun  UiSettings() {
                 onValueSelected = { transitionEffect = it },
                 valueText = {
                     when (it) {
+                        TransitionEffect.None -> stringResource(R.string.none)
                         TransitionEffect.Expand -> stringResource(R.string.te_expand)
                         TransitionEffect.Fade -> stringResource(R.string.te_fade)
                         TransitionEffect.Scale -> stringResource(R.string.te_scale)

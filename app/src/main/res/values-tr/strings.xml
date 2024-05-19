@@ -537,11 +537,11 @@
     <string name="click_to_reset_default_dark_colors">Varsayılan karanlık renkleri sıfırlamak için tıkla</string>
     <string name="info_color_s_applied">%s renk uygulandı</string>
     <string name="time_seconds">saniye</string>
-    <string name="info_bookmark_album">Bookmark album</string>
-    <string name="effect_fade_songs">Fade songs</string>
-    <string name="bg_colors_fluid_gradient_background_from_theme">Fluid gradient background from theme</string>
-    <string name="bg_colors_fluid_gradient_background_from_cover">Fluid gradient background from cover</string>
-    <string name="show_background_in_lyrics">Show background color in Lyrics</string>
-    <string name="bg_colors_blurred_cover_background">Blurred cover background</string>
+    <string name="info_bookmark_album">Albüme yer imi koy</string>
+    <string name="effect_fade_songs">Şarkıları sesi azaltarak bitir</string>
+    <string name="bg_colors_fluid_gradient_background_from_theme">Temadan akışkan gradyan arka plan</string>
+    <string name="bg_colors_fluid_gradient_background_from_cover">Kapaktan akışkan gradyan arka plan</string>
+    <string name="show_background_in_lyrics">Şarkı sözlerinde arka plan rengini göster</string>
+    <string name="bg_colors_blurred_cover_background">Bulanık kapak arka plan</string>
     <string name="lang_estonian">Estonian</string>
 </resources>
