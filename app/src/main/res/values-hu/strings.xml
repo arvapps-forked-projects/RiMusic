@@ -435,10 +435,10 @@
     <string name="direction_bottom">Alulra</string>
     <string name="event_shake">Rázás</string>
     <string name="shake_to_change_song">Rázd meg dalváltáshoz</string>
-    <string name="history">History</string>
-    <string name="yesterday">Yesterday</string>
-    <string name="this_week">This week</string>
-    <string name="last_week">Last week</string>
+    <string name="history">Előzmények</string>
+    <string name="yesterday">Tegnap</string>
+    <string name="this_week">Ezen a héten</string>
+    <string name="last_week">Előző héten</string>
     <string name="by_casual_played_song">By Casual played song</string>
     <string name="theme_material_you">Material You</string>
     <string name="show_statistics_in_navigation_bar">Show statistics in navigation bar</string>
