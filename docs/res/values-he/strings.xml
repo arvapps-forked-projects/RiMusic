@@ -8,11 +8,11 @@
     <string name="many_effects">אפקטים רבים.</string>
     <string name="visualizer_preview_timeline">Visualizer, preview, timeline, play button, apply the effects you prefer..</string>
     <string name="modern">מודרני.</string>
-    <string name="rimusic_is_multilingual_modern_powerful">RiMusic is multilingual, modern, powerful, attractive, beautiful and is translated into various languages by project collaborators.</string>
-    <string name="listen_to_your_favourite_music">Listen to your favorite music</string>
-    <string name="download_rimusic_now">Download RiMusic Now.</string>
-    <string name="repository">Repository</string>
-    <string name="releases">Releases</string>
-    <string name="issue_tracker">Issue tracker</string>
-    <string name="custom_version">Custom version</string>
+    <string name="rimusic_is_multilingual_modern_powerful">RiMusic היא רב לשונית, מודרנית, עוצמתית, מושכת, יפה ומתורגמת לשפות שונות על ידי משתפי פעולה בפרויקט.</string>
+    <string name="listen_to_your_favourite_music">האזן למוזיקה האהובה עליך</string>
+    <string name="download_rimusic_now">הורד את RiMusic עכשיו.</string>
+    <string name="repository">מאגר</string>
+    <string name="releases">משחרר</string>
+    <string name="issue_tracker">בעיות ידועות</string>
+    <string name="custom_version">גרסה מותאמת אישית</string>
 </resources>

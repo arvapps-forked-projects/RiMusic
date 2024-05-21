@@ -95,11 +95,11 @@
     <string name="history_is_empty">Ajalugu on tühi</string>
     <string name="service_lifetime">TEENUSE ELUIGA</string>
     <string name="battery_optimizations_applied">Kui aku optimeerimine on rakendatud, siis võib pausile pannes taasesituse teavitus järsku kaduda.</string>
-    <string name="is_android12">Since Android 12, disabling battery optimizations is required for the \"Invincible service\" option to take effect.</string>
+    <string name="is_android12">Alates Android 12 on vaja \"Kõikvõimsa teenuse\" töötamiseks, keelata aku optimeerimine.</string>
     <string name="ignore_battery_optimizations">Eira aku optimiseerimist</string>
     <string name="already_unrestricted">Juba on piiramatu</string>
     <string name="disable_background_restrictions">Keela tausta piirangud</string>
-    <string name="invincible_service">Invincible service</string>
+    <string name="invincible_service">Kõikvõimas teenus</string>
     <string name="turning_off_battery_optimizations_is_not_enough">Kui aku optimeerimise välja lülitamisest ei piisa</string>
     <string name="player">Pleier</string>
     <string name="persistent_queue">Püsiv järjekord</string>
@@ -194,7 +194,7 @@
     <string name="new_albums">Uued albumid</string>
     <string name="moods_and_genres">Meeleolud ja žanrid</string>
     <string name="search_queries">" otsingu päringud"</string>
-    <string name="not_find_battery_optimization_settings">Couldn\'t find battery optimization settings, please whitelist manually</string>
+    <string name="not_find_battery_optimization_settings">Ei leidnud aku optimeerimise sätteid, lisage käsitsi</string>
     <string name="search">Otsing</string>
     <string name="no">Ei</string>
     <string name="stop">Peata</string>
@@ -407,7 +407,7 @@
     <string name="use_gradient_background">Kasuta gradiendi tausta</string>
     <string name="show_total_time_of_queue">Kuva järjekorra kogu kestus</string>
     <string name="lang_telugu">Telugu</string>
-    <string name="media_permission_required_please_grant">Media permission required, please grant.</string>
+    <string name="media_permission_required_please_grant">Meedia ligipääsu on vaja, palun andke.</string>
     <string name="open_permission_settings">Ava lubade sätted</string>
     <string name="background_progress_bar">Tausta edenemisriba</string>
     <string name="minimized_player">Minimeeritud pleier</string>
@@ -521,7 +521,7 @@
     <string name="info_reset_custom_dark_theme_colors">Lähtesta kohandatud tumeda teema värvid</string>
     <string name="title_customized_light_theme_colors">Kohandatud heleda teema värvid</string>
     <string name="title_reset_customized_light_colors">Lähtesta kohandatud heledad värvid</string>
-    <string name="info_click_to_reset_default_light_colors">Click to reset default light colors</string>
+    <string name="info_click_to_reset_default_light_colors">Klõpsa vaikimisi heledate värvide lähetamiseks</string>
     <string name="color_background_1">Taust 1</string>
     <string name="color_background_2">Taust 2</string>
     <string name="color_background_3">Taust 3</string>
