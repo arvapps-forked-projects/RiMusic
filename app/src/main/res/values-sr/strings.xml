@@ -537,11 +537,11 @@
     <string name="click_to_reset_default_dark_colors">Кликните да бисте ресетовали подразумеване тамне боје</string>
     <string name="info_color_s_applied">Боја %s је примењена</string>
     <string name="time_seconds">секунде</string>
-    <string name="info_bookmark_album">Bookmark album</string>
-    <string name="effect_fade_songs">Fade songs</string>
-    <string name="bg_colors_fluid_gradient_background_from_theme">Fluid gradient background from theme</string>
-    <string name="bg_colors_fluid_gradient_background_from_cover">Fluid gradient background from cover</string>
-    <string name="show_background_in_lyrics">Show background color in Lyrics</string>
-    <string name="bg_colors_blurred_cover_background">Blurred cover background</string>
-    <string name="lang_estonian">Estonian</string>
+    <string name="info_bookmark_album">Означи албум</string>
+    <string name="effect_fade_songs">Утишај крај песме</string>
+    <string name="bg_colors_fluid_gradient_background_from_theme">Флуидна прелазна боја позадине из теме</string>
+    <string name="bg_colors_fluid_gradient_background_from_cover">Флуидна прелазна боја позадине из омота</string>
+    <string name="show_background_in_lyrics">Прикажи боју позадине у Стиховима</string>
+    <string name="bg_colors_blurred_cover_background">Замућена позадина омота</string>
+    <string name="lang_estonian">Естонски</string>
 </resources>
