@@ -84,6 +84,7 @@ const val PINNED_PREFIX = "pinned:"
 fun HomeScreen(
     navController: NavController,
     onPlaylistUrl: (String) -> Unit,
+    playerEssential: @Composable () -> Unit = {},
     openTabFromShortcut: Int
 ) {
     var showNewversionDialog by remember {
@@ -227,6 +228,7 @@ fun HomeScreen(
 
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.settings,
                 onTopIconButtonClick = {
                     //settingsRoute()
@@ -270,7 +272,7 @@ fun HomeScreen(
                     Item(1, stringResource(R.string.songs), R.drawable.musical_notes)
                     Item(2, stringResource(R.string.artists), R.drawable.artists)
                     Item(3, stringResource(R.string.albums), R.drawable.album)
-                    Item(4, stringResource(R.string.library), R.drawable.library)
+                    Item(4, stringResource(R.string.playlists), R.drawable.library)
                     //Item(5, stringResource(R.string.discovery), R.drawable.megaphone)
                     //if (showSearchTab)
                     //Item(6, stringResource(R.string.search), R.drawable.search)
@@ -280,7 +282,7 @@ fun HomeScreen(
             ) { currentTabIndex ->
                 saveableStateHolder.SaveableStateProvider(key = currentTabIndex) {
                     when (currentTabIndex) {
-                        0 -> QuickPicks(
+                        0 -> QuickPicksModern(
                             onAlbumClick = {
                                 //albumRoute(it)
                                 navController.navigate(route = "${NavRoutes.album.name}/$it")
@@ -318,7 +320,7 @@ fun HomeScreen(
 
                         )
 
-                        1 -> HomeSongs(
+                        1 -> HomeSongsModern(
                             navController = navController,
                             onSearchClick = {
                                 //searchRoute("")
@@ -330,7 +332,7 @@ fun HomeScreen(
                             }
                         )
 
-                        2 -> HomeArtistList(
+                        2 -> HomeArtistsModern(
                             onArtistClick = {
                                 //artistRoute(it.id)
                                 navController.navigate(route = "${NavRoutes.artist.name}/${it.id}")
@@ -345,7 +347,7 @@ fun HomeScreen(
                             }
                         )
 
-                        3 -> HomeAlbums(
+                        3 -> HomeAlbumsModern(
                             onAlbumClick = {
                                 //albumRoute(it.id)
                                 navController.navigate(route = "${NavRoutes.album.name}/${it.id}")
@@ -360,7 +362,7 @@ fun HomeScreen(
                             }
                         )
 
-                        4 -> HomeLibrary(
+                        4 -> HomeLibraryModern(
                             onBuiltInPlaylist = {
                                 //builtInPlaylistRoute(it)
                                 navController.navigate(route = "${NavRoutes.builtInPlaylist.name}/${it.ordinal}")

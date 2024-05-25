@@ -35,7 +35,8 @@ import it.fast4x.rimusic.utils.showSearchTabKey
 @Composable
 fun LocalPlaylistScreen(
     navController: NavController,
-    playlistId: Long
+    playlistId: Long,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
     val showSearchTab by rememberPreference(showSearchTabKey, false)
@@ -47,6 +48,7 @@ fun LocalPlaylistScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

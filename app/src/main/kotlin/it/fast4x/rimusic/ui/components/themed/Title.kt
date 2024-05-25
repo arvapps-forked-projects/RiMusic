@@ -66,3 +66,25 @@ fun Title(
         }
     }
 }
+
+@Composable
+fun TitleSection(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    val (colorPalette, typography) = LocalAppearance.current
+
+    Text(
+        text = title,
+        style = TextStyle(
+            fontSize = typography.xl.bold.fontSize,
+            fontWeight = typography.xl.bold.fontWeight,
+            color = colorPalette.text,
+            textAlign = TextAlign.Start
+        ),
+        modifier = modifier.padding(end = 12.dp)
+
+    )
+
+
+}

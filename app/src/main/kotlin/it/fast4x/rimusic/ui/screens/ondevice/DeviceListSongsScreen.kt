@@ -59,7 +59,8 @@ import it.fast4x.rimusic.utils.showSearchTabKey
 @Composable
 fun DeviceListSongsScreen(
     navController: NavController,
-    deviceLists: DeviceLists
+    deviceLists: DeviceLists,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
 
@@ -120,6 +121,7 @@ fun DeviceListSongsScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

@@ -145,8 +145,11 @@ const val showMonthlyPlaylistInQuickPicksKey = "showMonthlyPlaylistInQuickPicks"
 const val showMonthlyPlaylistInLibraryKey = "showMonthlyPlaylistInLibrary"
 const val enableQuickPicksPageKey = "enableQuickPicksPage"
 const val playerBackgroundColorsKey = "playerBackgroundColors"
+const val playerControlsTypeKey = "playerControlsType"
 const val enableCreateMonthlyPlaylistsKey = "enableCreateMonthlyPlaylists"
 const val autoShuffleKey = "autoShuffle"
+const val builtInPlaylistKey = "builtInPlaylist"
+const val playlistTypeKey = "playlistType"
 /**** CUSTOM THEME **** */
 const val customThemeLight_Background0Key = "customThemeLight_Background0"
 const val customThemeLight_Background1Key = "customThemeLight_Background1"
@@ -172,6 +175,7 @@ const val customThemeDark_accentKey = "customThemeDark_accent"
 /**** CUSTOM THEME **** */
 
 const val parentalControlEnabledKey = "parentalControlEnabled"
+const val playerPositionKey = "playerPosition"
 
 inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,

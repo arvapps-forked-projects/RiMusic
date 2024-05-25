@@ -26,7 +26,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -134,7 +134,7 @@ fun OnlineSearch(
         if (isPlaylistUrl) textFieldValue.text.toUri().getQueryParameter("list") else null
     }
 
-    val rippleIndication = rememberRipple(bounded = false)
+    val rippleIndication = ripple(bounded = false)
     val timeIconPainter = painterResource(R.drawable.search_circle)
     val closeIconPainter = painterResource(R.drawable.trash)
     val arrowForwardIconPainter = painterResource(R.drawable.arrow_forward)

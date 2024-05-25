@@ -77,6 +77,7 @@ import it.fast4x.rimusic.utils.searchResultScreenTabIndexKey
 @Composable
 fun SearchResultScreen(
     navController: NavController,
+    playerEssential: @Composable () -> Unit = {},
     query: String, onSearchAgain: () -> Unit
 ) {
     val context = LocalContext.current
@@ -112,6 +113,7 @@ fun SearchResultScreen(
             val uiType  by rememberPreference(UiTypeKey, UiType.RiMusic)
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

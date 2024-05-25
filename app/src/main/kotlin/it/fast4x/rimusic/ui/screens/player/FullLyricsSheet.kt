@@ -98,9 +98,7 @@ fun FullLyricsSheet(
 
     binder?.player?.DisposableListener {
         object : Player.Listener {
-            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-
-            }
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {}
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 shouldBePlaying = binder.player.shouldBePlaying
@@ -293,7 +291,7 @@ fun FullLyricsSheet(
                                     }
                                 },
                                 modifier = Modifier
-                                    .fillMaxHeight(0.9f)
+                                    .fillMaxHeight(0.98f)
 
                             )
                         }

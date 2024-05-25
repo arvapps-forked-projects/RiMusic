@@ -74,6 +74,7 @@ import it.fast4x.rimusic.enums.NavigationBarPosition
 import it.fast4x.rimusic.enums.NavigationBarType
 import it.fast4x.rimusic.enums.PauseBetweenSongs
 import it.fast4x.rimusic.enums.PlayerPlayButtonType
+import it.fast4x.rimusic.enums.PlayerPosition
 import it.fast4x.rimusic.enums.PlayerThumbnailSize
 import it.fast4x.rimusic.enums.PlayerTimelineType
 import it.fast4x.rimusic.enums.PlayerVisualizerType
@@ -149,6 +150,7 @@ import it.fast4x.rimusic.utils.pauseBetweenSongsKey
 import it.fast4x.rimusic.utils.persistentQueueKey
 import it.fast4x.rimusic.utils.playbackFadeDurationKey
 import it.fast4x.rimusic.utils.playerPlayButtonTypeKey
+import it.fast4x.rimusic.utils.playerPositionKey
 import it.fast4x.rimusic.utils.playerThumbnailSizeKey
 import it.fast4x.rimusic.utils.playerTimelineTypeKey
 import it.fast4x.rimusic.utils.playerVisualizerTypeKey
@@ -308,6 +310,7 @@ fun  UiSettings() {
     var resetCustomLightThemeDialog by rememberSaveable { mutableStateOf(false) }
     var resetCustomDarkThemeDialog by rememberSaveable { mutableStateOf(false) }
     var playbackFadeDuration by rememberPreference(playbackFadeDurationKey, DurationInSeconds.Disabled)
+    var playerPosition by rememberPreference(playerPositionKey, PlayerPosition.Bottom)
 
 
     Column(
@@ -1046,6 +1049,19 @@ fun  UiSettings() {
                 }
             )
 
+        if (filter.isNullOrBlank() || stringResource(R.string.player_position).contains(filterCharSequence,true))
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(R.string.player_position),
+                selectedValue = playerPosition,
+                onValueSelected = { playerPosition = it },
+                valueText = {
+                    when (it) {
+                        PlayerPosition.Top -> stringResource(R.string.position_top)
+                        PlayerPosition.Bottom -> stringResource(R.string.position_bottom)
+                    }
+                }
+            )
+
         if (filter.isNullOrBlank() || stringResource(R.string.menu_style).contains(filterCharSequence,true))
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.menu_style),
@@ -1161,6 +1177,7 @@ fun  UiSettings() {
                 onCheckedChange = { applyFontPadding = it }
             )
 
+        /*
         if (filter.isNullOrBlank() || stringResource(R.string.swipe_to_action).contains(filterCharSequence,true))
             SwitchSettingEntry(
                 title = stringResource(R.string.swipe_to_action),
@@ -1168,9 +1185,10 @@ fun  UiSettings() {
                 isChecked = isSwipeToActionEnabled,
                 onCheckedChange = { isSwipeToActionEnabled = it }
             )
+         */
 
         SettingsGroupSpacer()
-        SettingsEntryGroupText(title = stringResource(R.string.library).uppercase())
+        SettingsEntryGroupText(title = stringResource(R.string.songs).uppercase())
 
         if (filter.isNullOrBlank() || "${stringResource(R.string.show)} ${stringResource(R.string.favorites)}".contains(filterCharSequence,true))
             SwitchSettingEntry(
@@ -1207,6 +1225,11 @@ fun  UiSettings() {
                 isChecked = showOnDevicePlaylist,
                 onCheckedChange = { showOnDevicePlaylist = it }
             )
+
+        /*
+        SettingsGroupSpacer()
+        SettingsEntryGroupText(title = stringResource(R.string.playlists).uppercase())
+
         if (filter.isNullOrBlank() || "${stringResource(R.string.show)} ${stringResource(R.string.playlists)}".contains(filterCharSequence,true))
             SwitchSettingEntry(
                 title = "${stringResource(R.string.show)} ${stringResource(R.string.playlists)}",
@@ -1221,6 +1244,7 @@ fun  UiSettings() {
                 isChecked = showMonthlyPlaylistInLibrary,
                 onCheckedChange = { showMonthlyPlaylistInLibrary = it }
             )
+         */
 
         SettingsGroupSpacer()
         SettingsEntryGroupText(stringResource(R.string.monthly_playlists).uppercase())

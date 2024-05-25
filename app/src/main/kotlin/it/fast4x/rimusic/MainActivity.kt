@@ -31,18 +31,36 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material.ripple.RippleTheme
+//import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalRippleConfiguration
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RippleConfiguration
+import androidx.compose.material3.Surface
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -67,6 +85,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -111,13 +130,17 @@ import it.fast4x.rimusic.enums.TransitionEffect
 import it.fast4x.rimusic.service.DownloadUtil
 import it.fast4x.rimusic.service.PlayerService
 import it.fast4x.rimusic.ui.components.BottomSheetMenu
+import it.fast4x.rimusic.ui.components.CustomModalBottomSheet
 import it.fast4x.rimusic.ui.components.LocalMenuState
 import it.fast4x.rimusic.ui.components.themed.SmartToast
+import it.fast4x.rimusic.ui.components.themed.TitleSection
 import it.fast4x.rimusic.ui.screens.AppNavigation
 import it.fast4x.rimusic.ui.screens.albumRoute
 import it.fast4x.rimusic.ui.screens.artistRoute
 import it.fast4x.rimusic.ui.screens.home.HomeScreen
 import it.fast4x.rimusic.ui.screens.player.Player
+import it.fast4x.rimusic.ui.screens.player.PlayerEssential
+import it.fast4x.rimusic.ui.screens.player.PlayerModern
 import it.fast4x.rimusic.ui.screens.player.PlayerSheetState
 import it.fast4x.rimusic.ui.screens.player.rememberPlayerSheetState
 import it.fast4x.rimusic.ui.screens.playlistRoute
@@ -321,7 +344,8 @@ class MainActivity :
     }
 
     @OptIn(ExperimentalTextApi::class,
-        ExperimentalFoundationApi::class, ExperimentalAnimationApi::class
+        ExperimentalFoundationApi::class, ExperimentalAnimationApi::class,
+        ExperimentalMaterial3Api::class
     )
     fun startApp() {
 
@@ -392,6 +416,7 @@ class MainActivity :
             val coroutineScope = rememberCoroutineScope()
             val isSystemInDarkTheme = isSystemInDarkTheme()
             val navController = rememberNavController()
+            var showPlayer by rememberSaveable { mutableStateOf(false) }
 
             preferences.getEnum(audioQualityFormatKey, AudioQualityFormat.Auto)
 
@@ -646,8 +671,10 @@ class MainActivity :
                 }
             }
 
-            val rippleTheme =
+            val rippleConfiguration =
                 remember(appearance.colorPalette.text, appearance.colorPalette.isDark) {
+                        RippleConfiguration(color = appearance.colorPalette.text)
+                    /*
                     object : RippleTheme {
                         @Composable
                         override fun defaultColor(): Color = RippleTheme.defaultRippleColor(
@@ -662,6 +689,7 @@ class MainActivity :
                                 lightTheme = !appearance.colorPalette.isDark
                             )
                     }
+                     */
                 }
 
             val shimmerTheme = remember {
@@ -756,8 +784,9 @@ class MainActivity :
 
                 CompositionLocalProvider(
                     LocalAppearance provides appearance,
-                    LocalIndication provides rememberRipple(bounded = true),
-                    LocalRippleTheme provides rippleTheme,
+                    LocalIndication provides ripple(bounded = true),
+                    //LocalRippleTheme provides rippleTheme,
+                    LocalRippleConfiguration provides rippleConfiguration,
                     LocalShimmerTheme provides shimmerTheme,
                     LocalPlayerServiceBinder provides binder,
                     LocalPlayerAwareWindowInsets provides playerAwareWindowInsets,
@@ -766,10 +795,6 @@ class MainActivity :
                     LocalPlayerSheetState provides playerSheetState,
                     LocalMonetCompat provides monet
                 ) {
-
-                    AppNavigation(
-                        navController = navController
-                    )
 
                     /*
                     HomeScreen(
@@ -787,69 +812,109 @@ class MainActivity :
                         .align(Alignment.BottomCenter)
                 )
                  */
-                    Player(
+
+                    AppNavigation(
                         navController = navController,
-                        layoutState = playerSheetState,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
+                        playerEssential = {
+                            PlayerEssential(
+                                showPlayer = { showPlayer = true },
+                                hidePlayer = { showPlayer = false }
+                            )
+                        }
                     )
 
+                    /*
+                    if (showPlayer) {
+                        Player(
+                            navController = navController,
+                            layoutState = playerSheetState,
+                            onDismiss = {
+                                showPlayer = false
+                                println("mediaItem hidePlayer")
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                        )
+
+                        if (showPlayer && (playerSheetState.isCollapsed || playerSheetState.isDismissed))
+                            playerSheetState.expandSoft()
+                        println("mediaItem showPlayer")
+                    }
+                     */
+
+                    val playerState =
+                        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    val (colorPalette, typography, thumbnailShape) = LocalAppearance.current
+                    CustomModalBottomSheet(
+                        showSheet = showPlayer,
+                        onDismissRequest = { showPlayer = false },
+                        containerColor = colorPalette.background2,
+                        contentColor = colorPalette.background2,
+                        modifier = Modifier.fillMaxWidth(),
+                        sheetState = playerState,
+                        dragHandle = {
+                            Surface(
+                                modifier = Modifier.padding(vertical = 0.dp),
+                                color = colorPalette.background0,
+                                shape = thumbnailShape
+                            ) {}
+                        }
+                    ) {
+                        PlayerModern(
+                            navController = navController,
+                            layoutState = playerSheetState,
+                            playerState = playerState,
+                            onDismiss = { showPlayer = false }
+                        )
+                    }
+
+
+                    /*
                     BottomSheetMenu(
                         state = LocalMenuState.current,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                     )
+                     */
+
+                    val menuState = LocalMenuState.current
+                        CustomModalBottomSheet(
+                            showSheet = menuState.isDisplayed,
+                            onDismissRequest = menuState::hide,
+                            containerColor = Color.Transparent,
+                            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                            dragHandle = {
+                                Surface(
+                                    modifier = Modifier.padding(vertical = 0.dp),
+                                    color = Color.Transparent,
+                                    //shape = thumbnailShape
+                                ) {}
+                            }
+                        ) {
+                            menuState.content()
+                        }
 
                 }
 
                 DisposableEffect(binder?.player) {
                     val player = binder?.player ?: return@DisposableEffect onDispose { }
 
-                    /*
-                if (player.currentMediaItem == null) {
-                    if (!playerBottomSheetState.isDismissed) {
-                        playerBottomSheetState.dismiss()
-                    }
-                } else {
-                    //if (playerBottomSheetState.isDismissed) {
-                        if (launchedFromNotification) {
-                            intent.replaceExtras(Bundle())
-                            if (preferences.getBoolean(keepPlayerMinimizedKey, true))
-                                playerBottomSheetState.collapse(tween(700))
-                            else playerBottomSheetState.expand(tween(500))
-                        } else {
-                            playerBottomSheetState.collapse(tween(700))
-                        }
-                    //}
-                }
-
-                val listener = object : Player.Listener {
-                    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED && mediaItem != null) {
-                            if (mediaItem.mediaMetadata.extras?.getBoolean("isFromPersistentQueue") != true) {
-                                if (preferences.getBoolean(keepPlayerMinimizedKey, true))
-                                playerBottomSheetState.collapse(tween(700))
-                                else playerBottomSheetState.expand(tween(500))
-                            } else {
-                                playerBottomSheetState.collapse(tween(700))
-                            }
-                        }
-                    }
-                }
-                 */
                     if (player.currentMediaItem == null) {
                         if (!playerSheetState.isDismissed) {
-                            playerSheetState.dismiss()
+                            //playerSheetState.dismiss()
+                            showPlayer = false
                         }
                     } else {
                         //if (playerSheetState.isDismissed) {
                         if (launchedFromNotification) {
                             intent.replaceExtras(Bundle())
                             if (preferences.getBoolean(keepPlayerMinimizedKey, true))
-                                playerSheetState.collapse(tween(700))
-                            else playerSheetState.expand(tween(500))
+                                //playerSheetState.collapse(tween(700))
+                                showPlayer = false
+                            else showPlayer = true //playerSheetState.expand(tween(500))
                         } else {
-                            playerSheetState.collapse(tween(700))
+                            //playerSheetState.collapse(tween(700))
+                            showPlayer = false
                         }
                         //}
                     }
@@ -859,10 +924,12 @@ class MainActivity :
                             if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED && mediaItem != null) {
                                 if (mediaItem.mediaMetadata.extras?.getBoolean("isFromPersistentQueue") != true) {
                                     if (preferences.getBoolean(keepPlayerMinimizedKey, true))
-                                        playerSheetState.collapse(tween(700))
-                                    else playerSheetState.expand(tween(500))
+                                        //playerSheetState.collapse(tween(700))
+                                        showPlayer = false
+                                    else showPlayer = true //playerSheetState.expand(tween(500))
                                 } else {
-                                    playerSheetState.collapse(tween(700))
+                                    //playerSheetState.collapse(tween(700))
+                                    showPlayer = false
                                 }
                             }
                         }

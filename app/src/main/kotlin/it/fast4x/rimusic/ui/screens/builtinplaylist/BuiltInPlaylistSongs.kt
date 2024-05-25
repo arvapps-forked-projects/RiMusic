@@ -263,7 +263,7 @@ fun BuiltInPlaylistSongs(
                      }
              }
 
-             BuiltInPlaylist.Favorites -> Database
+             BuiltInPlaylist.Favorites, BuiltInPlaylist.OnDevice, BuiltInPlaylist.All -> Database
                  .songsFavorites(sortBy, sortOrder)
 
              BuiltInPlaylist.Offline -> Database
@@ -461,6 +461,8 @@ fun BuiltInPlaylistSongs(
             },
             title = stringResource(R.string.enter_the_playlist_name),
             value = when (builtInPlaylist) {
+                BuiltInPlaylist.All -> context.resources.getString(R.string.songs)
+                BuiltInPlaylist.OnDevice -> context.resources.getString(R.string.on_device)
                 BuiltInPlaylist.Favorites -> context.resources.getString(R.string.favorites)
                 BuiltInPlaylist.Downloaded -> context.resources.getString(R.string.downloaded)
                 BuiltInPlaylist.Offline -> context.resources.getString(R.string.cached)
@@ -515,6 +517,8 @@ fun BuiltInPlaylistSongs(
 
                 HeaderWithIcon(
                     title = when (builtInPlaylist) {
+                        BuiltInPlaylist.All -> stringResource(R.string.songs)
+                        BuiltInPlaylist.OnDevice -> context.resources.getString(R.string.on_device)
                         BuiltInPlaylist.Favorites -> stringResource(R.string.favorites)
                         BuiltInPlaylist.Downloaded -> stringResource(R.string.downloaded)
                         BuiltInPlaylist.Offline -> stringResource(R.string.cached)
@@ -542,6 +546,8 @@ fun BuiltInPlaylistSongs(
                     if (songs.isEmpty())
                     PlaylistItem(
                         icon = when (builtInPlaylist) {
+                            BuiltInPlaylist.All -> R.drawable.musical_notes
+                            BuiltInPlaylist.OnDevice -> R.drawable.musical_notes
                             BuiltInPlaylist.Favorites -> R.drawable.heart
                             BuiltInPlaylist.Downloaded -> R.drawable.downloaded
                             BuiltInPlaylist.Offline -> R.drawable.sync
@@ -549,6 +555,8 @@ fun BuiltInPlaylistSongs(
                         },
                         colorTint = colorPalette.favoritesIcon,
                         name = when (builtInPlaylist) {
+                            BuiltInPlaylist.All -> context.resources.getString(R.string.songs)
+                            BuiltInPlaylist.OnDevice -> context.resources.getString(R.string.on_device)
                             BuiltInPlaylist.Favorites -> stringResource(R.string.favorites)
                             BuiltInPlaylist.Downloaded -> stringResource(R.string.downloaded)
                             BuiltInPlaylist.Offline -> stringResource(R.string.cached)
@@ -1212,8 +1220,8 @@ fun BuiltInPlaylistSongs(
                     }
                 }
 
-                BehindMotionSwipe(
-                    content = {
+                //BehindMotionSwipe(
+                //    content = {
                         val isLocal by remember { derivedStateOf { song.asMediaItem.isLocal } }
                         downloadState = getDownloadState(song.asMediaItem.mediaId)
                         val isDownloaded =
@@ -1329,6 +1337,8 @@ fun BuiltInPlaylistSongs(
                                                     song = song,
                                                     onDismiss = menuState::hide
                                                 )
+
+                                                BuiltInPlaylist.OnDevice, BuiltInPlaylist.All -> {}
                                             }
                                         }
                                     },
@@ -1351,6 +1361,7 @@ fun BuiltInPlaylistSongs(
                                 .background(color = colorPalette.background0)
                                 .animateItemPlacement()
                         )
+                    /*
                     },
                     leftActionsContent = {
                             LeftAction(
@@ -1385,7 +1396,7 @@ fun BuiltInPlaylistSongs(
                                         when (builtInPlaylist) {
                                             BuiltInPlaylist.Offline ->
                                                 binder.cache.removeResource(song.asMediaItem.mediaId)
-                                            BuiltInPlaylist.Favorites -> {}
+                                            BuiltInPlaylist.Favorites, BuiltInPlaylist.OnDevice, BuiltInPlaylist.All -> {}
                                             BuiltInPlaylist.Downloaded -> {/*
                                                 binder.downloadCache.removeResource(song.asMediaItem.mediaId)
                                                 manageDownload(
@@ -1405,6 +1416,7 @@ fun BuiltInPlaylistSongs(
                     },
                     onHorizontalSwipeWhenActionDisabled = {}
                 )
+                */
             }
 
             item(

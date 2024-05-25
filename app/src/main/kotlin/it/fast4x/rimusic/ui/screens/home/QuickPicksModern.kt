@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
@@ -41,6 +42,7 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +61,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.offline.Download
 import androidx.navigation.NavController
@@ -75,19 +76,25 @@ import it.fast4x.rimusic.Database
 import it.fast4x.rimusic.LocalPlayerAwareWindowInsets
 import it.fast4x.rimusic.LocalPlayerServiceBinder
 import it.fast4x.rimusic.R
+import it.fast4x.rimusic.enums.LibraryItemSize
+import it.fast4x.rimusic.enums.NavRoutes
 import it.fast4x.rimusic.enums.NavigationBarPosition
 import it.fast4x.rimusic.enums.PlayEventsType
+import it.fast4x.rimusic.enums.PopupType
 import it.fast4x.rimusic.enums.UiType
 import it.fast4x.rimusic.models.Artist
+import it.fast4x.rimusic.models.PlaylistPreview
+import it.fast4x.rimusic.models.PlaylistWithSongs
 import it.fast4x.rimusic.models.Song
 import it.fast4x.rimusic.query
+import it.fast4x.rimusic.service.DownloadUtil
 import it.fast4x.rimusic.service.isLocal
 import it.fast4x.rimusic.ui.components.LocalMenuState
+import it.fast4x.rimusic.ui.components.Popup
 import it.fast4x.rimusic.ui.components.PullToRefreshBox
-import it.fast4x.rimusic.ui.components.ShimmerHost
-import it.fast4x.rimusic.ui.components.themed.ButtonWithTitle
-import it.fast4x.rimusic.ui.components.themed.FloatingActionsContainerWithScrollToTop
 import it.fast4x.rimusic.ui.components.themed.HeaderWithIcon
+import it.fast4x.rimusic.ui.components.themed.Menu
+import it.fast4x.rimusic.ui.components.themed.MenuEntry
 import it.fast4x.rimusic.ui.components.themed.MultiFloatingActionsContainer
 import it.fast4x.rimusic.ui.components.themed.NonQueuedMediaItemMenu
 import it.fast4x.rimusic.ui.components.themed.TextPlaceholder
@@ -107,25 +114,28 @@ import it.fast4x.rimusic.ui.styling.favoritesIcon
 import it.fast4x.rimusic.ui.styling.px
 import it.fast4x.rimusic.utils.UiTypeKey
 import it.fast4x.rimusic.utils.asMediaItem
+import it.fast4x.rimusic.utils.bold
 import it.fast4x.rimusic.utils.center
 import it.fast4x.rimusic.utils.downloadedStateMedia
 import it.fast4x.rimusic.utils.forcePlay
 import it.fast4x.rimusic.utils.getDownloadState
 import it.fast4x.rimusic.utils.isLandscape
 import it.fast4x.rimusic.utils.manageDownload
+import it.fast4x.rimusic.utils.monthlyPLaylists
 import it.fast4x.rimusic.utils.navigationBarPositionKey
 import it.fast4x.rimusic.utils.playEventsTypeKey
 import it.fast4x.rimusic.utils.rememberPreference
 import it.fast4x.rimusic.utils.secondary
 import it.fast4x.rimusic.utils.semiBold
 import it.fast4x.rimusic.utils.showActionsBarKey
+import it.fast4x.rimusic.utils.showFloatingIconKey
+import it.fast4x.rimusic.utils.showMonthlyPlaylistInQuickPicksKey
 import it.fast4x.rimusic.utils.showNewAlbumsArtistsKey
 import it.fast4x.rimusic.utils.showNewAlbumsKey
 import it.fast4x.rimusic.utils.showPlaylistMightLikeKey
 import it.fast4x.rimusic.utils.showRelatedAlbumsKey
 import it.fast4x.rimusic.utils.showSearchTabKey
 import it.fast4x.rimusic.utils.showSimilarArtistsKey
-import it.fast4x.rimusic.utils.thumbnail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -142,7 +152,7 @@ import kotlinx.coroutines.withContext
 @ExperimentalComposeUiApi
 @UnstableApi
 @Composable
-fun QuickPicksNew(
+fun QuickPicksModern(
     navController: NavController,
     onAlbumClick: (String) -> Unit,
     onArtistClick: (String) -> Unit,
@@ -158,17 +168,24 @@ fun QuickPicksNew(
     val menuState = LocalMenuState.current
     val windowInsets = LocalPlayerAwareWindowInsets.current
     val uiType  by rememberPreference(UiTypeKey, UiType.RiMusic)
-    val playEventType  by rememberPreference(playEventsTypeKey, PlayEventsType.MostPlayed)
+    var playEventType  by rememberPreference(playEventsTypeKey, PlayEventsType.MostPlayed)
 
     var trending by persist<Song?>("home/trending")
-    var mediaItems by persistList<MediaItem>("home/relSongs")
+
     var relatedPageResult by persist<Result<Innertube.RelatedPage?>?>(tag = "home/relatedPageResult")
+    var related by persist<Innertube.RelatedPage?>(tag = "home/relatedPage")
 
     var discoverPage by persist<Result<Innertube.DiscoverPage>>("home/discoveryAlbums")
 
     //var discoverPageAlbums by persist<Result<Innertube.DiscoverPageAlbums>>("home/discoveryAlbums")
 
     var preferitesArtists by persistList<Artist>("home/artists")
+
+    //val localMonthlyPlaylists = monthlyPLaylists()
+    var localMonthlyPlaylists by persistList<PlaylistPreview>("home/monthlyPlaylists")
+    LaunchedEffect(Unit) {
+        Database.monthlyPlaylistsPreview("").collect{ localMonthlyPlaylists = it }
+    }
 
     var downloadState by remember {
         mutableStateOf(Download.STATE_STOPPED)
@@ -182,6 +199,7 @@ fun QuickPicksNew(
     val showNewAlbumsArtists by rememberPreference(showNewAlbumsArtistsKey, true)
     val showPlaylistMightLike by rememberPreference(showPlaylistMightLikeKey, true)
     val showNewAlbums by rememberPreference(showNewAlbumsKey, true)
+    val showMonthlyPlaylistInQuickPicks by rememberPreference(showMonthlyPlaylistInQuickPicksKey, true)
 
     val navigationBarPosition by rememberPreference(navigationBarPositionKey, NavigationBarPosition.Left)
 
@@ -226,24 +244,14 @@ fun QuickPicksNew(
 
             discoverPage = Innertube.discoverPage()
 
-            mediaItems =
-                binder?.getRadioMediaItems(NavigationEndpoint.Endpoint.Watch(videoId = trending?.id))!!
-
         }.onFailure {
             //println("mediaItem refreshed failure")
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, playEventType) {
         loadData()
     }
-
-
-    //val mediaItems =
-    //    binder?.getRadioSongs(NavigationEndpoint.Endpoint.Watch(videoId = trending?.id))
-
-    //println("mediaItems quickpics ${mediaItems?.size}")
-
 
     var refreshing by remember { mutableStateOf(false) }
 
@@ -290,7 +298,19 @@ fun QuickPicksNew(
 
     val showSearchTab by rememberPreference(showSearchTabKey, false)
 
-    val showActionsBar by rememberPreference(showActionsBarKey, true)
+    //val showActionsBar by rememberPreference(showActionsBarKey, true)
+
+    val downloadedSongs = remember {
+        DownloadUtil.downloads.value.filter {
+            it.value.state == Download.STATE_COMPLETED
+        }.keys.toList()
+    }
+    var cachedSongs = remember {
+        binder?.cache?.keys?.toMutableList()
+    }
+    cachedSongs?.addAll(downloadedSongs)
+
+
 
     PullToRefreshBox(
         refreshing = refreshing,
@@ -333,7 +353,7 @@ fun QuickPicksNew(
                      */
             ) {
 
-                //if (uiType == UiType.ViMusic)
+                if (uiType == UiType.ViMusic)
                     HeaderWithIcon(
                         title = stringResource(R.string.quick_picks),
                         iconId = R.drawable.search,
@@ -343,55 +363,41 @@ fun QuickPicksNew(
                         onClick = onSearchClick
                     )
 
-
-                /*
-                if (showActionsBar)
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 10.dp)
-                    ) {
-                        ButtonWithTitle(
-                            title = stringResource(R.string.history),
-                            icon = R.drawable.history,
-                            onClick = onHistoryClick,
-                            modifier = Modifier.weight(1f)
-                        )
-
-
-                        /*
-                        ButtonWithTitle(
-                            title = "Settings", //stringResource(R.string.settings),
-                            icon = R.drawable.settings,
-                            onClick = onSettingsClick,
-                            modifier = Modifier.weight(1f)
-                        )
-                         */
-
-                        Image(
-                            painter = painterResource(R.drawable.app_icon),
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(colorPalette.favoritesIcon),
-                            modifier = Modifier
-                                .size(48.dp)
-                        )
-
-                        ButtonWithTitle(
-                            title = stringResource(R.string.statistics),
-                            icon = R.drawable.stats_chart,
-                            onClick = onStatisticsClick,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    */
-
-                BasicText(
-                    text = stringResource(R.string.tips),
-                    style = typography.m.semiBold,
-                    modifier = sectionTextModifier
+                Title(
+                    title = stringResource(R.string.tips),
+                    onClick = {
+                        menuState.display {
+                            Menu {
+                                MenuEntry(
+                                    icon = R.drawable.chevron_up,
+                                    text = stringResource(R.string.by_most_played_song),
+                                    onClick = {
+                                        playEventType = PlayEventsType.MostPlayed
+                                        menuState.hide()
+                                    }
+                                )
+                                MenuEntry(
+                                    icon = R.drawable.chevron_down,
+                                    text = stringResource(R.string.by_last_played_song),
+                                    onClick = {
+                                        playEventType = PlayEventsType.LastPlayed
+                                        menuState.hide()
+                                    }
+                                )
+                                MenuEntry(
+                                    icon = R.drawable.random,
+                                    text = stringResource(R.string.by_casual_played_song),
+                                    onClick = {
+                                        playEventType = PlayEventsType.CasualPlayed
+                                        menuState.hide()
+                                    }
+                                )
+                            }
+                        }
+                    },
+                    //modifier = Modifier.fillMaxWidth(0.7f)
                 )
+
                 BasicText(
                     text = when (playEventType) {
                         PlayEventsType.MostPlayed -> stringResource(R.string.by_most_played_song)
@@ -404,15 +410,18 @@ fun QuickPicksNew(
                         .padding(bottom = 8.dp)
                 )
 
+
                 //relatedPageResult?.getOrNull()?.let { related ->
+                related = relatedPageResult?.getOrNull()
+
                     LazyHorizontalGrid(
                         state = quickPicksLazyGridState,
-                        rows = GridCells.Fixed(3),
+                        rows = GridCells.Fixed(if(related != null) 3 else 1),
                         flingBehavior = ScrollableDefaults.flingBehavior(),
                         contentPadding = endPaddingValues,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(Dimensions.itemsVerticalPadding * 3 * 9)
+                            .height(if (related != null) Dimensions.itemsVerticalPadding * 3 * 9 else Dimensions.itemsVerticalPadding * 9)
                         //.height((songThumbnailSizeDp + Dimensions.itemsVerticalPadding * 2) * 4)
                     ) {
                         trending?.let { song ->
@@ -513,90 +522,106 @@ fun QuickPicksNew(
                             }
                         }
 
-                        //if (!refreshing) {
-                        items(
-                            items = mediaItems?.drop(if (trending == null) 0 else 1)?.take(20)  //related.songs?.dropLast(if (trending == null) 0 else 1)
+                        if (related != null) {
+                            items(
+                                items = related?.songs?.filter {
+                                    if (cachedSongs != null) {
+                                        if (cachedSongs.indexOf(it.asMediaItem.mediaId) < 0) true else false
+                                    } else true
+                                }
+                                ?.dropLast(if (trending == null) 0 else 1)
                                 ?: emptyList(),
-                            //key = Song::id
-                        ) { song ->
-                            val isLocal by remember { derivedStateOf { song.isLocal } }
-                            downloadState = getDownloadState(song.mediaId)
-                            val isDownloaded =
-                                if (!isLocal) downloadedStateMedia(song.mediaId) else true
+                                key = Innertube.SongItem::key
+                            ) { song ->
+                                val isLocal by remember { derivedStateOf { song.asMediaItem.isLocal } }
+                                downloadState = getDownloadState(song.asMediaItem.mediaId)
+                                val isDownloaded =
+                                    if (!isLocal) downloadedStateMedia(song.asMediaItem.mediaId) else true
 
-                            SongItem(
-                                song = song,
-                                isDownloaded = isDownloaded,
-                                onDownloadClick = {
-                                    binder?.cache?.removeResource(song.mediaId)
-                                    query {
-                                        Database.insert(
-                                            Song(
-                                                id = song.mediaId,
-                                                title = song.mediaMetadata.title.toString(),
-                                                artistsText = song.mediaMetadata.artist.toString(),
-                                                thumbnailUrl = song.mediaMetadata.artworkUri.thumbnail(50).toString(),
-                                                durationText = null
-                                            )
-                                        )
-                                    }
-                                    if (!isLocal)
-                                        manageDownload(
-                                            context = context,
-                                            songId = song.mediaId,
-                                            songTitle = song.mediaMetadata.title.toString(),
-                                            downloadState = isDownloaded
-                                        )
-
-                                },
-                                downloadState = downloadState,
-                                thumbnailSizePx = songThumbnailSizePx,
-                                thumbnailSizeDp = songThumbnailSizeDp,
-                                modifier = Modifier
-                                    .combinedClickable(
-                                        onLongClick = {
-                                            menuState.display {
-                                                NonQueuedMediaItemMenu(
-                                                    navController = navController,
-                                                    onDismiss = menuState::hide,
-                                                    mediaItem = song,
-                                                    onDownload = {
-                                                        binder?.cache?.removeResource(song.mediaId)
-                                                        query {
-                                                            Database.insert(
-                                                                Song(
-                                                                    id = song.mediaId,
-                                                                    title = song.mediaMetadata.title.toString(),
-                                                                    artistsText = song.mediaMetadata.artist.toString(),
-                                                                    thumbnailUrl = song.mediaMetadata.artworkUri.thumbnail(50).toString(),
-                                                                    durationText = null
-                                                                )
-                                                            )
-                                                        }
-                                                        manageDownload(
-                                                            context = context,
-                                                            songId = song.mediaId,
-                                                            songTitle = song.mediaMetadata.title.toString(),
-                                                            downloadState = isDownloaded
-                                                        )
-                                                    },
-
-                                                    )
-                                            }
-                                        },
-                                        onClick = {
-                                            val mediaItem = song
-                                            binder?.stopRadio()
-                                            binder?.player?.forcePlay(mediaItem)
-                                            binder?.setupRadio(
-                                                NavigationEndpoint.Endpoint.Watch(videoId = mediaItem.mediaId)
+                                SongItem(
+                                    song = song,
+                                    isDownloaded = isDownloaded,
+                                    onDownloadClick = {
+                                        binder?.cache?.removeResource(song.asMediaItem.mediaId)
+                                        query {
+                                            Database.insert(
+                                                Song(
+                                                    id = song.asMediaItem.mediaId,
+                                                    title = song.asMediaItem.mediaMetadata.title.toString(),
+                                                    artistsText = song.asMediaItem.mediaMetadata.artist.toString(),
+                                                    thumbnailUrl = song.thumbnail?.url,
+                                                    durationText = null
+                                                )
                                             )
                                         }
-                                    )
-                                    .animateItemPlacement()
-                                    .width(itemInHorizontalGridWidth)
-                            )
+                                        if (!isLocal)
+                                            manageDownload(
+                                                context = context,
+                                                songId = song.asMediaItem.mediaId,
+                                                songTitle = song.asMediaItem.mediaMetadata.title.toString(),
+                                                downloadState = isDownloaded
+                                            )
+
+                                    },
+                                    downloadState = downloadState,
+                                    thumbnailSizePx = songThumbnailSizePx,
+                                    thumbnailSizeDp = songThumbnailSizeDp,
+                                    modifier = Modifier
+                                        .combinedClickable(
+                                            onLongClick = {
+                                                menuState.display {
+                                                    NonQueuedMediaItemMenu(
+                                                        navController = navController,
+                                                        onDismiss = menuState::hide,
+                                                        mediaItem = song.asMediaItem,
+                                                        onDownload = {
+                                                            binder?.cache?.removeResource(song.asMediaItem.mediaId)
+                                                            query {
+                                                                Database.insert(
+                                                                    Song(
+                                                                        id = song.asMediaItem.mediaId,
+                                                                        title = song.asMediaItem.mediaMetadata.title.toString(),
+                                                                        artistsText = song.asMediaItem.mediaMetadata.artist.toString(),
+                                                                        thumbnailUrl = song.thumbnail?.url,
+                                                                        durationText = null
+                                                                    )
+                                                                )
+                                                            }
+                                                            manageDownload(
+                                                                context = context,
+                                                                songId = song.asMediaItem.mediaId,
+                                                                songTitle = song.asMediaItem.mediaMetadata.title.toString(),
+                                                                downloadState = isDownloaded
+                                                            )
+                                                        },
+
+                                                        )
+                                                }
+                                            },
+                                            onClick = {
+                                                val mediaItem = song.asMediaItem
+                                                binder?.stopRadio()
+                                                binder?.player?.forcePlay(mediaItem)
+                                                binder?.setupRadio(
+                                                    NavigationEndpoint.Endpoint.Watch(videoId = mediaItem.mediaId)
+                                                )
+                                            }
+                                        )
+                                        .animateItemPlacement()
+                                        .width(itemInHorizontalGridWidth)
+                                )
+                            }
                         }
+                    }
+
+                    if (related == null) {
+                        BasicText(
+                            text = stringResource(R.string.sorry_tips_are_not_available),
+                            style = typography.s.semiBold.center,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(all = 16.dp)
+                        )
                     }
 
 
@@ -612,6 +637,7 @@ fun QuickPicksNew(
 
                         if (showNewAlbumsArtists)
                             if (newReleaseAlbumsFiltered.isNotEmpty() && preferitesArtists.isNotEmpty()) {
+
                                 BasicText(
                                     text = stringResource(R.string.new_albums_of_your_artists),
                                     style = typography.m.semiBold,
@@ -637,10 +663,17 @@ fun QuickPicksNew(
                             }
 
                         if (showNewAlbums) {
+                            /*
                             BasicText(
                                 text = stringResource(R.string.new_albums),
                                 style = typography.m.semiBold,
                                 modifier = sectionTextModifier
+                            )
+                             */
+                            Title(
+                                title = stringResource(R.string.new_albums),
+                                onClick = { navController.navigate(NavRoutes.newAlbums.name) },
+                                //modifier = Modifier.fillMaxWidth(0.7f)
                             )
 
                             LazyRow(contentPadding = endPaddingValues) {
@@ -658,9 +691,9 @@ fun QuickPicksNew(
                             }
                         }
                     }
-                    /*
+
                     if (showRelatedAlbums)
-                        related.albums?.let { albums ->
+                        related?.albums?.let { albums ->
                             BasicText(
                                 text = stringResource(R.string.related_albums),
                                 style = typography.m.semiBold,
@@ -685,7 +718,7 @@ fun QuickPicksNew(
                         }
 
                     if (showSimilarArtists)
-                        related.artists?.let { artists ->
+                        related?.artists?.let { artists ->
                             BasicText(
                                 text = stringResource(R.string.similar_artists),
                                 style = typography.m.semiBold,
@@ -710,7 +743,7 @@ fun QuickPicksNew(
                         }
 
                     if (showPlaylistMightLike)
-                        related.playlists?.let { playlists ->
+                        related?.playlists?.let { playlists ->
                             BasicText(
                                 text = stringResource(R.string.playlists_you_might_like),
                                 style = typography.m.semiBold,
@@ -736,14 +769,21 @@ fun QuickPicksNew(
                                 }
                             }
                         }
-                    */
+
                     discoverPage?.getOrNull()?.let { page ->
                         if (page.moods.isNotEmpty()) {
 
+                            /*
                             BasicText(
                                 text = stringResource(R.string.moods_and_genres),
                                 style = typography.m.semiBold,
                                 modifier = sectionTextModifier
+                            )
+                             */
+                            Title(
+                                title = stringResource(R.string.moods_and_genres),
+                                onClick = { navController.navigate(NavRoutes.moodsPage.name) },
+                                //modifier = Modifier.fillMaxWidth(0.7f)
                             )
 
                             LazyHorizontalGrid(
@@ -774,82 +814,112 @@ fun QuickPicksNew(
                         }
                     }
 
+                if (showMonthlyPlaylistInQuickPicks)
+                    localMonthlyPlaylists.let { playlists ->
+                        BasicText(
+                            text = stringResource(R.string.monthly_playlists),
+                            style = typography.m.semiBold,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 24.dp, bottom = 8.dp)
+                        )
+
+                        LazyRow(contentPadding = endPaddingValues) {
+                            items(
+                                items = playlists,
+                                key = {it.playlist.id }
+                            ) { playlist ->
+                                PlaylistItem(
+                                    playlist = playlist,
+                                    thumbnailSizeDp = playlistThumbnailSizeDp,
+                                    thumbnailSizePx = playlistThumbnailSizePx,
+                                    alternative = true,
+                                    modifier = Modifier
+                                        .clickable(onClick = { navController.navigate(route = "${NavRoutes.localPlaylist.name}/${playlist.playlist.id}") })
+                                        .animateItemPlacement()
+                                        .fillMaxSize()
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(Dimensions.bottomSpacer))
 
-                /*
-                } ?: relatedPageResult?.exceptionOrNull()?.let {
+
+                //} ?:
+
+                relatedPageResult?.exceptionOrNull()?.let {
                     BasicText(
-                        text = stringResource(R.string.an_error_has_occurred),
+                        text = stringResource(R.string.page_not_been_loaded),
                         style = typography.s.secondary.center,
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .padding(all = 16.dp)
                     )
-                } ?: ShimmerHost {
-                    repeat(3) {
-                        SongItemPlaceholder(
-                            thumbnailSizeDp = songThumbnailSizeDp,
-                        )
-                    }
-
-                    TextPlaceholder(modifier = sectionTextModifier)
-
-                    Row {
-                        repeat(2) {
-                            AlbumItemPlaceholder(
-                                thumbnailSizeDp = albumThumbnailSizeDp,
-                                alternative = true
-                            )
-                        }
-                    }
-
-                    TextPlaceholder(modifier = sectionTextModifier)
-
-                    Row {
-                        repeat(2) {
-                            ArtistItemPlaceholder(
-                                thumbnailSizeDp = albumThumbnailSizeDp,
-                                alternative = true
-                            )
-                        }
-                    }
-
-                    TextPlaceholder(modifier = sectionTextModifier)
-
-                    Row {
-                        repeat(2) {
-                            PlaylistItemPlaceholder(
-                                thumbnailSizeDp = albumThumbnailSizeDp,
-                                alternative = true
-                            )
-                        }
-                    }
                 }
-                */
+
+                /*
+                if (related == null)
+                    ShimmerHost {
+                        repeat(3) {
+                            SongItemPlaceholder(
+                                thumbnailSizeDp = songThumbnailSizeDp,
+                            )
+                        }
+
+                        TextPlaceholder(modifier = sectionTextModifier)
+
+                        Row {
+                            repeat(2) {
+                                AlbumItemPlaceholder(
+                                    thumbnailSizeDp = albumThumbnailSizeDp,
+                                    alternative = true
+                                )
+                            }
+                        }
+
+                        TextPlaceholder(modifier = sectionTextModifier)
+
+                        Row {
+                            repeat(2) {
+                                ArtistItemPlaceholder(
+                                    thumbnailSizeDp = albumThumbnailSizeDp,
+                                    alternative = true
+                                )
+                            }
+                        }
+
+                        TextPlaceholder(modifier = sectionTextModifier)
+
+                        Row {
+                            repeat(2) {
+                                PlaylistItemPlaceholder(
+                                    thumbnailSizeDp = albumThumbnailSizeDp,
+                                    alternative = true
+                                )
+                            }
+                        }
+                    }
+                 */
             }
 
 
-            /*
-            MultiFloatingActionsContainer(
-                iconId = R.drawable.search,
-                onClick = onSearchClick,
-                onClickSettings = onSettingsClick,
-                onClickSearch = onSearchClick
-            )
-             */
+            val showFloatingIcon by rememberPreference(showFloatingIconKey, false)
+            if(uiType == UiType.ViMusic || showFloatingIcon)
+                MultiFloatingActionsContainer(
+                    iconId = R.drawable.search,
+                    onClick = onSearchClick,
+                    onClickSettings = onSettingsClick,
+                    onClickSearch = onSearchClick
+                )
 
-            if(uiType == UiType.ViMusic)
+                /*
                 FloatingActionsContainerWithScrollToTop(
                     scrollState = scrollState,
                     iconId = R.drawable.search,
                     onClick = onSearchClick
                 )
-
-
-
-
-
+                 */
 
         }
 

@@ -1,5 +1,9 @@
 package it.fast4x.rimusic.utils
 
+import androidx.compose.animation.core.DecayAnimation
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.FloatDecayAnimationSpec
+import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -26,6 +30,7 @@ fun BehindMotionSwipe(
     onHorizontalSwipeWhenActionDisabled: () -> Unit
 ) {
 
+    /*
     val density = LocalDensity.current
     //val (colorPalette) = LocalAppearance.current
 
@@ -34,7 +39,7 @@ fun BehindMotionSwipe(
     val endActionSizePx = with(density) { (defaultActionSize * 2).toPx() }
     val startActionSizePx = with(density) { defaultActionSize.toPx() }
 
-    val state = remember {
+    val state =
         AnchoredDraggableState(
             initialValue = DragAnchors.Center,
             anchors = DraggableAnchors {
@@ -44,13 +49,18 @@ fun BehindMotionSwipe(
             },
             positionalThreshold = { distance: Float -> distance * 0.5f },
             velocityThreshold = { with(density) { 100.dp.toPx() } },
-            animationSpec = spring(
+            decayAnimationSpec =  DecayAnimation(
+                animationSpec = ,
+                initialVelocity = 0.0f
+            ),
+            snapAnimationSpec =  spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
                 stiffness = Spring.StiffnessMediumLow,
             ),
             //animationSpec = tween(),
+            confirmValueChange = { true }
         )
-    }
+
 
     val isSwipeToActionEnabled by rememberPreference(isSwipeToActionEnabledKey, true)
 
@@ -86,5 +96,7 @@ fun BehindMotionSwipe(
              */
         }
     )
+
+     */
 }
 

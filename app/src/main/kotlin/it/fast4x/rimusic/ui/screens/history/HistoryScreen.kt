@@ -35,7 +35,8 @@ import it.fast4x.rimusic.utils.rememberPreference
 @UnstableApi
 @Composable
 fun HistoryScreen(
-    navController: NavController
+    navController: NavController,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
 
@@ -49,6 +50,7 @@ fun HistoryScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

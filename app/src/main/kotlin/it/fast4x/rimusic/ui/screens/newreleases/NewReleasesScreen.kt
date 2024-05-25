@@ -32,7 +32,8 @@ import it.fast4x.rimusic.utils.rememberPreference
 @UnstableApi
 @Composable
 fun NewreleasesScreen(
-    navController: NavController
+    navController: NavController,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
 
@@ -50,6 +51,7 @@ fun NewreleasesScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if (uiType == UiType.RiMusic) false else true,

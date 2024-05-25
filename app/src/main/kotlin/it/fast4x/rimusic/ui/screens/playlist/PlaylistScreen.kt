@@ -33,7 +33,8 @@ fun PlaylistScreen(
     navController: NavController,
     browseId: String,
     params: String?,
-    maxDepth: Int? = null
+    maxDepth: Int? = null,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
     PersistMapCleanup(tagPrefix = "playlist/$browseId")
@@ -45,6 +46,7 @@ fun PlaylistScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

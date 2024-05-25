@@ -80,7 +80,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun AlbumScreen(
     navController: NavController,
-    browseId: String
+    browseId: String,
+    playerEssential: @Composable () -> Unit = {},
 ) {
 
     val uriHandler = LocalUriHandler.current
@@ -260,6 +261,7 @@ fun AlbumScreen(
 
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,
                 onTopIconButtonClick = pop,

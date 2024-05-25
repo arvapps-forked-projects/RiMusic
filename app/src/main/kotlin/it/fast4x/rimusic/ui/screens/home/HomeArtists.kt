@@ -87,7 +87,7 @@ import kotlin.random.Random
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @Composable
-fun HomeArtistList(
+fun HomeArtists(
     onArtistClick: (Artist) -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit

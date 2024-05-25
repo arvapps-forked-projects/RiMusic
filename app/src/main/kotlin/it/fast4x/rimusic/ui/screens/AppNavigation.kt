@@ -78,7 +78,8 @@ import it.fast4x.rimusic.utils.transitionEffectKey
 )
 @Composable
 fun AppNavigation(
-    navController: NavHostController
+    navController: NavHostController,
+    playerEssential: @Composable () -> Unit = {}
 ) {
     val transitionEffect by rememberPreference(transitionEffectKey, TransitionEffect.Scale)
 
@@ -86,6 +87,19 @@ fun AppNavigation(
     fun customScaffold(content: @Composable () -> Unit) {
         Scaffold(
             bottomBar = {  }
+        ) { paddingValues ->
+            Surface(
+                modifier = Modifier.padding(paddingValues),
+                content = content
+            )
+        }
+    }
+    @Composable
+    fun PlayerEssentialScaffold(content: @Composable () -> Unit) {
+        Scaffold(
+            bottomBar = {
+                //playerEssential()
+            }
         ) { paddingValues ->
             Surface(
                 modifier = Modifier.padding(paddingValues),
@@ -150,6 +164,7 @@ fun AppNavigation(
             HomeScreen(
                 navController = navController,
                 onPlaylistUrl = navigateToPlaylist,
+                playerEssential = playerEssential,
                 openTabFromShortcut = 0
             )
         }
@@ -164,12 +179,12 @@ fun AppNavigation(
             )
         ) { navBackStackEntry ->
             val id = navBackStackEntry.arguments?.getString("id") ?: ""
-
-            ArtistScreen(
-                navController = navController,
-                browseId = id,
-            )
-        }
+                ArtistScreen(
+                    navController = navController,
+                    browseId = id,
+                    playerEssential = playerEssential,
+                )
+            }
 
         composable(
             route = "${NavRoutes.album.name}/{id}",
@@ -184,6 +199,7 @@ fun AppNavigation(
             AlbumScreen(
                 navController = navController,
                 browseId = id,
+                playerEssential = playerEssential,
             )
         }
 
@@ -201,12 +217,14 @@ fun AppNavigation(
                 navController = navController,
                 browseId = id,
                 params = null,
+                playerEssential = playerEssential,
             )
         }
 
         composable(route = NavRoutes.settings.name) {
                 SettingsScreen(
                     navController = navController,
+                    playerEssential = playerEssential,
                     //pop = popDestination,
                     //onGoToSettingsPage = { index -> navController.navigate("settingsPage/$index") }
                 )
@@ -215,13 +233,16 @@ fun AppNavigation(
         composable(route = NavRoutes.statistics.name) {
             StatisticsScreen(
                 navController = navController,
-                statisticsType = StatisticsType.Today
+                statisticsType = StatisticsType.Today,
+                playerEssential = playerEssential,
             )
         }
 
         composable(route = NavRoutes.history.name) {
             HistoryScreen(
-                navController = navController
+                navController = navController,
+                playerEssential = playerEssential,
+
             )
         }
 
@@ -263,6 +284,7 @@ fun AppNavigation(
 
             SearchScreen(
                 navController = navController,
+                playerEssential = playerEssential,
                 initialTextInput = text,
                 onViewPlaylist = {},
                 //pop = popDestination,
@@ -274,7 +296,8 @@ fun AppNavigation(
                             Database.insert(SearchQuery(query = query))
                         }
                     }
-                }
+                },
+
             )
         }
 
@@ -291,6 +314,7 @@ fun AppNavigation(
 
             SearchResultScreen(
                 navController = navController,
+                playerEssential = playerEssential,
                 query = query,
                 onSearchAgain = {}
             )
@@ -310,6 +334,7 @@ fun AppNavigation(
             BuiltInPlaylistScreen(
                 navController = navController,
                 builtInPlaylist = BuiltInPlaylist.entries[index],
+                playerEssential = playerEssential,
             )
         }
 
@@ -327,6 +352,7 @@ fun AppNavigation(
             LocalPlaylistScreen(
                 navController = navController,
                 playlistId = id,
+                playerEssential = playerEssential,
                 //onDelete = popDestination
             )
         }
@@ -338,7 +364,8 @@ fun AppNavigation(
             if (mood != null) {
                 MoodScreen(
                     navController = navController,
-                    mood = mood
+                    mood = mood,
+                    playerEssential = playerEssential,
                 )
             }
         }
@@ -364,7 +391,8 @@ fun AppNavigation(
         ) { navBackStackEntry ->
               DeviceListSongsScreen(
                 navController = navController,
-                deviceLists = DeviceLists.LocalSongs
+                deviceLists = DeviceLists.LocalSongs,
+                playerEssential = playerEssential,
             )
         }
 
@@ -372,7 +400,8 @@ fun AppNavigation(
             route = NavRoutes.newAlbums.name
         ) { navBackStackEntry ->
             NewreleasesScreen(
-                navController = navController
+                navController = navController,
+                playerEssential = playerEssential,
             )
         }
 

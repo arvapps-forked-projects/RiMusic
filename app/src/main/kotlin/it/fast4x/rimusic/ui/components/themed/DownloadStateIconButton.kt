@@ -8,6 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -51,7 +52,7 @@ fun DownloadStateIconButton(
             colorFilter = ColorFilter.tint(color),
             modifier = Modifier
                 .clickable(
-                    indication = indication ?: rememberRipple(bounded = false),
+                    indication = indication ?: ripple(bounded = false),
                     interactionSource = remember { MutableInteractionSource() },
                     enabled = enabled,
                     onClick = onClick

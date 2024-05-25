@@ -25,10 +25,26 @@ private fun SnapLayoutInfoProvider(
     private val layoutInfo: LazyGridLayoutInfo
         get() = lazyGridState.layoutInfo
 
+    override fun calculateSnapOffset(velocity: Float): Float {
+        var lowerBoundOffset = Float.NEGATIVE_INFINITY
+        var upperBoundOffset = Float.POSITIVE_INFINITY
+
+        layoutInfo.visibleItemsInfo.fastForEach { item ->
+            val offset = calculateDistanceToDesiredSnapPosition(layoutInfo, item, positionInLayout)
+            // Find item that is closest to the center
+            if (offset <= 0 && offset > lowerBoundOffset) lowerBoundOffset = offset
+            // Find item that is closest to center, but after it
+            if (offset >= 0 && offset < upperBoundOffset) upperBoundOffset = offset
+        }
+
+        return if ((lowerBoundOffset * -1f) > upperBoundOffset) upperBoundOffset else lowerBoundOffset
+    }
+
     // Single page snapping is the default
-    override fun calculateApproachOffset(initialVelocity: Float) = 0f
+    //override fun calculateApproachOffset(initialVelocity: Float) = 0f
 
     // ignoring the velocity for now since there is no animation spec in this provider
+    /*
     override fun calculateSnappingOffset(currentVelocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
         var upperBoundOffset = Float.POSITIVE_INFINITY
@@ -43,6 +59,7 @@ private fun SnapLayoutInfoProvider(
 
         return if ((lowerBoundOffset * -1f) > upperBoundOffset) upperBoundOffset else lowerBoundOffset
     }
+     */
 }
 
 private fun Density.calculateDistanceToDesiredSnapPosition(

@@ -19,8 +19,8 @@ android {
         applicationId = "it.fast4x.rimusic"
         minSdk = 21
         targetSdk = 34
-        versionCode = 33
-        versionName = "0.6.35"
+        versionCode = 34
+        versionName = "0.6.36"
         //buildConfigField("String", "VERSION_NAME", "\"$versionName\"" )
     }
 
@@ -121,7 +121,7 @@ dependencies {
     implementation("androidx.media3:media3-datasource-okhttp:1.3.1")
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.compose.material:material:1.6.7")
-    implementation("androidx.compose.material3:material3-android:1.2.1")
+    implementation("androidx.compose.material3:material3-android:1.3.0-beta01")
     implementation("androidx.compose.ui:ui-graphics-android:1.6.7")
     implementation("com.github.therealbush:translator:1.0.2")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.3")

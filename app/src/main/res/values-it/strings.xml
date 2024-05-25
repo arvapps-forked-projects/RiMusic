@@ -544,4 +544,13 @@
     <string name="show_background_in_lyrics">Mostra colore di sfondo nel Testo</string>
     <string name="bg_colors_blurred_cover_background">Sfondo copertina sfocata</string>
     <string name="lang_estonian">Estone</string>
+    <string name="pcontrols_modern">Moderno</string>
+    <string name="pcontrols_essential">Essenziale</string>
+    <string name="pcontrols_type">Stile dei controlli</string>
+    <string name="player_swiping_down_is_disabled">Lo scorrimento verso il basso del player è disabilitato</string>
+    <string name="player_position">Posizione del player</string>
+    <string name="position_top">In alto</string>
+    <string name="position_bottom">In basso</string>
+    <string name="added_to_favorites">Aggiunto ai preferiti</string>
+    <string name="removed_from_favorites">Rimosso dai preferiti</string>
 </resources>

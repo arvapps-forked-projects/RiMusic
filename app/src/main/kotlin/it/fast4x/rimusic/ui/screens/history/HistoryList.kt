@@ -248,8 +248,8 @@ fun HistoryList(
                     key = { it.event.id }
                 ) { event ->
 
-                    BehindMotionSwipe(
-                        content = {
+                    //BehindMotionSwipe(
+                    //    content = {
                             val isLocal by remember { derivedStateOf { event.song.asMediaItem.isLocal } }
                             downloadState = getDownloadState(event.song.asMediaItem.mediaId)
                             val isDownloaded =
@@ -323,6 +323,7 @@ fun HistoryList(
                                     .background(color = colorPalette.background0)
                                     .animateItemPlacement()
                             )
+                        /*
                         },
                         leftActionsContent = {
                             LeftAction(
@@ -378,7 +379,7 @@ fun HistoryList(
                         },
                         onHorizontalSwipeWhenActionDisabled = {}
                     )
-
+                    */
                 }
             }
         }

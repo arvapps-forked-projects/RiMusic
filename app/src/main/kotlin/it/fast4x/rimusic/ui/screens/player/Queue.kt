@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +44,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CheckboxDefaults.colors
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -115,6 +117,7 @@ import it.fast4x.rimusic.utils.RightActions
 import it.fast4x.rimusic.utils.backgroundProgressKey
 import it.fast4x.rimusic.utils.downloadedStateMedia
 import it.fast4x.rimusic.utils.getDownloadState
+import it.fast4x.rimusic.utils.isLandscape
 import it.fast4x.rimusic.utils.isSwipeToActionEnabledKey
 import it.fast4x.rimusic.utils.manageDownload
 import it.fast4x.rimusic.utils.medium
@@ -173,7 +176,7 @@ fun Queue(
                         //.clip(shape)
                         .drawBehind { drawRect(backgroundColorProvider()) }
                         .fillMaxSize()
-                        .padding(horizontalBottomPaddingValues)
+                        //.padding(horizontalBottomPaddingValues)
                 ) {
                     if (!showButtonPlayerArrow)
                         Image(
@@ -246,7 +249,7 @@ fun Queue(
             extraItemCount = 0
         )
 
-        val rippleIndication = rememberRipple(bounded = false)
+        val rippleIndication = ripple(bounded = false)
 
         val musicBarsTransition = updateTransition(targetState = mediaItemIndex, label = "")
 
@@ -408,8 +411,8 @@ fun Queue(
                     ) { window ->
                         val currentItem by rememberUpdatedState(window)
                         val checkedState = remember { mutableStateOf(false) }
-                        BehindMotionSwipe(
-                            content = {
+                        //BehindMotionSwipe(
+                        //    content = {
                                 var deltaX by remember { mutableStateOf(0f) }
                                 val isPlayingThisMediaItem =
                                     mediaItemIndex == window.firstPeriodIndex
@@ -566,6 +569,7 @@ fun Queue(
                                         .background(color = colorPalette.background0)
 
                                 )
+                            /*
                             },
                             leftActionsContent = {
                                 if (!reorderingState.isDragging)
@@ -625,6 +629,7 @@ fun Queue(
                                 else SmartToast(context.resources.getString(R.string.locked), type = PopupType.Warning)
                             }
                         )
+                        */
                     }
 
                     item {
@@ -643,6 +648,12 @@ fun Queue(
                                 }
                             }
                         }
+                    }
+                    item(
+                        key = "footer",
+                        contentType = 0
+                    ) {
+                        Spacer(modifier = Modifier.height(Dimensions.bottomSpacer))
                     }
                 }
 
@@ -665,10 +676,12 @@ fun Queue(
 
                 //FloatingActionsContainerWithScrollToTop(lazyListState = reorderingState.lazyListState)
 
+
+
             }
 
-            val backgroundProgress by rememberPreference(backgroundProgressKey, BackgroundProgress.MiniPlayer)
-            val positionAndDuration by binder.player.positionAndDurationState()
+            //val backgroundProgress by rememberPreference(backgroundProgressKey, BackgroundProgress.MiniPlayer)
+            //val positionAndDuration by binder.player.positionAndDurationState()
             Box(
                 modifier = Modifier
                     //.clip(shape)
@@ -676,8 +689,9 @@ fun Queue(
                     .background(colorPalette.background1)
                     .fillMaxWidth()
                     //.padding(horizontal = 8.dp)
-                    .padding(horizontalBottomPaddingValues)
+                    //.padding(horizontalBottomPaddingValues)
                     .height(60.dp) //bottom bar queue
+                    /*
                     .drawBehind {
                         if (backgroundProgress == BackgroundProgress.Both || backgroundProgress == BackgroundProgress.MiniPlayer) {
                             drawRect(
@@ -691,7 +705,19 @@ fun Queue(
                             )
                         }
                     }
+                     */
             ) {
+
+                if (!isLandscape)
+                    Box(
+                        modifier = Modifier
+                            .absoluteOffset(0.dp, -65.dp)
+                            .align(Alignment.TopCenter)
+                    ){
+                        PlayerEssential(showPlayer = {}, hidePlayer = {})
+                    }
+
+
                 if (!showButtonPlayerArrow)
                     Image(
                         painter = painterResource(R.drawable.horizontal_bold_line_rounded),

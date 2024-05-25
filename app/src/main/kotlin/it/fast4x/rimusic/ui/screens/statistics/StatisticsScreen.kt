@@ -39,7 +39,8 @@ import it.fast4x.rimusic.utils.showSearchTabKey
 @Composable
 fun StatisticsScreen(
     navController: NavController,
-    statisticsType: StatisticsType
+    statisticsType: StatisticsType,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
 
@@ -65,6 +66,7 @@ fun StatisticsScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

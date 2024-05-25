@@ -32,7 +32,8 @@ import it.fast4x.rimusic.utils.rememberPreference
 @Composable
 fun MoodScreen(
     navController: NavController,
-    mood: Mood
+    mood: Mood,
+    playerEssential: @Composable () -> Unit = {},
 ) {
 
 
@@ -47,6 +48,7 @@ fun MoodScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,
                 onTopIconButtonClick = pop,

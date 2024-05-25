@@ -111,7 +111,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ArtistScreen(
     navController: NavController,
-    browseId: String
+    browseId: String,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
 
@@ -412,6 +413,7 @@ fun ArtistScreen(
 
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

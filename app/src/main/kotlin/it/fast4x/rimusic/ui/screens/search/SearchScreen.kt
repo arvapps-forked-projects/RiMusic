@@ -55,6 +55,7 @@ import it.fast4x.rimusic.utils.secondary
 @Composable
 fun SearchScreen(
     navController: NavController,
+    playerEssential: @Composable () -> Unit = {},
     initialTextInput: String,
     onSearch: (String) -> Unit,
     onViewPlaylist: (String) -> Unit,
@@ -167,6 +168,7 @@ fun SearchScreen(
 
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,
                 onTopIconButtonClick = {

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +65,7 @@ fun RightActions(
     enableAction2: Boolean = true
 ) {
     val (colorPalette, typography, thumbnailShape) = LocalAppearance.current
-    val rippleIndication = rememberRipple(bounded = false)
+    val rippleIndication = ripple(bounded = false)
 
     Box(
         modifier = Modifier
@@ -109,7 +110,7 @@ fun Action(
     enabled: Boolean = true
 ){
     val (colorPalette, typography, thumbnailShape) = LocalAppearance.current
-    val rippleIndication = rememberRipple(bounded = false)
+    val rippleIndication = ripple(bounded = false)
     
     Box(
         modifier = modifier

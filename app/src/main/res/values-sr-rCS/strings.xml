@@ -117,8 +117,8 @@
     <string name="left">%1$s ostalo</string>
     <string name="confirm">Potvrdi</string>
     <string name="show">Prikaži</string>
-    <string name="unsynchronized_lyrics">nesinhronizovani stihovi</string>
-    <string name="synchronized_lyrics">sinhronizovani stihovi</string>
+    <string name="unsynchronized_lyrics">nesinhronizovane stihove</string>
+    <string name="synchronized_lyrics">sinhronizovane stihove</string>
     <string name="provided_by">Obezbeđuje</string>
     <string name="delete_playback_events">Izbriši %1$s događaje reprodukcije</string>
     <string name="existing_data_will_be_overwritten">Postojeći podaci će biti prepisani.\n%1$s će se automatski zatvoriti nakon vraćanja baze podataka.</string>
@@ -544,4 +544,13 @@
     <string name="show_background_in_lyrics">Prikaži boju pozadine u Stihovima</string>
     <string name="bg_colors_blurred_cover_background">Zamućena pozadina omota</string>
     <string name="lang_estonian">Estonski</string>
+    <string name="pcontrols_modern">Modern</string>
+    <string name="pcontrols_essential">Essential</string>
+    <string name="pcontrols_type">Controls type</string>
+    <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
+    <string name="player_position">Player position</string>
+    <string name="position_top">Top</string>
+    <string name="position_bottom">Bottom</string>
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
 </resources>

@@ -71,7 +71,8 @@ import it.fast4x.rimusic.utils.semiBold
 @UnstableApi
 @Composable
 fun SettingsScreen(
-    navController: NavController
+    navController: NavController,
+    playerEssential: @Composable () -> Unit = {},
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
 
@@ -85,6 +86,7 @@ fun SettingsScreen(
         host {
             Scaffold(
                 navController = navController,
+                playerEssential = playerEssential,
                 topIconButtonId = R.drawable.chevron_back,
                 onTopIconButtonClick = pop,
                 showButton1 = if(uiType == UiType.RiMusic) false else true,

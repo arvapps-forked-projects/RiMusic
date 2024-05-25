@@ -42,6 +42,7 @@ import androidx.compose.material.Checkbox
 import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -334,7 +335,7 @@ fun LocalPlaylistSongs(
     val thumbnailSizeDp = Dimensions.thumbnails.song
     val thumbnailSizePx = thumbnailSizeDp.px
 
-    val rippleIndication = rememberRipple(bounded = false)
+    val rippleIndication = ripple(bounded = false)
 
     var downloadState by remember {
         mutableStateOf(Download.STATE_STOPPED)
@@ -1293,8 +1294,8 @@ fun LocalPlaylistSongs(
                     }
                 }
 
-                BehindMotionSwipe(
-                    content = {
+                //BehindMotionSwipe(
+                //    content = {
                         val isLocal by remember { derivedStateOf { song.asMediaItem.isLocal } }
                         downloadState = getDownloadState(song.asMediaItem.mediaId)
                         val isDownloaded = if (!isLocal) downloadedStateMedia(song.asMediaItem.mediaId) else true
@@ -1425,6 +1426,7 @@ fun LocalPlaylistSongs(
                                 .draggedItem(reorderingState = reorderingState, index = index)
                                 .background(color = colorPalette.background0)
                         )
+                /*
                     },
                 leftActionsContent = {
                     if (!reorderingState.isDragging)
@@ -1479,7 +1481,7 @@ fun LocalPlaylistSongs(
                 },
                     onHorizontalSwipeWhenActionDisabled = {}
                 )
-
+                */
             }
 
             item(

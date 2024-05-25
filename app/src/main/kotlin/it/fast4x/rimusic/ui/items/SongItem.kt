@@ -6,11 +6,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +31,7 @@ import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadService
 import coil.compose.AsyncImage
 import it.fast4x.innertube.Innertube
+import it.fast4x.rimusic.Database
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.models.Song
 import it.fast4x.rimusic.service.MyDownloadService
@@ -294,6 +301,25 @@ fun SongItem(
             thumbnailContent()
 
 
+            var likedAt by remember {
+                mutableStateOf<Long?>(null)
+            }
+            LaunchedEffect(Unit, mediaId) {
+                Database.likedAt(mediaId).collect { likedAt = it }
+            }
+            if (likedAt != null)
+                HeaderIconButton(
+                    onClick = {},
+                    icon = R.drawable.heart,
+                    color = colorPalette.favoritesIcon,
+                    iconSize = 12.dp,
+                    modifier = Modifier
+                        //.padding(start = 4.dp)
+                        .align(Alignment.BottomStart)
+                        .absoluteOffset(-8.dp,0.dp)
+
+                )
+            /*
             if (totalPlayTimeMs != null) {
                 if (totalPlayTimeMs <= 0 ) {
                     HeaderIconButton(
@@ -307,6 +333,7 @@ fun SongItem(
                     )
                 }
             }
+             */
 
             /*
             BasicText(

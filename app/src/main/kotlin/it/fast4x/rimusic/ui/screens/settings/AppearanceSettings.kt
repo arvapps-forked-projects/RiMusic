@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -39,7 +36,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -47,42 +43,42 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
-import it.fast4x.rimusic.LocalPlayerAwareWindowInsets
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.BackgroundProgress
 import it.fast4x.rimusic.enums.ClickLyricsText
 import it.fast4x.rimusic.enums.NavigationBarPosition
 import it.fast4x.rimusic.enums.PlayerBackgroundColors
+import it.fast4x.rimusic.enums.PlayerControlsType
 import it.fast4x.rimusic.enums.PlayerPlayButtonType
 import it.fast4x.rimusic.enums.PlayerThumbnailSize
 import it.fast4x.rimusic.enums.PlayerTimelineType
 import it.fast4x.rimusic.enums.PlayerVisualizerType
 import it.fast4x.rimusic.enums.ThumbnailRoundness
-import it.fast4x.rimusic.enums.UiType
-import it.fast4x.rimusic.ui.components.themed.DialogColorPicker
 import it.fast4x.rimusic.ui.components.themed.HeaderIconButton
 import it.fast4x.rimusic.ui.components.themed.HeaderWithIcon
 import it.fast4x.rimusic.ui.components.themed.IconButton
-import it.fast4x.rimusic.ui.components.themed.SmartToast
 import it.fast4x.rimusic.ui.styling.Dimensions
 import it.fast4x.rimusic.ui.styling.LocalAppearance
 import it.fast4x.rimusic.ui.styling.favoritesIcon
+import it.fast4x.rimusic.utils.backgroundProgressKey
+import it.fast4x.rimusic.utils.clickLyricsTextKey
 import it.fast4x.rimusic.utils.disablePlayerHorizontalSwipeKey
 import it.fast4x.rimusic.utils.disableScrollingTextKey
 import it.fast4x.rimusic.utils.effectRotationKey
 import it.fast4x.rimusic.utils.isAtLeastAndroid13
-import it.fast4x.rimusic.utils.isGradientBackgroundEnabledKey
 import it.fast4x.rimusic.utils.isShowingThumbnailInLockscreenKey
 import it.fast4x.rimusic.utils.lastPlayerPlayButtonTypeKey
 import it.fast4x.rimusic.utils.navigationBarPositionKey
+import it.fast4x.rimusic.utils.playerBackgroundColorsKey
+import it.fast4x.rimusic.utils.playerControlsTypeKey
 import it.fast4x.rimusic.utils.playerPlayButtonTypeKey
 import it.fast4x.rimusic.utils.playerThumbnailSizeKey
 import it.fast4x.rimusic.utils.playerTimelineTypeKey
 import it.fast4x.rimusic.utils.playerVisualizerTypeKey
-import it.fast4x.rimusic.utils.preferences
 import it.fast4x.rimusic.utils.rememberPreference
 import it.fast4x.rimusic.utils.secondary
 import it.fast4x.rimusic.utils.semiBold
+import it.fast4x.rimusic.utils.showBackgroundLyricsKey
 import it.fast4x.rimusic.utils.showButtonPlayerAddToPlaylistKey
 import it.fast4x.rimusic.utils.showButtonPlayerArrowKey
 import it.fast4x.rimusic.utils.showButtonPlayerDownloadKey
@@ -91,13 +87,9 @@ import it.fast4x.rimusic.utils.showButtonPlayerLyricsKey
 import it.fast4x.rimusic.utils.showButtonPlayerMenuKey
 import it.fast4x.rimusic.utils.showButtonPlayerShuffleKey
 import it.fast4x.rimusic.utils.showButtonPlayerSleepTimerKey
+import it.fast4x.rimusic.utils.showButtonPlayerSystemEqualizerKey
 import it.fast4x.rimusic.utils.showDownloadButtonBackgroundPlayerKey
 import it.fast4x.rimusic.utils.showLikeButtonBackgroundPlayerKey
-import it.fast4x.rimusic.utils.backgroundProgressKey
-import it.fast4x.rimusic.utils.clickLyricsTextKey
-import it.fast4x.rimusic.utils.playerBackgroundColorsKey
-import it.fast4x.rimusic.utils.showBackgroundLyricsKey
-import it.fast4x.rimusic.utils.showButtonPlayerSystemEqualizerKey
 import it.fast4x.rimusic.utils.showNextSongsInPlayerKey
 import it.fast4x.rimusic.utils.showRemainingSongTimeKey
 import it.fast4x.rimusic.utils.showTotalTimeQueueKey
@@ -115,17 +107,35 @@ fun AppearanceSettings() {
         true
     )
 
-    var playerPlayButtonType by rememberPreference(playerPlayButtonTypeKey, PlayerPlayButtonType.Rectangular)
+    var playerPlayButtonType by rememberPreference(
+        playerPlayButtonTypeKey,
+        PlayerPlayButtonType.Rectangular
+    )
 
-    var lastPlayerPlayButtonType by rememberPreference(lastPlayerPlayButtonTypeKey, PlayerPlayButtonType.Rectangular)
+    var lastPlayerPlayButtonType by rememberPreference(
+        lastPlayerPlayButtonTypeKey,
+        PlayerPlayButtonType.Rectangular
+    )
     var disablePlayerHorizontalSwipe by rememberPreference(disablePlayerHorizontalSwipeKey, false)
 
     var disableScrollingText by rememberPreference(disableScrollingTextKey, false)
-    var showLikeButtonBackgroundPlayer by rememberPreference(showLikeButtonBackgroundPlayerKey, true)
-    var showDownloadButtonBackgroundPlayer by rememberPreference(showDownloadButtonBackgroundPlayerKey, true)
-    var playerVisualizerType by rememberPreference(playerVisualizerTypeKey, PlayerVisualizerType.Disabled)
+    var showLikeButtonBackgroundPlayer by rememberPreference(
+        showLikeButtonBackgroundPlayerKey,
+        true
+    )
+    var showDownloadButtonBackgroundPlayer by rememberPreference(
+        showDownloadButtonBackgroundPlayerKey,
+        true
+    )
+    var playerVisualizerType by rememberPreference(
+        playerVisualizerTypeKey,
+        PlayerVisualizerType.Disabled
+    )
     var playerTimelineType by rememberPreference(playerTimelineTypeKey, PlayerTimelineType.Default)
-    var playerThumbnailSize by rememberPreference(playerThumbnailSizeKey, PlayerThumbnailSize.Medium)
+    var playerThumbnailSize by rememberPreference(
+        playerThumbnailSizeKey,
+        PlayerThumbnailSize.Medium
+    )
 
     var effectRotationEnabled by rememberPreference(effectRotationKey, true)
 
@@ -140,13 +150,22 @@ fun AppearanceSettings() {
     var showButtonPlayerShuffle by rememberPreference(showButtonPlayerShuffleKey, true)
     var showButtonPlayerSleepTimer by rememberPreference(showButtonPlayerSleepTimerKey, false)
     var showButtonPlayerMenu by rememberPreference(showButtonPlayerMenuKey, false)
-    var showButtonPlayerSystemEqualizer by rememberPreference(showButtonPlayerSystemEqualizerKey, false)
+    var showButtonPlayerSystemEqualizer by rememberPreference(
+        showButtonPlayerSystemEqualizerKey,
+        false
+    )
 
-    val navigationBarPosition by rememberPreference(navigationBarPositionKey, NavigationBarPosition.Left)
+    val navigationBarPosition by rememberPreference(
+        navigationBarPositionKey,
+        NavigationBarPosition.Left
+    )
 
     //var isGradientBackgroundEnabled by rememberPreference(isGradientBackgroundEnabledKey, false)
     var showTotalTimeQueue by rememberPreference(showTotalTimeQueueKey, true)
-    var backgroundProgress by rememberPreference(backgroundProgressKey, BackgroundProgress.MiniPlayer)
+    var backgroundProgress by rememberPreference(
+        backgroundProgressKey,
+        BackgroundProgress.MiniPlayer
+    )
     var showNextSongsInPlayer by rememberPreference(showNextSongsInPlayerKey, false)
     var showRemainingSongTime by rememberPreference(showRemainingSongTimeKey, true)
     var clickLyricsText by rememberPreference(clickLyricsTextKey, ClickLyricsText.FullScreen)
@@ -160,7 +179,11 @@ fun AppearanceSettings() {
         thumbnailRoundnessKey,
         ThumbnailRoundness.Heavy
     )
-    var playerBackgroundColors by rememberPreference(playerBackgroundColorsKey, PlayerBackgroundColors.ThemeColor)
+    var playerBackgroundColors by rememberPreference(
+        playerBackgroundColorsKey,
+        PlayerBackgroundColors.ThemeColor
+    )
+    var playerControlsType by rememberPreference(playerControlsTypeKey, PlayerControlsType.Modern)
 
     Column(
         modifier = Modifier
@@ -175,14 +198,14 @@ fun AppearanceSettings() {
                 else Dimensions.contentWidthRightBar
             )
             .verticalScroll(rememberScrollState())
-            /*
-            .padding(
-                LocalPlayerAwareWindowInsets.current
-                    .only(WindowInsetsSides.Vertical + WindowInsetsSides.End)
-                    .asPaddingValues()
-            )
+        /*
+        .padding(
+            LocalPlayerAwareWindowInsets.current
+                .only(WindowInsetsSides.Vertical + WindowInsetsSides.End)
+                .asPaddingValues()
+        )
 
-             */
+         */
     ) {
         HeaderWithIcon(
             title = stringResource(R.string.player_appearance),
@@ -201,7 +224,7 @@ fun AppearanceSettings() {
             iconSize = 24.dp
         )
         /*   Search   */
-        Row (
+        Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
@@ -294,7 +317,11 @@ fun AppearanceSettings() {
         //SettingsGroupSpacer()
         SettingsEntryGroupText(title = stringResource(R.string.player))
 
-        if (filter.isNullOrBlank() || stringResource(R.string.player_thumbnail_size).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.player_thumbnail_size).contains(
+                filterCharSequence,
+                true
+            )
+        )
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.player_thumbnail_size),
                 selectedValue = playerThumbnailSize,
@@ -309,7 +336,11 @@ fun AppearanceSettings() {
                 }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.thumbnail_roundness).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.thumbnail_roundness).contains(
+                filterCharSequence,
+                true
+            )
+        )
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.thumbnail_roundness),
                 selectedValue = thumbnailRoundness,
@@ -339,7 +370,53 @@ fun AppearanceSettings() {
                 }
             )
 
+        if (filter.isNullOrBlank() || stringResource(R.string.pcontrols_type).contains(
+                filterCharSequence,
+                true
+            )
+        )
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(R.string.pcontrols_type),
+                selectedValue = playerControlsType,
+                onValueSelected = {
+                    playerControlsType = it
+                },
+                valueText = {
+                    when (it) {
+                        PlayerControlsType.Modern -> stringResource(R.string.pcontrols_modern)
+                        PlayerControlsType.Essential -> stringResource(R.string.pcontrols_essential)
+                    }
+                },
+            )
 
+        AnimatedVisibility(
+            visible = playerControlsType == PlayerControlsType.Essential,
+            enter = fadeIn(tween(100)),
+            exit = fadeOut(tween(100)),
+        ) {
+            if (filter.isNullOrBlank() || stringResource(R.string.play_button).contains(
+                    filterCharSequence,
+                    true
+                )
+            )
+                EnumValueSelectorSettingsEntry(
+                    title = stringResource(R.string.play_button),
+                    selectedValue = playerPlayButtonType,
+                    onValueSelected = {
+                        playerPlayButtonType = it
+                        lastPlayerPlayButtonType = it
+                    },
+                    valueText = {
+                        when (it) {
+                            PlayerPlayButtonType.Disabled -> stringResource(R.string.vt_disabled)
+                            PlayerPlayButtonType.Default -> stringResource(R.string._default)
+                            PlayerPlayButtonType.Rectangular -> stringResource(R.string.rectangular)
+                            PlayerPlayButtonType.Square -> stringResource(R.string.square)
+                            PlayerPlayButtonType.CircularRibbed -> stringResource(R.string.circular_ribbed)
+                        }
+                    },
+                )
+        }
         /*
 
         if (filter.isNullOrBlank() || stringResource(R.string.use_gradient_background).contains(filterCharSequence,true))
@@ -351,7 +428,11 @@ fun AppearanceSettings() {
             )
          */
 
-        if (filter.isNullOrBlank() || stringResource(R.string.background_colors).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.background_colors).contains(
+                filterCharSequence,
+                true
+            )
+        )
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.background_colors),
                 selectedValue = playerBackgroundColors,
@@ -371,7 +452,11 @@ fun AppearanceSettings() {
                 },
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.show_total_time_of_queue).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.show_total_time_of_queue).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.show_total_time_of_queue),
                 text = "",
@@ -379,7 +464,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showTotalTimeQueue = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.show_remaining_song_time).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.show_remaining_song_time).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.show_remaining_song_time),
                 text = "",
@@ -387,7 +476,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showRemainingSongTime = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.show_next_songs_in_player).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.show_next_songs_in_player).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.show_next_songs_in_player),
                 text = "",
@@ -395,7 +488,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showNextSongsInPlayer = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.disable_scrolling_text).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.disable_scrolling_text).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.disable_scrolling_text),
                 text = stringResource(R.string.scrolling_text_is_used_for_long_texts),
@@ -403,7 +500,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { disableScrollingText = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.disable_horizontal_swipe).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.disable_horizontal_swipe).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.disable_horizontal_swipe),
                 text = stringResource(R.string.disable_song_switching_via_swipe),
@@ -411,7 +512,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { disablePlayerHorizontalSwipe = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.player_rotating_buttons).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.player_rotating_buttons).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.player_rotating_buttons),
                 text = stringResource(R.string.player_enable_rotation_buttons),
@@ -419,7 +524,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { effectRotationEnabled = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.toggle_lyrics).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.toggle_lyrics).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.toggle_lyrics),
                 text = stringResource(R.string.by_tapping_on_the_thumbnail),
@@ -427,7 +536,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { thumbnailTapEnabled = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.click_lyrics_text).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.click_lyrics_text).contains(
+                filterCharSequence,
+                true
+            )
+        )
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.click_lyrics_text),
                 selectedValue = clickLyricsText,
@@ -443,7 +556,11 @@ fun AppearanceSettings() {
                 },
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.show_background_in_lyrics).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.show_background_in_lyrics).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.show_background_in_lyrics),
                 text = "",
@@ -451,7 +568,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showBackgroundLyrics = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.background_progress_bar).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.background_progress_bar).contains(
+                filterCharSequence,
+                true
+            )
+        )
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.background_progress_bar),
                 selectedValue = backgroundProgress,
@@ -468,7 +589,11 @@ fun AppearanceSettings() {
                 },
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.timeline).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.timeline).contains(
+                filterCharSequence,
+                true
+            )
+        )
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.timeline),
                 selectedValue = playerTimelineType,
@@ -483,27 +608,12 @@ fun AppearanceSettings() {
                 }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.play_button).contains(filterCharSequence,true))
-            EnumValueSelectorSettingsEntry(
-                title = stringResource(R.string.play_button),
-                selectedValue = playerPlayButtonType,
-                onValueSelected = {
-                    playerPlayButtonType = it
-                    lastPlayerPlayButtonType = it
-                },
-                valueText = {
-                    when (it) {
-                        PlayerPlayButtonType.Disabled -> stringResource(R.string.vt_disabled)
-                        PlayerPlayButtonType.Default -> stringResource(R.string._default)
-                        PlayerPlayButtonType.Rectangular -> stringResource(R.string.rectangular)
-                        PlayerPlayButtonType.Square -> stringResource(R.string.square)
-                        PlayerPlayButtonType.CircularRibbed -> stringResource(R.string.circular_ribbed)
-                    }
-                },
+
+        if (filter.isNullOrBlank() || stringResource(R.string.visualizer).contains(
+                filterCharSequence,
+                true
             )
-
-
-        if (filter.isNullOrBlank() || stringResource(R.string.visualizer).contains(filterCharSequence,true)) {
+        ) {
             EnumValueSelectorSettingsEntry(
                 title = stringResource(R.string.visualizer),
                 selectedValue = playerVisualizerType,
@@ -527,7 +637,11 @@ fun AppearanceSettings() {
         SettingsGroupSpacer()
         SettingsEntryGroupText(title = stringResource(R.string.player_action_bar))
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_download_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_download_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_download_button),
                 text = "",
@@ -535,7 +649,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerDownload = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_add_to_playlist_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_add_to_playlist_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_add_to_playlist_button),
                 text = "",
@@ -543,7 +661,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerAddToPlaylist = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_loop_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_loop_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_loop_button),
                 text = "",
@@ -551,7 +673,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerLoop = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_shuffle_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_shuffle_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_shuffle_button),
                 text = "",
@@ -559,7 +685,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerShuffle = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_lyrics_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_lyrics_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_lyrics_button),
                 text = "",
@@ -567,7 +697,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerLyrics = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_sleep_timer_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_sleep_timer_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_sleep_timer_button),
                 text = "",
@@ -575,7 +709,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerSleepTimer = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.show_equalizer).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.show_equalizer).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.show_equalizer),
                 text = "",
@@ -583,7 +721,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerSystemEqualizer = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_arrow_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_arrow_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_arrow_button),
                 text = "",
@@ -591,7 +733,11 @@ fun AppearanceSettings() {
                 onCheckedChange = { showButtonPlayerArrow = it }
             )
 
-        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_menu_button).contains(filterCharSequence,true))
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_menu_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
             SwitchSettingEntry(
                 title = stringResource(R.string.action_bar_show_menu_button),
                 text = "",
@@ -602,7 +748,11 @@ fun AppearanceSettings() {
         SettingsGroupSpacer()
         SettingsEntryGroupText(title = stringResource(R.string.background_player))
 
-        if (filter.isNullOrBlank() || stringResource(R.string.show_favorite_button).contains(filterCharSequence,true)) {
+        if (filter.isNullOrBlank() || stringResource(R.string.show_favorite_button).contains(
+                filterCharSequence,
+                true
+            )
+        ) {
             SwitchSettingEntry(
                 title = stringResource(R.string.show_favorite_button),
                 text = stringResource(R.string.show_favorite_button_in_lock_screen_and_notification_area),
@@ -611,7 +761,11 @@ fun AppearanceSettings() {
             )
             ImportantSettingsDescription(text = stringResource(R.string.restarting_rimusic_is_required))
         }
-        if (filter.isNullOrBlank() || stringResource(R.string.show_download_button).contains(filterCharSequence,true)) {
+        if (filter.isNullOrBlank() || stringResource(R.string.show_download_button).contains(
+                filterCharSequence,
+                true
+            )
+        ) {
             SwitchSettingEntry(
                 title = stringResource(R.string.show_download_button),
                 text = stringResource(R.string.show_download_button_in_lock_screen_and_notification_area),
@@ -626,19 +780,23 @@ fun AppearanceSettings() {
         //SettingsEntryGroupText(title = stringResource(R.string.text))
 
 
-        if (filter.isNullOrBlank() || stringResource(R.string.show_song_cover).contains(filterCharSequence,true))
-        if (!isAtLeastAndroid13) {
-            SettingsGroupSpacer()
-
-            SettingsEntryGroupText(title = stringResource(R.string.lockscreen))
-
-            SwitchSettingEntry(
-                title = stringResource(R.string.show_song_cover),
-                text = stringResource(R.string.use_song_cover_on_lockscreen),
-                isChecked = isShowingThumbnailInLockscreen,
-                onCheckedChange = { isShowingThumbnailInLockscreen = it }
+        if (filter.isNullOrBlank() || stringResource(R.string.show_song_cover).contains(
+                filterCharSequence,
+                true
             )
-        }
+        )
+            if (!isAtLeastAndroid13) {
+                SettingsGroupSpacer()
+
+                SettingsEntryGroupText(title = stringResource(R.string.lockscreen))
+
+                SwitchSettingEntry(
+                    title = stringResource(R.string.show_song_cover),
+                    text = stringResource(R.string.use_song_cover_on_lockscreen),
+                    isChecked = isShowingThumbnailInLockscreen,
+                    onCheckedChange = { isShowingThumbnailInLockscreen = it }
+                )
+            }
         SettingsGroupSpacer(
             modifier = Modifier.height(Dimensions.bottomSpacer)
         )

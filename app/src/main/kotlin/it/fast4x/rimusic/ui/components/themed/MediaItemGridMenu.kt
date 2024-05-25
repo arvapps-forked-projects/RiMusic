@@ -52,6 +52,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.offline.Download
 import androidx.navigation.NavController
+import it.fast4x.compose.persist.persistList
 import it.fast4x.innertube.models.NavigationEndpoint
 import it.fast4x.rimusic.Database
 import it.fast4x.rimusic.LocalPlayerServiceBinder
@@ -59,6 +60,7 @@ import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.NavRoutes
 import it.fast4x.rimusic.enums.PlaylistSortBy
 import it.fast4x.rimusic.enums.SortOrder
+import it.fast4x.rimusic.models.Artist
 import it.fast4x.rimusic.models.Info
 import it.fast4x.rimusic.models.Playlist
 import it.fast4x.rimusic.models.Song
@@ -281,6 +283,7 @@ fun MediaItemGridMenu (
     val context = LocalContext.current
 
     val isLocal by remember { derivedStateOf { mediaItem.isLocal } }
+
     var updateData by remember {
         mutableStateOf(false)
     }
@@ -307,7 +310,8 @@ fun MediaItemGridMenu (
         })
     }
 
-    val artistsInfo by remember {
+
+    var artistsInfo by remember {
         mutableStateOf(
             mediaItem.mediaMetadata.extras?.getStringArrayList("artistNames")?.let { artistNames ->
                 mediaItem.mediaMetadata.extras?.getStringArrayList("artistIds")?.let { artistIds ->
@@ -318,6 +322,24 @@ fun MediaItemGridMenu (
             }
         )
     }
+
+    var artistsList by persistList<Artist?>("home/artists")
+    var artistIds = remember { mutableListOf("") }
+
+    LaunchedEffect(Unit, mediaItem.mediaId) {
+        withContext(Dispatchers.IO) {
+            //if (albumInfo == null)
+            albumInfo = Database.songAlbumInfo(mediaItem.mediaId)
+            //if (artistsInfo == null)
+            artistsInfo = Database.songArtistInfo(mediaItem.mediaId)
+
+            artistsInfo?.forEach { info ->
+                if (info.id.isNotEmpty()) artistIds.add(info.id)
+            }
+            Database.getArtistsList(artistIds).collect { artistsList = it }
+        }
+    }
+
 
     var showSelectDialogListenOn by remember {
         mutableStateOf(false)

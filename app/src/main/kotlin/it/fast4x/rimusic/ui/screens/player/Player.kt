@@ -3,7 +3,6 @@ package it.fast4x.rimusic.ui.screens.player
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.Bitmap
 import android.media.audiofx.AudioEffect
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -47,7 +46,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
@@ -103,7 +101,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.offline.Download
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import it.fast4x.rimusic.Database
@@ -111,7 +108,6 @@ import it.fast4x.rimusic.LocalPlayerServiceBinder
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.BackgroundProgress
 import it.fast4x.rimusic.enums.ColorPaletteMode
-import it.fast4x.rimusic.enums.ColorPaletteName
 import it.fast4x.rimusic.enums.DurationInSeconds
 import it.fast4x.rimusic.enums.NavRoutes
 import it.fast4x.rimusic.enums.PlayerBackgroundColors
@@ -148,16 +144,13 @@ import it.fast4x.rimusic.utils.audioFadeIn
 import it.fast4x.rimusic.utils.audioFadeOut
 import it.fast4x.rimusic.utils.backgroundProgressKey
 import it.fast4x.rimusic.utils.colorPaletteModeKey
-import it.fast4x.rimusic.utils.colorPaletteNameKey
 import it.fast4x.rimusic.utils.currentWindow
 import it.fast4x.rimusic.utils.disableClosingPlayerSwipingDownKey
 import it.fast4x.rimusic.utils.disablePlayerHorizontalSwipeKey
 import it.fast4x.rimusic.utils.downloadedStateMedia
 import it.fast4x.rimusic.utils.durationTextToMillis
 import it.fast4x.rimusic.utils.effectRotationKey
-import it.fast4x.rimusic.utils.fadingEdge
 import it.fast4x.rimusic.utils.forceSeekToNext
-import it.fast4x.rimusic.utils.forceSeekToPrevious
 import it.fast4x.rimusic.utils.formatAsDuration
 import it.fast4x.rimusic.utils.formatAsTime
 import it.fast4x.rimusic.utils.getBitmapFromUrl
@@ -211,7 +204,8 @@ fun Player(
     shape: RoundedCornerShape = RoundedCornerShape(
         topStart = 12.dp,
         topEnd = 12.dp
-    )
+    ),
+    onDismiss: () -> Unit,
 ) {
     val menuState = LocalMenuState.current
 
@@ -262,7 +256,10 @@ fun Player(
         PlayerVisualizerType.Disabled
     )
 
-    val playbackFadeDuration by rememberPreference(playbackFadeDurationKey, DurationInSeconds.Disabled)
+    val playbackFadeDuration by rememberPreference(
+        playbackFadeDurationKey,
+        DurationInSeconds.Disabled
+    )
 
     val context = LocalContext.current
 
@@ -305,7 +302,7 @@ fun Player(
                 .toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
         //val songProgressInt = songProgressFloat.toInt()
         if (songProgressFloat in playbackFadeDuration.fadeOutRange && binder.player.shouldBePlaying) {
-        //if (timeRemaining in playbackFadeDuration.fadeOutRange) {
+            //if (timeRemaining in playbackFadeDuration.fadeOutRange) {
             //println("mediaItem volume startFadeOut $fadeInOut")
             audioFadeOut(binder.player, playbackFadeDuration.seconds, context)
             //fadeInOut = true
@@ -328,7 +325,6 @@ fun Player(
         //println("mediaItem positionAndDuration $positionAndDuration % ${(positionAndDuration.first.toInt()*100) / positionAndDuration.second.toInt()}")
         //println("mediaItem progress float $songProgressFloat playbackFadeDuration ${playbackFadeDuration} $fadeInOut")
     }
-
 
 
     val windowInsets = WindowInsets.systemBars
@@ -454,10 +450,19 @@ fun Player(
     val showButtonPlayerShuffle by rememberPreference(showButtonPlayerShuffleKey, true)
     val showButtonPlayerSleepTimer by rememberPreference(showButtonPlayerSleepTimerKey, false)
     val showButtonPlayerMenu by rememberPreference(showButtonPlayerMenuKey, false)
-    val showButtonPlayerSystemEqualizer by rememberPreference(showButtonPlayerSystemEqualizerKey, false)
-    val disableClosingPlayerSwipingDown by rememberPreference(disableClosingPlayerSwipingDownKey, true)
+    val showButtonPlayerSystemEqualizer by rememberPreference(
+        showButtonPlayerSystemEqualizerKey,
+        false
+    )
+    val disableClosingPlayerSwipingDown by rememberPreference(
+        disableClosingPlayerSwipingDownKey,
+        true
+    )
     val showTotalTimeQueue by rememberPreference(showTotalTimeQueueKey, true)
-    val backgroundProgress by rememberPreference(backgroundProgressKey, BackgroundProgress.MiniPlayer)
+    val backgroundProgress by rememberPreference(
+        backgroundProgressKey,
+        BackgroundProgress.MiniPlayer
+    )
     /*
     val playlistPreviews by remember {
         Database.playlistPreviews(PlaylistSortBy.Name, SortOrder.Ascending)
@@ -629,15 +634,20 @@ fun Player(
 
     var dynamicColorPalette by remember { mutableStateOf(colorPalette) }
     val colorPaletteMode by rememberPreference(colorPaletteModeKey, ColorPaletteMode.Light)
-    val playerBackgroundColors by rememberPreference(playerBackgroundColorsKey, PlayerBackgroundColors.ThemeColor)
-    val isGradientBackgroundEnabled = playerBackgroundColors == PlayerBackgroundColors.ThemeColorGradient ||
-            playerBackgroundColors == PlayerBackgroundColors.CoverColorGradient ||
-            playerBackgroundColors == PlayerBackgroundColors.FluidThemeColorGradient ||
-            playerBackgroundColors == PlayerBackgroundColors.FluidCoverColorGradient
+    val playerBackgroundColors by rememberPreference(
+        playerBackgroundColorsKey,
+        PlayerBackgroundColors.ThemeColor
+    )
+    val isGradientBackgroundEnabled =
+        playerBackgroundColors == PlayerBackgroundColors.ThemeColorGradient ||
+                playerBackgroundColors == PlayerBackgroundColors.CoverColorGradient ||
+                playerBackgroundColors == PlayerBackgroundColors.FluidThemeColorGradient ||
+                playerBackgroundColors == PlayerBackgroundColors.FluidCoverColorGradient
 
     if (playerBackgroundColors == PlayerBackgroundColors.CoverColorGradient ||
         playerBackgroundColors == PlayerBackgroundColors.CoverColor ||
-        playerBackgroundColors == PlayerBackgroundColors.FluidCoverColorGradient) {
+        playerBackgroundColors == PlayerBackgroundColors.FluidCoverColorGradient
+    ) {
         val context = LocalContext.current
         val isSystemDarkMode = isSystemInDarkTheme()
         LaunchedEffect(mediaItem.mediaId) {
@@ -652,43 +662,43 @@ fun Player(
         }
     }
 
-   /*  */
-        var sizeShader by remember { mutableStateOf(Size.Zero) }
+    /*  */
+    var sizeShader by remember { mutableStateOf(Size.Zero) }
 
-        val shaderA = LinearGradientShader(
-            Offset(sizeShader.width / 2f, 0f),
-            Offset(sizeShader.width / 2f, sizeShader.height),
-            listOf(
-                dynamicColorPalette.background2,
-                colorPalette.background2,
-            ),
-            listOf(0f, 1f)
-        )
+    val shaderA = LinearGradientShader(
+        Offset(sizeShader.width / 2f, 0f),
+        Offset(sizeShader.width / 2f, sizeShader.height),
+        listOf(
+            dynamicColorPalette.background2,
+            colorPalette.background2,
+        ),
+        listOf(0f, 1f)
+    )
 
-        val shaderB = LinearGradientShader(
-            Offset(sizeShader.width / 2f, 0f),
-            Offset(sizeShader.width / 2f, sizeShader.height),
-            listOf(
-                colorPalette.background1,
-                dynamicColorPalette.accent,
-            ),
-            listOf(0f, 1f)
-        )
+    val shaderB = LinearGradientShader(
+        Offset(sizeShader.width / 2f, 0f),
+        Offset(sizeShader.width / 2f, sizeShader.height),
+        listOf(
+            colorPalette.background1,
+            dynamicColorPalette.accent,
+        ),
+        listOf(0f, 1f)
+    )
 
-        val shaderMask = LinearGradientShader(
-            Offset(sizeShader.width / 2f, 0f),
-            Offset(sizeShader.width / 2f, sizeShader.height),
-            listOf(
-                //Color.White,
-                colorPalette.background2,
-                Color.Transparent,
-            ),
-            listOf(0f, 1f)
-        )
+    val shaderMask = LinearGradientShader(
+        Offset(sizeShader.width / 2f, 0f),
+        Offset(sizeShader.width / 2f, sizeShader.height),
+        listOf(
+            //Color.White,
+            colorPalette.background2,
+            Color.Transparent,
+        ),
+        listOf(0f, 1f)
+    )
 
-        val brushA by animateBrushRotation(shaderA, sizeShader, 20_000, true)
-        val brushB by animateBrushRotation(shaderB, sizeShader, 12_000, false)
-        val brushMask by animateBrushRotation(shaderMask, sizeShader, 15_000, true)
+    val brushA by animateBrushRotation(shaderA, sizeShader, 20_000, true)
+    val brushB by animateBrushRotation(shaderB, sizeShader, 12_000, false)
+    val brushMask by animateBrushRotation(shaderMask, sizeShader, 15_000, true)
     /*  */
 
     val (thumbnailSizeDp, thumbnailSizePx) = Dimensions.thumbnails.player.song.let {
@@ -697,9 +707,11 @@ fun Player(
 
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(mediaItem.mediaMetadata.artworkUri.thumbnail(
-                thumbnailSizePx
-            ))
+            .data(
+                mediaItem.mediaMetadata.artworkUri.thumbnail(
+                    thumbnailSizePx
+                )
+            )
             .size(coil.size.Size.ORIGINAL)
             .transformations(
                 listOf(
@@ -725,17 +737,19 @@ fun Player(
     PlayerSheet(
         state = layoutState,
         modifier = modifier,
+        onCollapse = onDismiss,
         disableDismiss = disableClosingPlayerSwipingDown,
         onDismiss = {
             //if (disableClosingPlayerSwipingDown) {
-                //val playerBottomSheetMinHeight = 70.dp
-                //layoutState.snapTo(playerBottomSheetMinHeight)
+            //val playerBottomSheetMinHeight = 70.dp
+            //layoutState.snapTo(playerBottomSheetMinHeight)
             //} else {
-                binder.stopRadio()
-                binder.player.clearMediaItems()
+            binder.stopRadio()
+            binder.player.clearMediaItems()
             //}
         },
         collapsedContent = {
+            /*
             var deltaX by remember { mutableStateOf(0f) }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -926,6 +940,7 @@ fun Player(
                         .width(2.dp)
                 )
             }
+            */
         }
     ) {
 
@@ -943,7 +958,7 @@ fun Player(
                 windows.map {
                     it.mediaItem.mediaId
                 }
-            ).collect{ queuedSongs = it}
+            ).collect { queuedSongs = it }
         }
 
         var totalPlayTimes = 0L
@@ -970,6 +985,7 @@ fun Player(
         val showNextSongsInPlayer by rememberPreference(showNextSongsInPlayerKey, false)
 
         val playerBottomHeight = if (showNextSongsInPlayer) 80.dp else 50.dp
+        //val playerBottomHeight = 0.dp
         /*
         val playerBottomSheetState = rememberBottomSheetState(
             playerBottomHeight + horizontalBottomPaddingValues.calculateBottomPadding(),
@@ -991,8 +1007,6 @@ fun Player(
         )
 
 
-
-
         var containerModifier = Modifier
             /*
             .padding(
@@ -1000,52 +1014,57 @@ fun Player(
                     .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
                     .asPaddingValues()
             )
-             */
+            */
             .padding(bottom = playerSheetState.collapsedBound)
 
-            if (!isGradientBackgroundEnabled) {
-                if (playerBackgroundColors == PlayerBackgroundColors.BlurredCoverColor) {
+        if (!isGradientBackgroundEnabled) {
+            if (playerBackgroundColors == PlayerBackgroundColors.BlurredCoverColor) {
+                containerModifier = containerModifier
+                    .background(dynamicColorPalette.background1)
+                    .paint(
+                        painter = painter,
+                        contentScale = ContentScale.Crop,
+                        sizeToIntrinsics = false
+                    )
+            } else {
+                containerModifier = containerModifier
+                    .background(
+                        dynamicColorPalette.background1
+                        //colorPalette.background1
+                    )
+            }
+        } else {
+            when (playerBackgroundColors) {
+                PlayerBackgroundColors.FluidThemeColorGradient,
+                PlayerBackgroundColors.FluidCoverColorGradient -> {
                     containerModifier = containerModifier
-                        .background(dynamicColorPalette.background1)
-                        .paint(painter = painter, contentScale = ContentScale.Crop, sizeToIntrinsics = false)
-                } else {
+                        .onSizeChanged {
+                            sizeShader = Size(it.width.toFloat(), it.height.toFloat())
+                        }
+                        .drawBehind {
+                            drawRect(brush = brushA)
+                            drawRect(brush = brushMask, blendMode = BlendMode.DstOut)
+                            drawRect(brush = brushB, blendMode = BlendMode.DstAtop)
+                        }
+                }
+
+                else -> {
                     containerModifier = containerModifier
                         .background(
-                            dynamicColorPalette.background1
-                            //colorPalette.background1
-                        )
-                }
-            } else {
-                when (playerBackgroundColors) {
-                    PlayerBackgroundColors.FluidThemeColorGradient,
-                    PlayerBackgroundColors.FluidCoverColorGradient -> {
-                        containerModifier = containerModifier
-                            .onSizeChanged {
-                                sizeShader = Size(it.width.toFloat(), it.height.toFloat())
-                            }
-                            .drawBehind {
-                                drawRect(brush = brushA)
-                                drawRect(brush = brushMask, blendMode = BlendMode.DstOut)
-                                drawRect(brush = brushB, blendMode = BlendMode.DstAtop)
-                            }
-                    }
-                    else -> {
-                        containerModifier = containerModifier
-                            .background(
-                                Brush.verticalGradient(
-                                    0.5f to dynamicColorPalette.background2,
-                                    1.0f to colorPalette.background2,
-                                    //0.0f to colorPalette.background0,
-                                    //1.0f to colorPalette.background2,
-                                    startY = 0.0f,
-                                    endY = 1500.0f
-                                )
+                            Brush.verticalGradient(
+                                0.5f to dynamicColorPalette.background2,
+                                1.0f to colorPalette.background2,
+                                //0.0f to colorPalette.background0,
+                                //1.0f to colorPalette.background2,
+                                startY = 0.0f,
+                                endY = 1500.0f
                             )
+                        )
 
-                    }
                 }
-
             }
+
+        }
 
         val thumbnailContent: @Composable (modifier: Modifier) -> Unit = { modifier ->
             var deltaX by remember { mutableStateOf(0f) }
@@ -1105,69 +1124,69 @@ fun Player(
                     }
 
                 /* **** */
-                    /*
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                                val (x, y) = dragAmount
-                                if(abs(x) > abs(y)){
-                                    when {
-                                        x > 0 -> {
-                                            //right
-                                            direction = 0
-                                        }
-                                        x < 0 -> {
-                                            // left
-                                            direction = 1
-                                        }
+                /*
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            val (x, y) = dragAmount
+                            if(abs(x) > abs(y)){
+                                when {
+                                    x > 0 -> {
+                                        //right
+                                        direction = 0
                                     }
-                                } else {
-                                    when {
-                                        y > 0 -> {
-                                            // down
-                                            direction = 2
-                                        }
-                                        y < 0 -> {
-                                            // up
-                                            direction = 3
-                                        }
+                                    x < 0 -> {
+                                        // left
+                                        direction = 1
                                     }
                                 }
+                            } else {
+                                when {
+                                    y > 0 -> {
+                                        // down
+                                        direction = 2
+                                    }
+                                    y < 0 -> {
+                                        // up
+                                        direction = 3
+                                    }
+                                }
+                            }
 
-                            },
-                            onDragEnd = {
-                                when (direction) {
-                                    0 -> {
-                                        //right swipe code here
-                                        if (!disablePlayerHorizontalSwipe)
-                                            binder.player.seekToPreviousMediaItem()
-                                        //Log.d("mediaItem","Swipe to RIGHT")
-                                    }
-                                    1 -> {
-                                        // left swipe code here
-                                        if (!disablePlayerHorizontalSwipe)
-                                            binder.player.forceSeekToNext()
-                                        //Log.d("mediaItem","Swipe to LEFT")
-                                    }
+                        },
+                        onDragEnd = {
+                            when (direction) {
+                                0 -> {
+                                    //right swipe code here
+                                    if (!disablePlayerHorizontalSwipe)
+                                        binder.player.seekToPreviousMediaItem()
+                                    //Log.d("mediaItem","Swipe to RIGHT")
+                                }
+                                1 -> {
+                                    // left swipe code here
+                                    if (!disablePlayerHorizontalSwipe)
+                                        binder.player.forceSeekToNext()
+                                    //Log.d("mediaItem","Swipe to LEFT")
+                                }
 
-                                    2 -> {
-                                        // down swipe code here
-                                        layoutState.collapseSoft()
-                                        //Log.d("mediaItem","Swipe to DOWN")
-                                    }
-                                    3 -> {
-                                        // up swipe code here
-                                        playerBottomSheetState.expandSoft()
-                                        //Log.d("mediaItem","Swipe to UP")
-                                    }
-
+                                2 -> {
+                                    // down swipe code here
+                                    layoutState.collapseSoft()
+                                    //Log.d("mediaItem","Swipe to DOWN")
+                                }
+                                3 -> {
+                                    // up swipe code here
+                                    playerBottomSheetState.expandSoft()
+                                    //Log.d("mediaItem","Swipe to UP")
                                 }
 
                             }
-                        )
-                    }
-                */
+
+                        }
+                    )
+                }
+            */
                 /* **** */
             )
         }
@@ -1176,6 +1195,7 @@ fun Player(
         val controlsContent: @Composable (modifier: Modifier) -> Unit = { modifier ->
             Controls(
                 navController = navController,
+                onCollapse = onDismiss,
                 layoutState = layoutState,
                 media = mediaItem.toUiMedia(positionAndDuration.second),
                 mediaId = mediaItem.mediaId,
@@ -1241,57 +1261,61 @@ fun Player(
                         }
                     }
 
-                    /*
-                    .pointerInput(Unit) {
-                        detectHorizontalDragGestures(
-                            onHorizontalDrag = { change, dragAmount ->
-                                deltaX = dragAmount
-                            },
-                            onDragStart = {
-                                //Log.d("mediaItemGesture","ondragStart offset ${it}")
-                            },
-                            onDragEnd = {
-                                if (!disablePlayerHorizontalSwipe) {
-                                    if (deltaX > 0) {
-                                        binder.player.seekToPreviousMediaItem()
-                                        //binder.player.forceSeekToPrevious()
-                                        Log.d("mediaItem","Swipe to LEFT")
-                                    }
-                                    else {
-                                        binder.player.forceSeekToNext()
-                                        Log.d("mediaItem","Swipe to RIGHT")
-                                    }
-
+                /*
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onHorizontalDrag = { change, dragAmount ->
+                            deltaX = dragAmount
+                        },
+                        onDragStart = {
+                            //Log.d("mediaItemGesture","ondragStart offset ${it}")
+                        },
+                        onDragEnd = {
+                            if (!disablePlayerHorizontalSwipe) {
+                                if (deltaX > 0) {
+                                    binder.player.seekToPreviousMediaItem()
+                                    //binder.player.forceSeekToPrevious()
+                                    Log.d("mediaItem","Swipe to LEFT")
+                                }
+                                else {
+                                    binder.player.forceSeekToNext()
+                                    Log.d("mediaItem","Swipe to RIGHT")
                                 }
 
                             }
 
-                        )
-                    }
-                     */
+                        }
+
+                    )
+                }
+                 */
 
             ) {
 
-                if (uiType != UiType.ViMusic) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .padding(
-                                windowInsets
-                                    .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                                    .asPaddingValues()
-                            )
-                            .fillMaxWidth(0.9f)
-                            .height(30.dp)
-                    ) {
 
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .padding(
+                            windowInsets
+                                .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                                .asPaddingValues()
+                        )
+                        .fillMaxWidth(0.9f)
+                        .height(30.dp)
+                ) {
+
+                    if (uiType != UiType.ViMusic) {
                         Image(
                             painter = painterResource(R.drawable.chevron_down),
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(colorPalette.collapsedPlayerProgressBar),
                             modifier = Modifier
-                                .clickable { layoutState.collapseSoft() }
+                                .clickable {
+                                    onDismiss()
+                                    layoutState.collapseSoft()
+                                }
                                 .rotate(rotationAngle)
                                 //.padding(10.dp)
                                 .size(24.dp)
@@ -1320,6 +1344,7 @@ fun Player(
                                 .clickable {
                                     //onGoToHome()
                                     navController.navigate(NavRoutes.home.name)
+                                    onDismiss()
                                     layoutState.collapseSoft()
                                 }
                                 .rotate(rotationAngle)
@@ -1328,7 +1353,7 @@ fun Player(
 
                         )
 
-                        if(!showButtonPlayerMenu)
+                        if (!showButtonPlayerMenu)
                             Image(
                                 painter = painterResource(R.drawable.ellipsis_vertical),
                                 contentDescription = null,
@@ -1342,6 +1367,7 @@ fun Player(
                                                 mediaItem = mediaItem,
                                                 binder = binder,
                                                 onClosePlayer = {
+                                                    onDismiss()
                                                     layoutState.collapseSoft()
                                                 }
                                             )
@@ -1429,18 +1455,32 @@ fun Player(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        //.border(BorderStroke(1.dp, Color.Green))
                         .fillMaxHeight()
+
+
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween, //Arrangement.SpaceEvenly,
                         modifier = Modifier
                             //.align(Alignment.Center)
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(0.5f)
-
+                            //.padding(horizontal = 12.dp)
+                            //.fillMaxWidth()
+                            .fillMaxSize()
+                            //.fillMaxHeight(0.5f)
+                            .drawBehind {
+                                if (backgroundProgress == BackgroundProgress.Both || backgroundProgress == BackgroundProgress.Player) {
+                                    drawRect(
+                                        color = colorPalette.favoritesOverlay,
+                                        topLeft = Offset.Zero,
+                                        size = Size(
+                                            width = positionAndDuration.first.toFloat() /
+                                                    positionAndDuration.second.absoluteValue * size.width,
+                                            height = size.maxDimension
+                                        )
+                                    )
+                                }
+                            }
                     ) {
                         //if (uiType != UiType.ViMusic) {
 
@@ -1459,7 +1499,7 @@ fun Player(
                                     )
                                 },
                                 modifier = Modifier
-                                    //.padding(horizontal = 4.dp)
+                                    .padding(start = 12.dp)
                                     .size(24.dp)
                             )
 
@@ -1513,6 +1553,7 @@ fun Player(
                                             mediaItem = mediaItem,
                                             binder = binder,
                                             onClosePlayer = {
+                                                onDismiss()
                                                 layoutState.collapseSoft()
                                             }
                                         )
@@ -1644,7 +1685,10 @@ fun Player(
                                             }
                                         )
                                     } catch (e: ActivityNotFoundException) {
-                                        SmartToast(context.resources.getString(R.string.info_not_find_application_audio), type = PopupType.Warning)
+                                        SmartToast(
+                                            context.resources.getString(R.string.info_not_find_application_audio),
+                                            type = PopupType.Warning
+                                        )
                                     }
                                 },
                                 modifier = Modifier
@@ -1661,6 +1705,7 @@ fun Player(
                                     queueSheetState.expandSoft()
                                 },
                                 modifier = Modifier
+                                    .padding(end = 12.dp)
                                     .size(24.dp),
                             )
 
@@ -1676,6 +1721,7 @@ fun Player(
                                             mediaItem = mediaItem,
                                             binder = binder,
                                             onClosePlayer = {
+                                                onDismiss()
                                                 layoutState.collapseSoft()
                                             }
 
@@ -1683,7 +1729,7 @@ fun Player(
                                     }
                                 },
                                 modifier = Modifier
-                                    //.padding(horizontal = 15.dp)
+                                    .padding(end = 12.dp)
                                     .size(24.dp)
                             )
 
@@ -1700,13 +1746,14 @@ fun Player(
                                             mediaItem = mediaItem,
                                             binder = binder,
                                             onClosePlayer = {
+                                                onDismiss()
                                                 layoutState.collapseSoft()
                                             }
                                         )
                                     }
                                 },
                                 modifier = Modifier
-                                    //.padding(horizontal = 4.dp)
+                                    .padding(end = 12.dp)
                                     .size(24.dp)
                             )
                         }
@@ -1722,10 +1769,10 @@ fun Player(
                         ) {
                             val nextMediaItemIndex = binder.player.nextMediaItemIndex
                             val nextMediaItem = if (binder.player.hasNextMediaItem())
-                                                    binder.player.getMediaItemAt(binder.player.nextMediaItemIndex)
-                                                else MediaItem.EMPTY
+                                binder.player.getMediaItemAt(binder.player.nextMediaItemIndex)
+                            else MediaItem.EMPTY
                             val nextNextMediaItem = try {
-                                binder.player.getMediaItemAt(nextMediaItemIndex+1)
+                                binder.player.getMediaItemAt(nextMediaItemIndex + 1)
                             } catch (e: Exception) {
                                 MediaItem.EMPTY
                             }
@@ -1736,7 +1783,9 @@ fun Player(
                                     .height(Dimensions.collapsedPlayer)
                             ) {
                                 AsyncImage(
-                                    model = nextMediaItem.mediaMetadata.artworkUri.thumbnail(Dimensions.thumbnails.song.px / 2),
+                                    model = nextMediaItem.mediaMetadata.artworkUri.thumbnail(
+                                        Dimensions.thumbnails.song.px / 2
+                                    ),
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -1773,7 +1822,9 @@ fun Player(
                                     .height(Dimensions.collapsedPlayer)
                             ) {
                                 AsyncImage(
-                                    model = nextNextMediaItem.mediaMetadata.artworkUri.thumbnail(Dimensions.thumbnails.song.px / 2),
+                                    model = nextNextMediaItem.mediaMetadata.artworkUri.thumbnail(
+                                        Dimensions.thumbnails.song.px / 2
+                                    ),
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -1838,6 +1889,7 @@ fun PlayerSheet(
     disableDismiss: Boolean? = false,
     modifier: Modifier = Modifier,
     onDismiss: (() -> Unit)? = null,
+    onCollapse: (() -> Unit)? = null,
     collapsedContent: @Composable BoxScope.() -> Unit,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -1879,6 +1931,7 @@ fun PlayerSheet(
                                 velocity,
                                 if (disableDismiss == false) onDismiss else null
                             )
+                            onCollapse?.invoke()
                         }
                     }
                 )
@@ -2007,6 +2060,7 @@ class PlayerSheetState(
                         collapse()
                     }
                 }
+
                 in l1..l2 -> collapse()
                 in l2..l3 -> expand()
                 else -> Unit
@@ -2015,7 +2069,7 @@ class PlayerSheetState(
     }
 
     val preUpPostDownNestedScrollConnection
-        get() =  object : NestedScrollConnection {
+        get() = object : NestedScrollConnection {
             var isTopReached = false
 
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
