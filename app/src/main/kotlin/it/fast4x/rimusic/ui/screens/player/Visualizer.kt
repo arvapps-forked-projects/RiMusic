@@ -2,21 +2,39 @@ package it.fast4x.rimusic.ui.screens.player
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.BasicText
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,44 +45,83 @@ import it.fast4x.rimusic.enums.PlayerVisualizerType
 import it.fast4x.rimusic.enums.PopupType
 
 import it.fast4x.rimusic.extensions.visualizer.Visualizer
+import it.fast4x.rimusic.ui.components.themed.SecondaryTextButton
 import it.fast4x.rimusic.ui.components.themed.SmartToast
+import it.fast4x.rimusic.ui.styling.LocalAppearance
+import it.fast4x.rimusic.utils.hasPermission
+import it.fast4x.rimusic.utils.isCompositionLaunched
 import it.fast4x.rimusic.utils.playerVisualizerTypeKey
 import it.fast4x.rimusic.utils.rememberPreference
+import it.fast4x.rimusic.utils.semiBold
 
 import it.fast4x.rimusic.utils.toast
 
 @UnstableApi
 @Composable
 fun ShowVisualizer(
-    //mediaId: String,
-    isDisplayed: Boolean,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    isDisplayed: Boolean
 ) {
 
     val context = LocalContext.current
+    val (_,typography) = LocalAppearance.current
+
     var playerVisualizerType by rememberPreference(playerVisualizerTypeKey, PlayerVisualizerType.Disabled)
-    //Log.d("visualizer player","passato da qui")
 
     if (playerVisualizerType != PlayerVisualizerType.Disabled){
-    //val (colorPalette, typography) = LocalAppearance.current
-    //val context = LocalContext.current
-    //val binder = LocalPlayerServiceBinder.current ?: return
-        //Log.d("visualizer player","è attivo da qui")
 
-    val activity = LocalContext.current as Activity
-    //VisualizerComputer.setupPermissions( LocalContext.current as Activity)
-    if (ContextCompat.checkSelfPermission(
-            activity,
-            Manifest.permission.RECORD_AUDIO
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        SmartToast(context.resources.getString(R.string.require_mic_permission), type = PopupType.Info)
-        ActivityCompat.requestPermissions(
-            activity,
-            arrayOf(Manifest.permission.RECORD_AUDIO), 42
+        val permission =  Manifest.permission.RECORD_AUDIO
+
+        var relaunchPermission by remember {
+            mutableStateOf(false)
+        }
+
+        var hasPermission by remember(isCompositionLaunched()) {
+            mutableStateOf(context.applicationContext.hasPermission(permission))
+        }
+
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { hasPermission = it }
         )
-    } else {
+
+        if (!hasPermission) {
+
+            LaunchedEffect(Unit, relaunchPermission) { launcher.launch(permission) }
+
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                BasicText(
+                    text = stringResource(R.string.require_mic_permission),
+                    modifier = Modifier.fillMaxWidth(0.75f),
+                    style = typography.xs.semiBold
+                )
+                /*
+                Spacer(modifier = Modifier.height(12.dp))
+                SecondaryTextButton(
+                    text = stringResource(R.string.grant_permission),
+                    onClick = {
+                        relaunchPermission = !relaunchPermission
+                    }
+                )
+                 */
+                Spacer(modifier = Modifier.height(20.dp))
+                SecondaryTextButton(
+                    text = stringResource(R.string.open_permission_settings),
+                    onClick = {
+                        context.startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                setData(Uri.fromParts("package", context.packageName, null))
+                            }
+                        )
+                    }
+                )
+
+            }
+
+        } else {
         AnimatedVisibility(
             visible = isDisplayed,
             enter = fadeIn(tween(500)),

@@ -134,7 +134,6 @@ fun PlayerEssential(
 
     val mediaItem = nullableMediaItem ?: return
 
-    println("mediaItem PlayerEssential ${mediaItem.mediaId}")
     var likedAt by rememberSaveable {
         mutableStateOf<Long?>(null)
     }

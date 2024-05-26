@@ -115,7 +115,7 @@
     <string name="more_of">Больше от</string>
     <string name="sleep_timer">Таймер сна</string>
     <string name="left">%1$s осталось</string>
-    <string name="confirm">Подтверждение</string>
+    <string name="confirm">Подтвердить</string>
     <string name="show">Показать</string>
     <string name="unsynchronized_lyrics">несинхронизированные тексты</string>
     <string name="synchronized_lyrics">синхронизированные тексты</string>

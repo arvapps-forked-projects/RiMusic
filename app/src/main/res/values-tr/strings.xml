@@ -545,12 +545,12 @@
     <string name="bg_colors_blurred_cover_background">Bulanık kapak arka plan</string>
     <string name="lang_estonian">Estonian</string>
     <string name="pcontrols_modern">Modern</string>
-    <string name="pcontrols_essential">Essential</string>
-    <string name="pcontrols_type">Controls type</string>
-    <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
-    <string name="player_position">Player position</string>
-    <string name="position_top">Top</string>
-    <string name="position_bottom">Bottom</string>
-    <string name="added_to_favorites">Added to favorites</string>
-    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="pcontrols_essential">Temel</string>
+    <string name="pcontrols_type">Kontrol tipi</string>
+    <string name="player_swiping_down_is_disabled">Oynatıcıyı aşağıya kaydırma devre dışı</string>
+    <string name="player_position">Oynatıcı konumu</string>
+    <string name="position_top">En Üst</string>
+    <string name="position_bottom">En alt</string>
+    <string name="added_to_favorites">Favorilere eklendi</string>
+    <string name="removed_from_favorites">Favorilerden çıkarıldı</string>
 </resources>

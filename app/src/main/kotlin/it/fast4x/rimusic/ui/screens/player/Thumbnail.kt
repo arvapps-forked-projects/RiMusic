@@ -305,8 +305,7 @@ fun Thumbnail(
 
 
             ShowVisualizer(
-                isDisplayed = isShowingEqualizer && error == null,
-                onDismiss = { onShowEqualizer(false) }
+                isDisplayed = isShowingEqualizer && error == null
             )
 
             PlaybackError(

@@ -49,6 +49,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -110,6 +111,7 @@ import it.fast4x.rimusic.models.Song
 import it.fast4x.rimusic.models.ui.toUiMedia
 import it.fast4x.rimusic.query
 import it.fast4x.rimusic.ui.components.BottomSheetState
+import it.fast4x.rimusic.ui.components.CustomModalBottomSheet
 import it.fast4x.rimusic.ui.components.LocalMenuState
 import it.fast4x.rimusic.ui.components.rememberBottomSheetState
 import it.fast4x.rimusic.ui.components.themed.CircularSlider
@@ -201,9 +203,6 @@ fun PlayerModern(
 ) {
     val menuState = LocalMenuState.current
 
-    //val localSheetState = LocalPlayerSheetState.current
-    //println("mediaItem localsheetstate collapsed ${localSheetState.isCollapsed}")
-
     val uiType by rememberPreference(UiTypeKey, UiType.RiMusic)
 
     val effectRotationEnabled by rememberPreference(effectRotationKey, true)
@@ -260,24 +259,18 @@ fun PlayerModern(
         object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 nullableMediaItem = mediaItem
-                //println("mediaItem onMediaItemTransition")
                 if (playbackFadeDuration != DurationInSeconds.Disabled) {
                     binder.player.volume = 0f
-                    //println("mediaItem volume startFadeIn initial volume ${binder.player.volume}")
                     audioFadeIn(binder.player, playbackFadeDuration.seconds, context)
                 }
             }
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 shouldBePlaying = binder.player.shouldBePlaying
-                //println("mediaItem onPlayWhenReadyChanged $playWhenReady")
-                //if (playbackFadeDuration != DurationInSeconds.Disabled) {
-                //}
             }
 
             override fun onPlaybackStateChanged(playbackState: Int) {
                 shouldBePlaying = binder.player.shouldBePlaying
-                //println("mediaItem onPlaybackStateChanged")
             }
         }
     }
@@ -287,7 +280,6 @@ fun PlayerModern(
     val positionAndDuration by binder.player.positionAndDurationState()
     var timeRemaining by remember { mutableIntStateOf(0) }
     timeRemaining = positionAndDuration.second.toInt() - positionAndDuration.first.toInt()
-    //println("mediaItem timeRemaining $timeRemaining")
 
     if (playbackFadeDuration != DurationInSeconds.Disabled) {
         val songProgressFloat =
@@ -777,6 +769,7 @@ fun PlayerModern(
      */
 
     //val queueSheetBottomHeight = 0.dp
+    /*
     val queueSheetState = rememberBottomSheetState(
         horizontalBottomPaddingValues.calculateBottomPadding(),
         layoutState.expandedBound
@@ -787,13 +780,18 @@ fun PlayerModern(
         horizontalBottomPaddingValues.calculateBottomPadding(),
         layoutState.expandedBound
     )
+    */
+
+    var showQueue by rememberSaveable { mutableStateOf(false) }
+    var showFullLyrics by rememberSaveable { mutableStateOf(false) }
 
     val density = LocalDensity.current
     val windowsInsets = WindowInsets.systemBars
     val bottomDp = with(density) { windowsInsets.getBottom(density).toDp() }
 
     var containerModifier = Modifier
-        .padding(bottom = bottomDp)
+        //.padding(bottom = bottomDp)
+        .padding(bottom = 0.dp)
         /*
         .padding(
             windowInsets
@@ -866,7 +864,7 @@ fun PlayerModern(
             isShowingEqualizer = isShowingEqualizer,
             onShowEqualizer = { isShowingEqualizer = it },
             onMaximize = {
-                    lyricsBottomSheetState.expandSoft()
+                    showFullLyrics = true
             },
             onDoubleTap = {
                 val currentMediaItem = binder.player.currentMediaItem
@@ -937,35 +935,133 @@ fun PlayerModern(
 
     Box(
         modifier = Modifier
-            //.navigationBarsPadding()
             .fillMaxSize()
     ) {
         val actionsBarContent: @Composable (modifier: Modifier) -> Unit = { modifier ->
             Row(
                 modifier = Modifier
-                    .align( if(isLandscape) Alignment.BottomEnd else Alignment.BottomCenter )
-                    .requiredHeight(if (showNextSongsInPlayer) 80.dp else 50.dp)
-                    .fillMaxWidth()
-                    .clickable { queueSheetState.expandSoft() }
-                    .background(colorPalette.background2.copy(alpha = 0.8f))
+                    .align(if (isLandscape) Alignment.BottomEnd else Alignment.BottomCenter)
+                    .requiredHeight(if (showNextSongsInPlayer) 90.dp else 50.dp)
+                    .fillMaxWidth(if (isLandscape) 0.8f else 1f)
+                    .clickable { showQueue = true }
+                    .background(colorPalette.background2.copy(alpha = 0.5f))
                     .pointerInput(Unit) {
                         detectVerticalDragGestures(
                             onVerticalDrag = { _, dragAmount ->
-                                if (dragAmount < 0) queueSheetState.expandSoft()
+                                if (dragAmount < 0) showQueue = true
                             }
                         )
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    verticalArrangement = Arrangement.SpaceAround,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
                 ) {
+                    if (showNextSongsInPlayer) {
+                        Row(
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .background(colorPalette.background2.copy(alpha = 0.3f))
+                                .padding(horizontal = 12.dp)
+                                .fillMaxWidth()
+                        ) {
+                            val nextMediaItemIndex = binder.player.nextMediaItemIndex
+                            val nextMediaItem = if (binder.player.hasNextMediaItem())
+                                binder.player.getMediaItemAt(binder.player.nextMediaItemIndex)
+                            else MediaItem.EMPTY
+                            val nextNextMediaItem = try {
+                                binder.player.getMediaItemAt(nextMediaItemIndex + 1)
+                            } catch (e: Exception) {
+                                MediaItem.EMPTY
+                            }
+
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                            ) {
+                                AsyncImage(
+                                    model = nextMediaItem.mediaMetadata.artworkUri.thumbnail(
+                                        Dimensions.thumbnails.song.px / 2
+                                    ),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .padding(all = 5.dp)
+                                        .clip(thumbnailShape)
+                                        .size(30.dp)
+                                )
+                            }
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .weight(1f)
+                            ) {
+
+                                BasicText(
+                                    text = nextMediaItem.mediaMetadata.title?.toString() ?: "",
+                                    style = typography.xxxs.semiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+
+                                BasicText(
+                                    text = nextMediaItem.mediaMetadata.artist?.toString() ?: "",
+                                    style = typography.xxxs.semiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                            ) {
+                                AsyncImage(
+                                    model = nextNextMediaItem.mediaMetadata.artworkUri.thumbnail(
+                                        Dimensions.thumbnails.song.px / 2
+                                    ),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .padding(all = 5.dp)
+                                        .clip(thumbnailShape)
+                                        .size(30.dp)
+                                )
+                            }
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .weight(1f)
+                            ) {
+
+                                BasicText(
+                                    text = nextNextMediaItem.mediaMetadata.title?.toString()
+                                        ?: "",
+                                    style = typography.xxxs.semiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+
+                                BasicText(
+                                    text = nextNextMediaItem.mediaMetadata.artist?.toString()
+                                        ?: "",
+                                    style = typography.xxxs.semiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 12.dp)
                             .fillMaxWidth()
                     ) {
                         if (showButtonPlayerDownload)
@@ -974,7 +1070,6 @@ fun PlayerModern(
                                 color = if (isDownloaded) colorPalette.text else colorPalette.textDisabled,
                                 downloadState = downloadState,
                                 onClick = {
-                                    //if (!isLocal)
                                     manageDownload(
                                         context = context,
                                         songId = mediaItem.mediaId,
@@ -983,7 +1078,7 @@ fun PlayerModern(
                                     )
                                 },
                                 modifier = Modifier
-                                    .padding(start = 12.dp)
+                                    //.padding(start = 12.dp)
                                     .size(24.dp)
                             )
 
@@ -1123,10 +1218,10 @@ fun PlayerModern(
                                 color = colorPalette.text,
                                 enabled = true,
                                 onClick = {
-                                    queueSheetState.expandSoft()
+                                    showQueue = true
                                 },
                                 modifier = Modifier
-                                    .padding(end = 12.dp)
+                                    //.padding(end = 12.dp)
                                     .size(24.dp),
                             )
 
@@ -1150,7 +1245,7 @@ fun PlayerModern(
                                     }
                                 },
                                 modifier = Modifier
-                                    .padding(end = 12.dp)
+                                    //.padding(end = 12.dp)
                                     .size(24.dp)
                             )
 
@@ -1180,108 +1275,6 @@ fun PlayerModern(
                         }
                     }
 
-                    if (showNextSongsInPlayer) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                val nextMediaItemIndex = binder.player.nextMediaItemIndex
-                                val nextMediaItem = if (binder.player.hasNextMediaItem())
-                                    binder.player.getMediaItemAt(binder.player.nextMediaItemIndex)
-                                else MediaItem.EMPTY
-                                val nextNextMediaItem = try {
-                                    binder.player.getMediaItemAt(nextMediaItemIndex + 1)
-                                } catch (e: Exception) {
-                                    MediaItem.EMPTY
-                                }
-
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .height(Dimensions.collapsedPlayer)
-                                ) {
-                                    AsyncImage(
-                                        model = nextMediaItem.mediaMetadata.artworkUri.thumbnail(
-                                            Dimensions.thumbnails.song.px / 2
-                                        ),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .padding(end = 5.dp)
-                                            .clip(thumbnailShape)
-                                            .size(30.dp)
-                                    )
-                                }
-                                Column(
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier
-                                        .height(Dimensions.collapsedPlayer)
-                                        .weight(1f)
-                                ) {
-
-                                    BasicText(
-                                        text = nextMediaItem.mediaMetadata.title?.toString() ?: "",
-                                        style = typography.xxxs.semiBold,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-
-                                    BasicText(
-                                        text = nextMediaItem.mediaMetadata.artist?.toString() ?: "",
-                                        style = typography.xxxs.semiBold,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
-
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .height(Dimensions.collapsedPlayer)
-                                ) {
-                                    AsyncImage(
-                                        model = nextNextMediaItem.mediaMetadata.artworkUri.thumbnail(
-                                            Dimensions.thumbnails.song.px / 2
-                                        ),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .padding(end = 5.dp)
-                                            .clip(thumbnailShape)
-                                            .size(30.dp)
-                                    )
-                                }
-                                Column(
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier
-                                        .height(Dimensions.collapsedPlayer)
-                                        .weight(1f)
-                                ) {
-
-                                    BasicText(
-                                        text = nextNextMediaItem.mediaMetadata.title?.toString()
-                                            ?: "",
-                                        style = typography.xxxs.semiBold,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-
-                                    BasicText(
-                                        text = nextNextMediaItem.mediaMetadata.artist?.toString()
-                                            ?: "",
-                                        style = typography.xxxs.semiBold,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
-                            }
-                        }
-                    }
 
                 }
             }
@@ -1308,14 +1301,14 @@ fun PlayerModern(
             ) {
                 Column (
                     verticalArrangement = Arrangement.Center,
-                    //modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier.fillMaxHeight()
                        // .border(BorderStroke(1.dp, Color.Blue))
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .weight(0.7f)
-                            //.padding(bottom = 10.dp)
+                            .weight(1f)
+                            //.padding(vertical = 10.dp)
                     ) {
 
                         thumbnailContent(
@@ -1326,7 +1319,8 @@ fun PlayerModern(
                     }
                 }
                 Column (
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     controlsContent(
                         modifier = Modifier
@@ -1445,8 +1439,7 @@ fun PlayerModern(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        //.weight(0.5f)
-                        .fillMaxHeight(0.55f)
+                        .weight(1.2f)
                 ) {
                     thumbnailContent(
                         modifier = Modifier
@@ -1494,17 +1487,18 @@ fun PlayerModern(
                     modifier = Modifier
                         .padding(vertical = 4.dp)
                         .fillMaxWidth()
+                        .weight(1f)
                 )
 
                 actionsBarContent(
                     modifier = Modifier
+                        .padding(vertical = 10.dp)
                 )
             }
         }
 
 
-
-
+        /*
         Queue(
             navController = navController,
             layoutState = queueSheetState,
@@ -1514,9 +1508,31 @@ fun PlayerModern(
                 .align(Alignment.BottomCenter),
             shape = shape
         )
+         */
+        CustomModalBottomSheet(
+            showSheet = showQueue,
+            onDismissRequest = { showQueue = false },
+            containerColor = colorPalette.background2,
+            contentColor = colorPalette.background2,
+            modifier = Modifier.fillMaxWidth(),
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            dragHandle = {
+                Surface(
+                    modifier = Modifier.padding(vertical = 0.dp),
+                    color = colorPalette.background0,
+                    shape = thumbnailShape
+                ) {}
+            }
+        ) {
+            QueueModern(
+                navController = navController,
+                onDismiss = { showQueue = false },
+            )
+        }
 
 
 
+        /*
         FullLyricsSheet(
             layoutState = lyricsBottomSheetState,
             content = {},
@@ -1527,7 +1543,28 @@ fun PlayerModern(
                 lyricsBottomSheetState.expand(tween(50))
             }
         )
+         */
 
+        CustomModalBottomSheet(
+            showSheet = showFullLyrics,
+            onDismissRequest = { showFullLyrics = false },
+            containerColor = colorPalette.background2,
+            contentColor = colorPalette.background2,
+            modifier = Modifier.fillMaxWidth(),
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            dragHandle = {
+                Surface(
+                    modifier = Modifier.padding(vertical = 0.dp),
+                    color = colorPalette.background0,
+                    shape = thumbnailShape
+                ) {}
+            }
+        ) {
+            FullLyricsSheetModern(
+                onMaximize = { showFullLyrics = false },
+                onRefresh = {}
+            )
+        }
 
     }
 

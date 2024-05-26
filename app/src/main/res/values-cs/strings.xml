@@ -544,13 +544,13 @@
     <string name="show_background_in_lyrics">Zobrazit barvu pozadí v písňovém textu</string>
     <string name="bg_colors_blurred_cover_background">Rozostřené pozadí obalu</string>
     <string name="lang_estonian">Estonština (eesti keel)</string>
-    <string name="pcontrols_modern">Modern</string>
-    <string name="pcontrols_essential">Essential</string>
-    <string name="pcontrols_type">Controls type</string>
-    <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
-    <string name="player_position">Player position</string>
-    <string name="position_top">Top</string>
-    <string name="position_bottom">Bottom</string>
-    <string name="added_to_favorites">Added to favorites</string>
-    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="pcontrols_modern">Moderní</string>
+    <string name="pcontrols_essential">Základní</string>
+    <string name="pcontrols_type">Typ ovládání</string>
+    <string name="player_swiping_down_is_disabled">Přejetí přehrávače dolů je zakázáno</string>
+    <string name="player_position">Umístění přehrávače</string>
+    <string name="position_top">Nahoře</string>
+    <string name="position_bottom">Dole</string>
+    <string name="added_to_favorites">Přidáno do oblíbených</string>
+    <string name="removed_from_favorites">Odstraněno z oblíbených</string>
 </resources>
