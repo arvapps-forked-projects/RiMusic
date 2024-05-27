@@ -1,6 +1,7 @@
 package it.fast4x.rimusic.utils
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import coil.size.Size
 import coil.transform.Transformation
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +11,8 @@ import kotlin.math.roundToInt
 
 class BlurTransformation(
     private val radius: Int = 25,
-    private val scale: Float = 0.5f
+    private val scale: Float = 0.5f,
+    private val darkenFactor: Float = 0.4f // 40% darker
 ) : Transformation {
 
     override val cacheKey: String = "${javaClass.name}-$radius"
@@ -18,7 +20,7 @@ class BlurTransformation(
     override suspend fun transform(
         input: Bitmap,
         size: Size
-    ): Bitmap = input.blur(scale, radius) ?: input
+    ): Bitmap = input.blur(scale, radius, darkenFactor) ?: input
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -31,7 +33,8 @@ class BlurTransformation(
 
 private suspend fun Bitmap.blur(
     scale: Float,
-    radius: Int
+    radius: Int,
+    darkenFactor: Float
 ): Bitmap? = withContext(Dispatchers.IO) {
     var sentBitmap = this@blur
     val width = (sentBitmap.width * scale).roundToInt()
@@ -239,6 +242,16 @@ private suspend fun Bitmap.blur(
         }
         x++
     }
+
+    for (i in 0 until wh) {
+        val alpha = Color.alpha(pix[i])
+        val red = (Color.red(pix[i]) * (1 - darkenFactor)).toInt()
+        val green = (Color.green(pix[i]) * (1 - darkenFactor)).toInt()
+        val blue = (Color.blue(pix[i]) * (1 - darkenFactor)).toInt()
+
+        pix[i] = Color.argb(alpha, red, green, blue)
+    }
+
     bitmap.setPixels(pix, 0, w, 0, 0, w, h)
     sentBitmap.recycle()
     return@withContext bitmap

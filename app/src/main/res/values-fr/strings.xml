@@ -546,13 +546,13 @@
     <string name="show_background_in_lyrics">Afficher la couleur d\'arrière-plan dans les paroles</string>
     <string name="bg_colors_blurred_cover_background">Arrière-plan de la pochette d\'album floue</string>
     <string name="lang_estonian">Estonien (eesti keel)</string>
-    <string name="pcontrols_modern">Modern</string>
-    <string name="pcontrols_essential">Essential</string>
-    <string name="pcontrols_type">Controls type</string>
-    <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
-    <string name="player_position">Player position</string>
-    <string name="position_top">Top</string>
-    <string name="position_bottom">Bottom</string>
-    <string name="added_to_favorites">Added to favorites</string>
-    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="pcontrols_modern">Moderne</string>
+    <string name="pcontrols_essential">Minimale</string>
+    <string name="pcontrols_type">Type de contrôle</string>
+    <string name="player_swiping_down_is_disabled">Le balayage vers le bas du lecteur est désactivé</string>
+    <string name="player_position">Position du lecteur</string>
+    <string name="position_top">En haut</string>
+    <string name="position_bottom">En bas</string>
+    <string name="added_to_favorites">Ajouté aux favoris</string>
+    <string name="removed_from_favorites">Retiré des favoris</string>
 </resources>

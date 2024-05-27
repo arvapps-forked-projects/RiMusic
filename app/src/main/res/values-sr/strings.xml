@@ -544,13 +544,13 @@
     <string name="show_background_in_lyrics">Прикажи боју позадине у Стиховима</string>
     <string name="bg_colors_blurred_cover_background">Замућена позадина омота</string>
     <string name="lang_estonian">Естонски</string>
-    <string name="pcontrols_modern">Modern</string>
-    <string name="pcontrols_essential">Essential</string>
-    <string name="pcontrols_type">Controls type</string>
-    <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
-    <string name="player_position">Player position</string>
-    <string name="position_top">Top</string>
-    <string name="position_bottom">Bottom</string>
-    <string name="added_to_favorites">Added to favorites</string>
-    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="pcontrols_modern">Модерне</string>
+    <string name="pcontrols_essential">Есенцијалне</string>
+    <string name="pcontrols_type">Контроле типа</string>
+    <string name="player_swiping_down_is_disabled">Превлачење плејера надоле је онемогућено</string>
+    <string name="player_position">Позиција плејера</string>
+    <string name="position_top">Врх</string>
+    <string name="position_bottom">Дно</string>
+    <string name="added_to_favorites">Додато у омиљене</string>
+    <string name="removed_from_favorites">Уклоњено из омиљених</string>
 </resources>

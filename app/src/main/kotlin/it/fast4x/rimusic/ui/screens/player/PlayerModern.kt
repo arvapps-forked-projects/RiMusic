@@ -18,8 +18,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,7 +51,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -111,9 +113,9 @@ import it.fast4x.rimusic.models.Song
 import it.fast4x.rimusic.models.ui.toUiMedia
 import it.fast4x.rimusic.query
 import it.fast4x.rimusic.ui.components.BottomSheetState
-import it.fast4x.rimusic.ui.components.CustomModalBottomSheet
 import it.fast4x.rimusic.ui.components.LocalMenuState
 import it.fast4x.rimusic.ui.components.rememberBottomSheetState
+import it.fast4x.rimusic.ui.components.themed.BlurParamsDialog
 import it.fast4x.rimusic.ui.components.themed.CircularSlider
 import it.fast4x.rimusic.ui.components.themed.ConfirmationDialog
 import it.fast4x.rimusic.ui.components.themed.DefaultDialog
@@ -136,6 +138,8 @@ import it.fast4x.rimusic.utils.UiTypeKey
 import it.fast4x.rimusic.utils.audioFadeIn
 import it.fast4x.rimusic.utils.audioFadeOut
 import it.fast4x.rimusic.utils.backgroundProgressKey
+import it.fast4x.rimusic.utils.blurDarkenFactorKey
+import it.fast4x.rimusic.utils.blurStrengthKey
 import it.fast4x.rimusic.utils.colorPaletteModeKey
 import it.fast4x.rimusic.utils.currentWindow
 import it.fast4x.rimusic.utils.disableClosingPlayerSwipingDownKey
@@ -203,6 +207,9 @@ fun PlayerModern(
 ) {
     val menuState = LocalMenuState.current
 
+    //val localSheetState = LocalPlayerSheetState.current
+    //println("mediaItem localsheetstate collapsed ${localSheetState.isCollapsed}")
+
     val uiType by rememberPreference(UiTypeKey, UiType.RiMusic)
 
     val effectRotationEnabled by rememberPreference(effectRotationKey, true)
@@ -251,6 +258,20 @@ fun PlayerModern(
         playbackFadeDurationKey,
         DurationInSeconds.Disabled
     )
+    val defaultStrength = 0.5f
+    val defaultDarkenFactor = 0.2f
+    var blurStrength by rememberPreference(blurStrengthKey, defaultStrength)
+    var blurDarkenFactor by rememberPreference(blurDarkenFactorKey, defaultDarkenFactor)
+    var showBlurPlayerDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (showBlurPlayerDialog) {
+        BlurParamsDialog(
+            onDismiss = { showBlurPlayerDialog = false},
+            scaleValue = { blurStrength = it },
+            darkenFactorValue = { blurDarkenFactor = it}
+        )
+    }
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -259,18 +280,24 @@ fun PlayerModern(
         object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 nullableMediaItem = mediaItem
+                //println("mediaItem onMediaItemTransition")
                 if (playbackFadeDuration != DurationInSeconds.Disabled) {
                     binder.player.volume = 0f
+                    //println("mediaItem volume startFadeIn initial volume ${binder.player.volume}")
                     audioFadeIn(binder.player, playbackFadeDuration.seconds, context)
                 }
             }
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 shouldBePlaying = binder.player.shouldBePlaying
+                //println("mediaItem onPlayWhenReadyChanged $playWhenReady")
+                //if (playbackFadeDuration != DurationInSeconds.Disabled) {
+                //}
             }
 
             override fun onPlaybackStateChanged(playbackState: Int) {
                 shouldBePlaying = binder.player.shouldBePlaying
+                //println("mediaItem onPlaybackStateChanged")
             }
         }
     }
@@ -280,6 +307,7 @@ fun PlayerModern(
     val positionAndDuration by binder.player.positionAndDurationState()
     var timeRemaining by remember { mutableIntStateOf(0) }
     timeRemaining = positionAndDuration.second.toInt() - positionAndDuration.first.toInt()
+    //println("mediaItem timeRemaining $timeRemaining")
 
     if (playbackFadeDuration != DurationInSeconds.Disabled) {
         val songProgressFloat =
@@ -702,7 +730,8 @@ fun PlayerModern(
                 listOf(
                     BlurTransformation(
                         scale = 0.5f,
-                        radius = 25
+                        radius = blurStrength.toInt(),
+                        darkenFactor = blurDarkenFactor
                     )
                 )
             )
@@ -769,7 +798,6 @@ fun PlayerModern(
      */
 
     //val queueSheetBottomHeight = 0.dp
-    /*
     val queueSheetState = rememberBottomSheetState(
         horizontalBottomPaddingValues.calculateBottomPadding(),
         layoutState.expandedBound
@@ -780,27 +808,22 @@ fun PlayerModern(
         horizontalBottomPaddingValues.calculateBottomPadding(),
         layoutState.expandedBound
     )
-    */
-
-    var showQueue by rememberSaveable { mutableStateOf(false) }
-    var showFullLyrics by rememberSaveable { mutableStateOf(false) }
 
     val density = LocalDensity.current
     val windowsInsets = WindowInsets.systemBars
     val bottomDp = with(density) { windowsInsets.getBottom(density).toDp() }
 
     var containerModifier = Modifier
-        //.padding(bottom = bottomDp)
-        .padding(bottom = 0.dp)
-        /*
-        .padding(
-            windowInsets
-                .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                .asPaddingValues()
-        )
-         */
-        //.padding(bottom = playerSheetState.collapsedBound)
-        //.padding(bottom = horizontalBottomPaddingValues.calculateBottomPadding())
+        .padding(bottom = bottomDp)
+    /*
+    .padding(
+        windowInsets
+            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+            .asPaddingValues()
+    )
+     */
+    //.padding(bottom = playerSheetState.collapsedBound)
+    //.padding(bottom = horizontalBottomPaddingValues.calculateBottomPadding())
 
 
     if (!isGradientBackgroundEnabled) {
@@ -811,6 +834,15 @@ fun PlayerModern(
                     painter = painter,
                     contentScale = ContentScale.Crop,
                     sizeToIntrinsics = false
+                )
+                .combinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {
+                    },
+                    onLongClick = {
+                        showBlurPlayerDialog = true
+                    }
                 )
         } else {
             containerModifier = containerModifier
@@ -864,7 +896,7 @@ fun PlayerModern(
             isShowingEqualizer = isShowingEqualizer,
             onShowEqualizer = { isShowingEqualizer = it },
             onMaximize = {
-                    showFullLyrics = true
+                lyricsBottomSheetState.expandSoft()
             },
             onDoubleTap = {
                 val currentMediaItem = binder.player.currentMediaItem
@@ -935,350 +967,379 @@ fun PlayerModern(
 
     Box(
         modifier = Modifier
+            //.navigationBarsPadding()
             .fillMaxSize()
     ) {
         val actionsBarContent: @Composable (modifier: Modifier) -> Unit = { modifier ->
-            Row(
-                modifier = Modifier
-                    .align(if (isLandscape) Alignment.BottomEnd else Alignment.BottomCenter)
-                    .requiredHeight(if (showNextSongsInPlayer) 90.dp else 50.dp)
-                    .fillMaxWidth(if (isLandscape) 0.8f else 1f)
-                    .clickable { showQueue = true }
-                    .background(colorPalette.background2.copy(alpha = 0.5f))
-                    .pointerInput(Unit) {
-                        detectVerticalDragGestures(
-                            onVerticalDrag = { _, dragAmount ->
-                                if (dragAmount < 0) showQueue = true
-                            }
-                        )
-                    },
-                verticalAlignment = Alignment.CenterVertically
+            if (
+                !showButtonPlayerDownload &&
+                !showButtonPlayerAddToPlaylist &&
+                !showButtonPlayerLoop &&
+                !showButtonPlayerShuffle &&
+                !showButtonPlayerLyrics &&
+                !showButtonPlayerSleepTimer &&
+                !showButtonPlayerSystemEqualizer &&
+                !showButtonPlayerArrow &&
+                !showButtonPlayerMenu
             ) {
-                Column(
-                    verticalArrangement = Arrangement.SpaceAround,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
+                Row(
                 ) {
-                    if (showNextSongsInPlayer) {
+                }
+            } else
+                Row(
+                    modifier = Modifier
+                        .align(if (isLandscape) Alignment.BottomEnd else Alignment.BottomCenter)
+                        .requiredHeight(if (showNextSongsInPlayer) 80.dp else 50.dp)
+                        .fillMaxWidth()
+                        .clickable { queueSheetState.expandSoft() }
+                        .background(colorPalette.background2.copy(alpha = 0.8f))
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onVerticalDrag = { _, dragAmount ->
+                                    if (dragAmount < 0) queueSheetState.expandSoft()
+                                }
+                            )
+                        },
+
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Row(
-                            verticalAlignment = Alignment.Bottom,
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
-                                .background(colorPalette.background2.copy(alpha = 0.3f))
-                                .padding(horizontal = 12.dp)
+                                .padding(horizontal = 8.dp)
                                 .fillMaxWidth()
                         ) {
-                            val nextMediaItemIndex = binder.player.nextMediaItemIndex
-                            val nextMediaItem = if (binder.player.hasNextMediaItem())
-                                binder.player.getMediaItemAt(binder.player.nextMediaItemIndex)
-                            else MediaItem.EMPTY
-                            val nextNextMediaItem = try {
-                                binder.player.getMediaItemAt(nextMediaItemIndex + 1)
-                            } catch (e: Exception) {
-                                MediaItem.EMPTY
-                            }
-
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                            ) {
-                                AsyncImage(
-                                    model = nextMediaItem.mediaMetadata.artworkUri.thumbnail(
-                                        Dimensions.thumbnails.song.px / 2
-                                    ),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
+                            if (showButtonPlayerDownload)
+                                DownloadStateIconButton(
+                                    icon = if (isDownloaded) R.drawable.downloaded else R.drawable.download,
+                                    color = if (isDownloaded) colorPalette.text else colorPalette.textDisabled,
+                                    downloadState = downloadState,
+                                    onClick = {
+                                        //if (!isLocal)
+                                        manageDownload(
+                                            context = context,
+                                            songId = mediaItem.mediaId,
+                                            songTitle = mediaItem.mediaMetadata.title.toString(),
+                                            downloadState = isDownloaded
+                                        )
+                                    },
                                     modifier = Modifier
-                                        .padding(all = 5.dp)
-                                        .clip(thumbnailShape)
-                                        .size(30.dp)
-                                )
-                            }
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .weight(1f)
-                            ) {
-
-                                BasicText(
-                                    text = nextMediaItem.mediaMetadata.title?.toString() ?: "",
-                                    style = typography.xxxs.semiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
+                                        .padding(start = 12.dp)
+                                        .size(24.dp)
                                 )
 
-                                BasicText(
-                                    text = nextMediaItem.mediaMetadata.artist?.toString() ?: "",
-                                    style = typography.xxxs.semiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
 
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                            ) {
-                                AsyncImage(
-                                    model = nextNextMediaItem.mediaMetadata.artworkUri.thumbnail(
-                                        Dimensions.thumbnails.song.px / 2
-                                    ),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
+                            if (showButtonPlayerAddToPlaylist)
+                                IconButton(
+                                    icon = R.drawable.add_in_playlist,
+                                    color = colorPalette.text,
+                                    onClick = {
+                                        menuState.display {
+                                            MiniPlayerMenu(
+                                                navController = navController,
+                                                onDismiss = menuState::hide,
+                                                mediaItem = mediaItem,
+                                                binder = binder,
+                                                onClosePlayer = {
+                                                    onDismiss()
+                                                    layoutState.collapseSoft()
+                                                }
+                                            )
+                                        }
+                                    },
                                     modifier = Modifier
-                                        .padding(all = 5.dp)
-                                        .clip(thumbnailShape)
-                                        .size(30.dp)
+                                        //.padding(horizontal = 4.dp)
+                                        .size(24.dp)
+                                )
+
+
+
+                            if (showButtonPlayerLoop)
+                                IconButton(
+                                    icon = R.drawable.repeat,
+                                    color = if (trackLoopEnabled) colorPalette.text else colorPalette.textDisabled,
+                                    onClick = {
+                                        trackLoopEnabled = !trackLoopEnabled
+                                        if (effectRotationEnabled) isRotated = !isRotated
+                                    },
+                                    modifier = Modifier
+                                        //.padding(horizontal = 4.dp)
+                                        .size(24.dp)
+                                )
+
+                            if (showButtonPlayerShuffle)
+                                IconButton(
+                                    icon = R.drawable.shuffle,
+                                    color = colorPalette.text,
+                                    enabled = true,
+                                    onClick = {
+                                        binder?.player?.shuffleQueue()
+                                        binder.player.forceSeekToNext()
+                                    },
+                                    modifier = Modifier
+                                        .size(24.dp),
+                                )
+
+                            if (showButtonPlayerLyrics)
+                                IconButton(
+                                    icon = R.drawable.song_lyrics,
+                                    color = if (isShowingLyrics) colorPalette.text else colorPalette.textDisabled,
+                                    enabled = true,
+                                    onClick = {
+                                        if (isShowingEqualizer) isShowingEqualizer = !isShowingEqualizer
+                                        isShowingLyrics = !isShowingLyrics
+                                    },
+                                    modifier = Modifier
+                                        .size(24.dp),
+                                )
+
+
+                            if (playerVisualizerType != PlayerVisualizerType.Disabled)
+                                IconButton(
+                                    icon = R.drawable.sound_effect,
+                                    color = if (isShowingEqualizer) colorPalette.text else colorPalette.textDisabled,
+                                    enabled = true,
+                                    onClick = {
+                                        if (isShowingLyrics) isShowingLyrics = !isShowingLyrics
+                                        isShowingEqualizer = !isShowingEqualizer
+                                    },
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                )
+
+
+                            if (showButtonPlayerSleepTimer)
+                                IconButton(
+                                    icon = R.drawable.sleep,
+                                    color = if (sleepTimerMillisLeft != null) colorPalette.text else colorPalette.textDisabled,
+                                    enabled = true,
+                                    onClick = {
+                                        isShowingSleepTimerDialog = true
+                                    },
+                                    modifier = Modifier
+                                        .size(24.dp),
+                                )
+
+                            if (showButtonPlayerSystemEqualizer) {
+                                val activityResultLauncher =
+                                    rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
+
+                                IconButton(
+                                    icon = R.drawable.equalizer,
+                                    color = colorPalette.text,
+                                    enabled = true,
+                                    onClick = {
+                                        try {
+                                            activityResultLauncher.launch(
+                                                Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
+                                                    putExtra(
+                                                        AudioEffect.EXTRA_AUDIO_SESSION,
+                                                        binder.player.audioSessionId
+                                                    )
+                                                    putExtra(
+                                                        AudioEffect.EXTRA_PACKAGE_NAME,
+                                                        context.packageName
+                                                    )
+                                                    putExtra(
+                                                        AudioEffect.EXTRA_CONTENT_TYPE,
+                                                        AudioEffect.CONTENT_TYPE_MUSIC
+                                                    )
+                                                }
+                                            )
+                                        } catch (e: ActivityNotFoundException) {
+                                            SmartToast(
+                                                context.resources.getString(R.string.info_not_find_application_audio),
+                                                type = PopupType.Warning
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .size(20.dp),
                                 )
                             }
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .weight(1f)
-                            ) {
 
-                                BasicText(
-                                    text = nextNextMediaItem.mediaMetadata.title?.toString()
-                                        ?: "",
-                                    style = typography.xxxs.semiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
+                            if (showButtonPlayerArrow)
+                                IconButton(
+                                    icon = R.drawable.chevron_up,
+                                    color = colorPalette.text,
+                                    enabled = true,
+                                    onClick = {
+                                        queueSheetState.expandSoft()
+                                    },
+                                    modifier = Modifier
+                                        .padding(end = 12.dp)
+                                        .size(24.dp),
                                 )
 
-                                BasicText(
-                                    text = nextNextMediaItem.mediaMetadata.artist?.toString()
-                                        ?: "",
-                                    style = typography.xxxs.semiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
+                            if (showButtonPlayerMenu && !isLandscape)
+                                IconButton(
+                                    icon = R.drawable.ellipsis_vertical,
+                                    color = colorPalette.text,
+                                    onClick = {
+                                        menuState.display {
+                                            PlayerMenu(
+                                                navController = navController,
+                                                onDismiss = menuState::hide,
+                                                mediaItem = mediaItem,
+                                                binder = binder,
+                                                onClosePlayer = {
+                                                    onDismiss()
+                                                    layoutState.collapseSoft()
+                                                }
+
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .padding(end = 12.dp)
+                                        .size(24.dp)
+                                )
+
+
+                            if (isLandscape) {
+                                IconButton(
+                                    icon = R.drawable.ellipsis_horizontal,
+                                    color = colorPalette.text,
+                                    onClick = {
+                                        menuState.display {
+                                            PlayerMenu(
+                                                navController = navController,
+                                                onDismiss = menuState::hide,
+                                                mediaItem = mediaItem,
+                                                binder = binder,
+                                                onClosePlayer = {
+                                                    onDismiss()
+                                                    layoutState.collapseSoft()
+                                                }
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .padding(end = 12.dp)
+                                        .size(24.dp)
                                 )
                             }
+
                         }
+
+
+
+                        if (showNextSongsInPlayer) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .padding(horizontal = 12.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    val nextMediaItemIndex = binder.player.nextMediaItemIndex
+                                    val nextMediaItem = if (binder.player.hasNextMediaItem())
+                                        binder.player.getMediaItemAt(binder.player.nextMediaItemIndex)
+                                    else MediaItem.EMPTY
+                                    val nextNextMediaItem = try {
+                                        binder.player.getMediaItemAt(nextMediaItemIndex + 1)
+                                    } catch (e: Exception) {
+                                        MediaItem.EMPTY
+                                    }
+
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .height(Dimensions.collapsedPlayer)
+                                    ) {
+                                        AsyncImage(
+                                            model = nextMediaItem.mediaMetadata.artworkUri.thumbnail(
+                                                Dimensions.thumbnails.song.px / 2
+                                            ),
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .padding(end = 5.dp)
+                                                .clip(thumbnailShape)
+                                                .size(30.dp)
+                                        )
+                                    }
+                                    Column(
+                                        verticalArrangement = Arrangement.Center,
+                                        modifier = Modifier
+                                            .height(Dimensions.collapsedPlayer)
+                                            .weight(1f)
+                                    ) {
+
+                                        BasicText(
+                                            text = nextMediaItem.mediaMetadata.title?.toString() ?: "",
+                                            style = typography.xxxs.semiBold,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+
+                                        BasicText(
+                                            text = nextMediaItem.mediaMetadata.artist?.toString() ?: "",
+                                            style = typography.xxxs.semiBold,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
+
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .height(Dimensions.collapsedPlayer)
+                                    ) {
+                                        AsyncImage(
+                                            model = nextNextMediaItem.mediaMetadata.artworkUri.thumbnail(
+                                                Dimensions.thumbnails.song.px / 2
+                                            ),
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .padding(end = 5.dp)
+                                                .clip(thumbnailShape)
+                                                .size(30.dp)
+                                        )
+                                    }
+                                    Column(
+                                        verticalArrangement = Arrangement.Center,
+                                        modifier = Modifier
+                                            .height(Dimensions.collapsedPlayer)
+                                            .weight(1f)
+                                    ) {
+
+                                        BasicText(
+                                            text = nextNextMediaItem.mediaMetadata.title?.toString()
+                                                ?: "",
+                                            style = typography.xxxs.semiBold,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+
+                                        BasicText(
+                                            text = nextNextMediaItem.mediaMetadata.artist?.toString()
+                                                ?: "",
+                                            style = typography.xxxs.semiBold,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
                     }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth()
-                    ) {
-                        if (showButtonPlayerDownload)
-                            DownloadStateIconButton(
-                                icon = if (isDownloaded) R.drawable.downloaded else R.drawable.download,
-                                color = if (isDownloaded) colorPalette.text else colorPalette.textDisabled,
-                                downloadState = downloadState,
-                                onClick = {
-                                    manageDownload(
-                                        context = context,
-                                        songId = mediaItem.mediaId,
-                                        songTitle = mediaItem.mediaMetadata.title.toString(),
-                                        downloadState = isDownloaded
-                                    )
-                                },
-                                modifier = Modifier
-                                    //.padding(start = 12.dp)
-                                    .size(24.dp)
-                            )
-
-
-                        if (showButtonPlayerAddToPlaylist)
-                            IconButton(
-                                icon = R.drawable.add_in_playlist,
-                                color = colorPalette.text,
-                                onClick = {
-                                    menuState.display {
-                                        MiniPlayerMenu(
-                                            navController = navController,
-                                            onDismiss = menuState::hide,
-                                            mediaItem = mediaItem,
-                                            binder = binder,
-                                            onClosePlayer = {
-                                                onDismiss()
-                                                layoutState.collapseSoft()
-                                            }
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    //.padding(horizontal = 4.dp)
-                                    .size(24.dp)
-                            )
-
-
-
-                        if (showButtonPlayerLoop)
-                            IconButton(
-                                icon = R.drawable.repeat,
-                                color = if (trackLoopEnabled) colorPalette.text else colorPalette.textDisabled,
-                                onClick = {
-                                    trackLoopEnabled = !trackLoopEnabled
-                                    if (effectRotationEnabled) isRotated = !isRotated
-                                },
-                                modifier = Modifier
-                                    //.padding(horizontal = 4.dp)
-                                    .size(24.dp)
-                            )
-
-                        if (showButtonPlayerShuffle)
-                            IconButton(
-                                icon = R.drawable.shuffle,
-                                color = colorPalette.text,
-                                enabled = true,
-                                onClick = {
-                                    binder?.player?.shuffleQueue()
-                                    binder.player.forceSeekToNext()
-                                },
-                                modifier = Modifier
-                                    .size(24.dp),
-                            )
-
-                        if (showButtonPlayerLyrics)
-                            IconButton(
-                                icon = R.drawable.song_lyrics,
-                                color = if (isShowingLyrics) colorPalette.text else colorPalette.textDisabled,
-                                enabled = true,
-                                onClick = {
-                                    if (isShowingEqualizer) isShowingEqualizer = !isShowingEqualizer
-                                    isShowingLyrics = !isShowingLyrics
-                                },
-                                modifier = Modifier
-                                    .size(24.dp),
-                            )
-
-
-                        if (playerVisualizerType != PlayerVisualizerType.Disabled)
-                            IconButton(
-                                icon = R.drawable.sound_effect,
-                                color = if (isShowingEqualizer) colorPalette.text else colorPalette.textDisabled,
-                                enabled = true,
-                                onClick = {
-                                    if (isShowingLyrics) isShowingLyrics = !isShowingLyrics
-                                    isShowingEqualizer = !isShowingEqualizer
-                                },
-                                modifier = Modifier
-                                    .size(24.dp)
-                            )
-
-
-                        if (showButtonPlayerSleepTimer)
-                            IconButton(
-                                icon = R.drawable.sleep,
-                                color = if (sleepTimerMillisLeft != null) colorPalette.text else colorPalette.textDisabled,
-                                enabled = true,
-                                onClick = {
-                                    isShowingSleepTimerDialog = true
-                                },
-                                modifier = Modifier
-                                    .size(24.dp),
-                            )
-
-                        if (showButtonPlayerSystemEqualizer) {
-                            val activityResultLauncher =
-                                rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
-
-                            IconButton(
-                                icon = R.drawable.equalizer,
-                                color = colorPalette.text,
-                                enabled = true,
-                                onClick = {
-                                    try {
-                                        activityResultLauncher.launch(
-                                            Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
-                                                putExtra(
-                                                    AudioEffect.EXTRA_AUDIO_SESSION,
-                                                    binder.player.audioSessionId
-                                                )
-                                                putExtra(
-                                                    AudioEffect.EXTRA_PACKAGE_NAME,
-                                                    context.packageName
-                                                )
-                                                putExtra(
-                                                    AudioEffect.EXTRA_CONTENT_TYPE,
-                                                    AudioEffect.CONTENT_TYPE_MUSIC
-                                                )
-                                            }
-                                        )
-                                    } catch (e: ActivityNotFoundException) {
-                                        SmartToast(
-                                            context.resources.getString(R.string.info_not_find_application_audio),
-                                            type = PopupType.Warning
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .size(20.dp),
-                            )
-                        }
-
-                        if (showButtonPlayerArrow)
-                            IconButton(
-                                icon = R.drawable.chevron_up,
-                                color = colorPalette.text,
-                                enabled = true,
-                                onClick = {
-                                    showQueue = true
-                                },
-                                modifier = Modifier
-                                    //.padding(end = 12.dp)
-                                    .size(24.dp),
-                            )
-
-                        if (showButtonPlayerMenu && !isLandscape)
-                            IconButton(
-                                icon = R.drawable.ellipsis_vertical,
-                                color = colorPalette.text,
-                                onClick = {
-                                    menuState.display {
-                                        PlayerMenu(
-                                            navController = navController,
-                                            onDismiss = menuState::hide,
-                                            mediaItem = mediaItem,
-                                            binder = binder,
-                                            onClosePlayer = {
-                                                onDismiss()
-                                                layoutState.collapseSoft()
-                                            }
-
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    //.padding(end = 12.dp)
-                                    .size(24.dp)
-                            )
-
-
-                        if (isLandscape) {
-                            IconButton(
-                                icon = R.drawable.ellipsis_horizontal,
-                                color = colorPalette.text,
-                                onClick = {
-                                    menuState.display {
-                                        PlayerMenu(
-                                            navController = navController,
-                                            onDismiss = menuState::hide,
-                                            mediaItem = mediaItem,
-                                            binder = binder,
-                                            onClosePlayer = {
-                                                onDismiss()
-                                                layoutState.collapseSoft()
-                                            }
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .padding(end = 12.dp)
-                                    .size(24.dp)
-                            )
-                        }
-                    }
-
 
                 }
-            }
+
+
         }
+
+
 
         if (isLandscape) {
             Row(
@@ -1301,26 +1362,25 @@ fun PlayerModern(
             ) {
                 Column (
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxHeight()
-                       // .border(BorderStroke(1.dp, Color.Blue))
+                    //modifier = Modifier.fillMaxHeight()
+                    // .border(BorderStroke(1.dp, Color.Blue))
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .weight(1f)
-                            //.padding(vertical = 10.dp)
+                            .weight(0.7f)
+                        //.padding(bottom = 10.dp)
                     ) {
 
                         thumbnailContent(
                             modifier = Modifier
                                 .padding(all = 12.dp)
-                                //.padding(horizontal = 10.dp)
+                            //.padding(horizontal = 10.dp)
                         )
                     }
                 }
                 Column (
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     controlsContent(
                         modifier = Modifier
@@ -1439,7 +1499,8 @@ fun PlayerModern(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .weight(1.2f)
+                        //.weight(0.5f)
+                        .fillMaxHeight(0.55f)
                 ) {
                     thumbnailContent(
                         modifier = Modifier
@@ -1487,18 +1548,17 @@ fun PlayerModern(
                     modifier = Modifier
                         .padding(vertical = 4.dp)
                         .fillMaxWidth()
-                        .weight(1f)
                 )
 
                 actionsBarContent(
                     modifier = Modifier
-                        .padding(vertical = 10.dp)
                 )
             }
         }
 
 
-        /*
+
+
         Queue(
             navController = navController,
             layoutState = queueSheetState,
@@ -1508,31 +1568,9 @@ fun PlayerModern(
                 .align(Alignment.BottomCenter),
             shape = shape
         )
-         */
-        CustomModalBottomSheet(
-            showSheet = showQueue,
-            onDismissRequest = { showQueue = false },
-            containerColor = colorPalette.background2,
-            contentColor = colorPalette.background2,
-            modifier = Modifier.fillMaxWidth(),
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            dragHandle = {
-                Surface(
-                    modifier = Modifier.padding(vertical = 0.dp),
-                    color = colorPalette.background0,
-                    shape = thumbnailShape
-                ) {}
-            }
-        ) {
-            QueueModern(
-                navController = navController,
-                onDismiss = { showQueue = false },
-            )
-        }
 
 
 
-        /*
         FullLyricsSheet(
             layoutState = lyricsBottomSheetState,
             content = {},
@@ -1543,32 +1581,10 @@ fun PlayerModern(
                 lyricsBottomSheetState.expand(tween(50))
             }
         )
-         */
 
-        CustomModalBottomSheet(
-            showSheet = showFullLyrics,
-            onDismissRequest = { showFullLyrics = false },
-            containerColor = colorPalette.background2,
-            contentColor = colorPalette.background2,
-            modifier = Modifier.fillMaxWidth(),
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            dragHandle = {
-                Surface(
-                    modifier = Modifier.padding(vertical = 0.dp),
-                    color = colorPalette.background0,
-                    shape = thumbnailShape
-                ) {}
-            }
-        ) {
-            FullLyricsSheetModern(
-                onMaximize = { showFullLyrics = false },
-                onRefresh = {}
-            )
-        }
 
     }
 
+
 }
-
-
 

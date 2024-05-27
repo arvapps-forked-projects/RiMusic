@@ -511,9 +511,9 @@
     <string name="vimusic_show_search_button_in_navigation_bar">Show search button in navigation bar</string>
     <string name="vismusic_only_in_left_right_navigation_bar">Only for left or right navigation bar in ViMusic UI</string>
     <string name="enable_monthly_playlists_creation">Enable monthly playlists creation</string>
-    <string name="info_no_singles_yet">No singles yet</string>
-    <string name="info_no_albums_yet">No albums yet</string>
-    <string name="info_no_songs_yet">No songs yet</string>
+    <string name="info_no_singles_yet">No singles available</string>
+    <string name="info_no_albums_yet">No albums available</string>
+    <string name="info_no_songs_yet">No songs available</string>
     <string name="theme_customized">Customized</string>
     <string name="do_you_really_want_to_reset_the_custom_light_theme_colors">Do you really want to reset the custom light theme colors?</string>
     <string name="do_you_really_want_to_reset_the_custom_dark_theme_colors">Do you really want to reset the custom dark theme colors</string>

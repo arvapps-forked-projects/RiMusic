@@ -544,13 +544,13 @@
     <string name="show_background_in_lyrics">Prikaži boju pozadine u Stihovima</string>
     <string name="bg_colors_blurred_cover_background">Zamućena pozadina omota</string>
     <string name="lang_estonian">Estonski</string>
-    <string name="pcontrols_modern">Modern</string>
-    <string name="pcontrols_essential">Essential</string>
-    <string name="pcontrols_type">Controls type</string>
-    <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
-    <string name="player_position">Player position</string>
-    <string name="position_top">Top</string>
-    <string name="position_bottom">Bottom</string>
-    <string name="added_to_favorites">Added to favorites</string>
-    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="pcontrols_modern">Moderne</string>
+    <string name="pcontrols_essential">Esencijalne</string>
+    <string name="pcontrols_type">Kontrole tipa</string>
+    <string name="player_swiping_down_is_disabled">Prevlačenje plejera nadole je onemogućeno</string>
+    <string name="player_position">Pozicija plejera</string>
+    <string name="position_top">Vrh</string>
+    <string name="position_bottom">Dno</string>
+    <string name="added_to_favorites">Dodato u omiljeno</string>
+    <string name="removed_from_favorites">Uklonjeno iz omiljenog</string>
 </resources>

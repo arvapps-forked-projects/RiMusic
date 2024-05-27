@@ -257,7 +257,9 @@ fun Controls(
     var showSpeedPlayerDialog by rememberSaveable {
         mutableStateOf(false)
     }
+
     val showRemainingSongTime by rememberPreference(showRemainingSongTimeKey, true)
+
 
     if (showSpeedPlayerDialog) {
         PlaybackParamsDialog(
@@ -763,7 +765,8 @@ fun Controls(
         }
 
         Spacer(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(0.4f)
         )
 
         Row(
@@ -1105,8 +1108,10 @@ fun Controls(
 
         }
 
+
         Spacer(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(0.5f)
         )
 
     }
