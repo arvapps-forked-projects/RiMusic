@@ -110,7 +110,7 @@
     <string name="skip_silent_parts_during_playback">Huwang pakinggan ang silent parts habang naka playback</string>
     <string name="loudness_normalization">Normalization ng lakas</string>
     <string name="autoadjust_the_volume">Ayusin ang volume sa isang fixed level</string>
-    <string name="interact_with_the_system_equalizer">Gamitin ang systen equalizer</string>
+    <string name="interact_with_the_system_equalizer">Gamitin ang system equalizer</string>
     <string name="about">Tungkol Dito</string>
     <string name="more_of">Higit pa sa</string>
     <string name="sleep_timer">Sleep timer</string>
