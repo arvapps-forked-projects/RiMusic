@@ -102,7 +102,6 @@ import it.fast4x.rimusic.utils.RingBuffer
 import it.fast4x.rimusic.utils.TimerJob
 import it.fast4x.rimusic.utils.YouTubeRadio
 import it.fast4x.rimusic.utils.activityPendingIntent
-import it.fast4x.rimusic.utils.asMediaItem
 import it.fast4x.rimusic.utils.asSong
 import it.fast4x.rimusic.utils.audioQualityFormatKey
 import it.fast4x.rimusic.utils.broadCastPendingIntent
@@ -126,7 +125,6 @@ import it.fast4x.rimusic.utils.isShowingThumbnailInLockscreenKey
 import it.fast4x.rimusic.utils.manageDownload
 import it.fast4x.rimusic.utils.mediaItems
 import it.fast4x.rimusic.utils.persistentQueueKey
-import it.fast4x.rimusic.utils.positionAndDurationState
 import it.fast4x.rimusic.utils.preferences
 import it.fast4x.rimusic.utils.queueLoopEnabledKey
 import it.fast4x.rimusic.utils.resumePlaybackWhenDeviceConnectedKey
@@ -222,10 +220,9 @@ class PlayerService : InvincibleService(),
             if (isAtLeastAndroid12) it or PlaybackState.ACTION_SET_PLAYBACK_SPEED else it
         })
         .addCustomAction(
-            "DOWNLOAD",
-            "Download",
-            if (isDownloadedState.value || isCachedState.value) R.drawable.downloaded else R.drawable.download
-
+            "SHUFFLE",
+            "Shuffle",
+            if (player.shuffleModeEnabled) R.drawable.shuffle_outline else R.drawable.shuffle
         )
         .addCustomAction(
             "LIKE",
@@ -236,6 +233,10 @@ class PlayerService : InvincibleService(),
             "PLAYRADIO",
             "Play radio",
             R.drawable.radio
+        ).addCustomAction(
+            "DOWNLOAD",
+            "Download",
+            if (isDownloadedState.value || isCachedState.value) R.drawable.downloaded else R.drawable.download
         )
 
     @ExperimentalCoroutinesApi
@@ -1984,6 +1985,11 @@ class PlayerService : InvincibleService(),
             updatePlaybackState()
         }
 
+        fun toggleShuffle() {
+            player.shuffleModeEnabled = !player.shuffleModeEnabled
+            updatePlaybackState()
+        }
+
         fun refreshPlayer() {
             coroutineScope.launch {
                 withContext(Dispatchers.Main) {
@@ -2051,6 +2057,10 @@ class PlayerService : InvincibleService(),
             }
             if (action == "DOWNLOAD") {
                 binder.toggleDownload()
+                refreshPlayer()
+            }
+            if (action == "SHUFFLE") {
+                binder.toggleShuffle()
                 refreshPlayer()
             }
             if (action == "PLAYRADIO") {

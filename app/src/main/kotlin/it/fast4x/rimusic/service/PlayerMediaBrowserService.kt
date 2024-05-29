@@ -401,6 +401,10 @@ class PlayerMediaBrowserService : MediaBrowserServiceCompat(), ServiceConnection
                 binder.toggleDownload()
                 binder.refreshPlayer()
             }
+            if (action == "SHUFFLE") {
+                binder.toggleShuffle()
+                binder.refreshPlayer()
+            }
             if (action == "PLAYRADIO") {
                 coroutineScope.launch {
                     withContext(Dispatchers.Main) {

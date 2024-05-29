@@ -544,9 +544,9 @@
     <string name="show_background_in_lyrics">Показывать цвет фона в текстах песен</string>
     <string name="bg_colors_blurred_cover_background">Размытая обложка на фоне</string>
     <string name="lang_estonian">Эстонский (Eesti keel)</string>
-    <string name="pcontrols_modern">Modern</string>
-    <string name="pcontrols_essential">Essential</string>
-    <string name="pcontrols_type">Controls type</string>
+    <string name="pcontrols_modern">Современный</string>
+    <string name="pcontrols_essential">Основной</string>
+    <string name="pcontrols_type">Вид элементов управления плеером</string>
     <string name="player_swiping_down_is_disabled">Смахивание плеера вниз отключено</string>
     <string name="player_position">Расположение плеера</string>
     <string name="position_top">Сверху</string>
