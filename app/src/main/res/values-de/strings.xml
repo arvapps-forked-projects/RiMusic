@@ -545,12 +545,12 @@
     <string name="bg_colors_blurred_cover_background">Verschwommenes Cover als Hintergrund</string>
     <string name="lang_estonian">Estnisch (eesti keel)</string>
     <string name="pcontrols_modern">Modern</string>
-    <string name="pcontrols_essential">Essential</string>
-    <string name="pcontrols_type">Controls type</string>
+    <string name="pcontrols_essential">Essenziell</string>
+    <string name="pcontrols_type">Typ der Bedienelemente</string>
     <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
-    <string name="player_position">Player position</string>
-    <string name="position_top">Top</string>
-    <string name="position_bottom">Bottom</string>
-    <string name="added_to_favorites">Added to favorites</string>
-    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="player_position">Position des Players</string>
+    <string name="position_top">Oben</string>
+    <string name="position_bottom">Unten</string>
+    <string name="added_to_favorites">Zu Favoriten hinzugefügt</string>
+    <string name="removed_from_favorites">Von Favoriten entfernt</string>
 </resources>

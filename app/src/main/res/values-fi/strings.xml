@@ -463,7 +463,7 @@
     <string name="info_not_find_application_audio">Taajuuskorjainsovellusta ei löytynyt</string>
     <string name="info_error">Virhe</string>
     <string name="info_not_find_app_open_doc">Couldn\'t find an application to open documents</string>
-    <string name="info_not_find_app_create_doc">Couldn\'t find an application to create documents</string>
+    <string name="info_not_find_app_create_doc">Asiakirjojen luomiseen tarkoitettua sovellusta ei löytynyt</string>
     <string name="info_not_find_app_browse_internet">Internet-selainta ei löytynyt</string>
     <string name="show_floating_icon">Näytä kelluva nappi</string>
     <string name="show_equalizer">Näytä taajuuskorjain</string>
@@ -545,9 +545,9 @@
     <string name="bg_colors_blurred_cover_background">Epäselvä kansi taustalla</string>
     <string name="lang_estonian">viro</string>
     <string name="pcontrols_modern">Moderni</string>
-    <string name="pcontrols_essential">Välttämätön</string>
-    <string name="pcontrols_type">Controls type</string>
-    <string name="player_swiping_down_is_disabled">Player swiping down is disabled</string>
+    <string name="pcontrols_essential">Perus</string>
+    <string name="pcontrols_type">Ohjainten tyyli</string>
+    <string name="player_swiping_down_is_disabled">Soittimen pyyhkäisy alas on estetty</string>
     <string name="player_position">Soittimen sijainti</string>
     <string name="position_top">Ylhäällä</string>
     <string name="position_bottom">Alhaalla</string>
