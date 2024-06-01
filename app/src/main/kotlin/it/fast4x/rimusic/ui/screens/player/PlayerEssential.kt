@@ -6,9 +6,11 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -70,11 +72,13 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import it.fast4x.rimusic.Database
 import it.fast4x.rimusic.LocalPlayerServiceBinder
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.BackgroundProgress
+import it.fast4x.rimusic.enums.NavRoutes
 import it.fast4x.rimusic.ui.components.themed.SmartToast
 import it.fast4x.rimusic.ui.styling.Dimensions
 import it.fast4x.rimusic.ui.styling.LocalAppearance
@@ -97,11 +101,14 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.absoluteValue
 
 @androidx.annotation.OptIn(UnstableApi::class)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class)
 @Composable
 fun PlayerEssential(
     showPlayer: () -> Unit,
-    hidePlayer: () -> Unit
+    hidePlayer: () -> Unit,
+    navController: NavController? = null
 ) {
     val binder = LocalPlayerServiceBinder.current
     binder?.player ?: return
@@ -229,7 +236,18 @@ fun PlayerEssential(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.Top,
             modifier = Modifier
-                .clickable(onClick = showPlayer)
+                .combinedClickable (
+                    onLongClick = {
+                        navController?.navigate(NavRoutes.queue.name)
+                    },
+                    onClick = {
+                        //if (showPlayer != null)
+                            showPlayer()
+                        //else
+                        //    navController?.navigate("player")
+                    }
+                )
+                //.clickable(onClick = showPlayer)
                 .pointerInput(Unit) {
                     detectVerticalDragGestures(
                         onVerticalDrag = { _, dragAmount ->

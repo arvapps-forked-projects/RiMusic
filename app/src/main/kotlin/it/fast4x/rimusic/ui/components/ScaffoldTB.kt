@@ -142,7 +142,6 @@ fun ScaffoldTB(
         )
     }
 
-    //val topPadding =  if (navigationBarPosition == NavigationBarPosition.Top) 60.dp else 10.dp
     //val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     //var expanded by remember { mutableStateOf(false) }
@@ -162,6 +161,7 @@ fun ScaffoldTB(
                 if (navigationBarPosition == NavigationBarPosition.Top)
                     navigationRailTB()
 
+                /*
                 if (playerEssential != null && playerPosition == PlayerPosition.Top) {
                     val modifierBottomPadding = Modifier
                         .padding(bottom = 5.dp)
@@ -172,6 +172,7 @@ fun ScaffoldTB(
                         playerEssential()
                     }
                 }
+                 */
             }
         },
 
@@ -183,6 +184,7 @@ fun ScaffoldTB(
                         .fillMaxWidth()
                         .background(colorPalette.background0)
                 ){
+                    /*
                     if (playerEssential != null && playerPosition == PlayerPosition.Bottom) {
                         val modifierBottomPadding = if (navigationBarPosition != NavigationBarPosition.Bottom)
                             Modifier.padding( windowInsets
@@ -199,6 +201,7 @@ fun ScaffoldTB(
                             playerEssential()
                         }
                     }
+                     */
 
                     if (navigationBarPosition == NavigationBarPosition.Bottom)
                         navigationRailTB()
@@ -206,12 +209,25 @@ fun ScaffoldTB(
         }
 
     ) {
+        val modifierBoxPadding =  if (navigationBarPosition != NavigationBarPosition.Top)
+            Modifier
+                .padding(it)
+                .fillMaxSize()
+            else Modifier
+                .padding(it)
+                .padding(
+                    windowInsets
+                        .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+                        .asPaddingValues()
+                )
+                .fillMaxSize()
+
+        Box(
+            modifier = modifierBoxPadding
+        ) {
 
         Row(
             modifier = modifier
-                //.border(BorderStroke(1.dp, Color.Red))
-                //.padding(top = 50.dp)
-                .padding(it)
                 .background(colorPalette.background0)
                 .fillMaxSize()
         ) {
@@ -254,11 +270,17 @@ fun ScaffoldTB(
                 content = content,
                 label = "",
                 modifier = Modifier
-                    //.border(BorderStroke(1.dp, Color.Blue))
-                    //.fillMaxWidth()
                     .fillMaxHeight()
-                    //.padding(top = topPadding) //only with top navigation
             )
         }
+        Box(
+            modifier = Modifier
+                .padding(vertical = 5.dp)
+                .align(if (playerPosition == PlayerPosition.Top) Alignment.TopCenter
+                else Alignment.BottomCenter)
+        ) {
+            playerEssential?.invoke()
+        }
+    }
     }
 }

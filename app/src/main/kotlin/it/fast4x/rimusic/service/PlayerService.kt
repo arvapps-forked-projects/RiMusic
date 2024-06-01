@@ -30,6 +30,8 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import androidx.annotation.OptIn
+import androidx.compose.runtime.MutableFloatState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -102,6 +104,7 @@ import it.fast4x.rimusic.utils.RingBuffer
 import it.fast4x.rimusic.utils.TimerJob
 import it.fast4x.rimusic.utils.YouTubeRadio
 import it.fast4x.rimusic.utils.activityPendingIntent
+import it.fast4x.rimusic.utils.asMediaItem
 import it.fast4x.rimusic.utils.asSong
 import it.fast4x.rimusic.utils.audioQualityFormatKey
 import it.fast4x.rimusic.utils.broadCastPendingIntent
@@ -125,6 +128,7 @@ import it.fast4x.rimusic.utils.isShowingThumbnailInLockscreenKey
 import it.fast4x.rimusic.utils.manageDownload
 import it.fast4x.rimusic.utils.mediaItems
 import it.fast4x.rimusic.utils.persistentQueueKey
+import it.fast4x.rimusic.utils.positionAndDurationState
 import it.fast4x.rimusic.utils.preferences
 import it.fast4x.rimusic.utils.queueLoopEnabledKey
 import it.fast4x.rimusic.utils.resumePlaybackWhenDeviceConnectedKey
@@ -193,6 +197,7 @@ class PlayerService : InvincibleService(),
     private lateinit var player: ExoPlayer
     private lateinit var downloadCache: SimpleCache
 
+
     private val actions = PlaybackStateCompat.ACTION_PLAY or
                 PlaybackStateCompat.ACTION_PAUSE or
                 PlaybackStateCompat.ACTION_PLAY_PAUSE or
@@ -222,7 +227,7 @@ class PlayerService : InvincibleService(),
         .addCustomAction(
             "SHUFFLE",
             "Shuffle",
-            if (player.shuffleModeEnabled) R.drawable.shuffle_outline else R.drawable.shuffle
+            if (shuffleModeEnabled) R.drawable.shuffle_filled else R.drawable.shuffle
         )
         .addCustomAction(
             "LIKE",
@@ -230,13 +235,15 @@ class PlayerService : InvincibleService(),
             if (isLikedState.value) R.drawable.heart else R.drawable.heart_outline
         )
         .addCustomAction(
-            "PLAYRADIO",
-            "Play radio",
-            R.drawable.radio
-        ).addCustomAction(
             "DOWNLOAD",
             "Download",
             if (isDownloadedState.value || isCachedState.value) R.drawable.downloaded else R.drawable.download
+
+        )
+        .addCustomAction(
+            "PLAYRADIO",
+            "Play radio",
+            R.drawable.radio
         )
 
     @ExperimentalCoroutinesApi
@@ -370,6 +377,8 @@ class PlayerService : InvincibleService(),
 
     private var showLikeButton = true
     private var showDownloadButton = true
+
+    private var shuffleModeEnabled = false
 
     override fun onBind(intent: Intent?): AndroidBinder {
         super.onBind(intent)
@@ -609,6 +618,7 @@ class PlayerService : InvincibleService(),
             addAction(Action.like.value)
             addAction(Action.download.value)
             addAction(Action.playradio.value)
+            addAction(Action.shuffle.value)
         }
 
         ContextCompat.registerReceiver(
@@ -1113,6 +1123,8 @@ class PlayerService : InvincibleService(),
     private fun updatePlaybackState() = coroutineScope.launch {
         playbackStateMutex.withLock {
             withContext(Dispatchers.Main) {
+                shuffleModeEnabled = player.shuffleModeEnabled
+
                 if (showLikeButton && showDownloadButton)
                     mediaSession.setPlaybackState(
                         stateBuilder
@@ -1143,6 +1155,7 @@ class PlayerService : InvincibleService(),
                     )
             }
         }
+
 
     }
 
@@ -1287,8 +1300,11 @@ class PlayerService : InvincibleService(),
         val likeIntent = Action.like.pendingIntent
         val downloadIntent = Action.download.pendingIntent
         val playradioIntent = Action.playradio.pendingIntent
+        val shuffleIntent = Action.shuffle.pendingIntent
 
         val mediaMetadata = player.mediaMetadata
+
+        shuffleModeEnabled = player.shuffleModeEnabled
 
         val builder = if (isAtLeastAndroid8) {
             NotificationCompat.Builder(applicationContext, NotificationChannelId)
@@ -1330,9 +1346,8 @@ class PlayerService : InvincibleService(),
             //Prior Android 11
             builder
                 .addAction(
-                    if (isDownloadedState.value || isCachedState.value) R.drawable.downloaded else R.drawable.download,
-                    //if (currentMediaDownloaded.value) R.drawable.downloaded_to else R.drawable.download_to,
-                    "Download", downloadIntent
+                    if (shuffleModeEnabled) R.drawable.shuffle_filled else R.drawable.shuffle,
+                    "Shuffle", shuffleIntent
                 )
                 .addAction(
                     if (isLikedState.value) R.drawable.heart else R.drawable.heart_outline,
@@ -1344,6 +1359,11 @@ class PlayerService : InvincibleService(),
                     R.drawable.radio,
                     "Play radio",
                     playradioIntent
+                )
+                .addAction(
+                    if (isDownloadedState.value || isCachedState.value) R.drawable.downloaded else R.drawable.download,
+                    //if (currentMediaDownloaded.value) R.drawable.downloaded_to else R.drawable.download_to,
+                    "Download", downloadIntent
                 )
         }
         //Prior Android 11
@@ -1470,8 +1490,8 @@ class PlayerService : InvincibleService(),
                 DefaultAudioProcessorChain(
                     arrayOf(),
                     SilenceSkippingAudioProcessor(
-                        2_000_000, //minimumSilenceDuration,
-                        20_000, //minimumSilenceDuration / 100L,
+                        2_000_000,
+                        20_000,
                          256
                     ),
                     SonicAudioProcessor()
@@ -1985,6 +2005,7 @@ class PlayerService : InvincibleService(),
             updatePlaybackState()
         }
 
+        @kotlin.OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
         fun toggleShuffle() {
             player.shuffleModeEnabled = !player.shuffleModeEnabled
             updatePlaybackState()
@@ -2050,7 +2071,7 @@ class PlayerService : InvincibleService(),
         @FlowPreview
         override fun onCustomAction(action: String, extras: Bundle?) {
             super.onCustomAction(action, extras)
-            println("mediaItem $action")
+            //println("mediaItem $action")
             if (action == "LIKE") {
                 binder.toggleLike()
                 refreshPlayer()
@@ -2122,6 +2143,10 @@ class PlayerService : InvincibleService(),
                     binder.stopRadio()
                     binder.playRadio(NavigationEndpoint.Endpoint.Watch(videoId = binder.player.currentMediaItem?.mediaId))
                 }
+                Action.shuffle.value -> {
+                    binder.toggleShuffle()
+                    refreshPlayer()
+                }
             }
 
             updatePlaybackState()
@@ -2160,7 +2185,7 @@ class PlayerService : InvincibleService(),
             val like = Action("it.fast4x.rimusic.like")
             val download = Action("it.fast4x.rimusic.download")
             val playradio = Action("it.fast4x.rimusic.playradio")
-
+            val shuffle = Action("it.fast4x.rimusic.shuffle")
         }
     }
 

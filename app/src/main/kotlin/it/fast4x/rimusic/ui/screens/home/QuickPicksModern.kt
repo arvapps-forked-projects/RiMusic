@@ -136,6 +136,7 @@ import it.fast4x.rimusic.utils.showPlaylistMightLikeKey
 import it.fast4x.rimusic.utils.showRelatedAlbumsKey
 import it.fast4x.rimusic.utils.showSearchTabKey
 import it.fast4x.rimusic.utils.showSimilarArtistsKey
+import it.fast4x.rimusic.utils.showTipsKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -200,6 +201,7 @@ fun QuickPicksModern(
     val showPlaylistMightLike by rememberPreference(showPlaylistMightLikeKey, true)
     val showNewAlbums by rememberPreference(showNewAlbumsKey, true)
     val showMonthlyPlaylistInQuickPicks by rememberPreference(showMonthlyPlaylistInQuickPicksKey, true)
+    val showTips by rememberPreference(showTipsKey, true)
 
     val navigationBarPosition by rememberPreference(navigationBarPositionKey, NavigationBarPosition.Left)
 
@@ -363,60 +365,61 @@ fun QuickPicksModern(
                         onClick = onSearchClick
                     )
 
-                Title(
-                    title = stringResource(R.string.tips),
-                    onClick = {
-                        menuState.display {
-                            Menu {
-                                MenuEntry(
-                                    icon = R.drawable.chevron_up,
-                                    text = stringResource(R.string.by_most_played_song),
-                                    onClick = {
-                                        playEventType = PlayEventsType.MostPlayed
-                                        menuState.hide()
-                                    }
-                                )
-                                MenuEntry(
-                                    icon = R.drawable.chevron_down,
-                                    text = stringResource(R.string.by_last_played_song),
-                                    onClick = {
-                                        playEventType = PlayEventsType.LastPlayed
-                                        menuState.hide()
-                                    }
-                                )
-                                MenuEntry(
-                                    icon = R.drawable.random,
-                                    text = stringResource(R.string.by_casual_played_song),
-                                    onClick = {
-                                        playEventType = PlayEventsType.CasualPlayed
-                                        menuState.hide()
-                                    }
-                                )
+                if (showTips) {
+                    Title(
+                        title = stringResource(R.string.tips),
+                        onClick = {
+                            menuState.display {
+                                Menu {
+                                    MenuEntry(
+                                        icon = R.drawable.chevron_up,
+                                        text = stringResource(R.string.by_most_played_song),
+                                        onClick = {
+                                            playEventType = PlayEventsType.MostPlayed
+                                            menuState.hide()
+                                        }
+                                    )
+                                    MenuEntry(
+                                        icon = R.drawable.chevron_down,
+                                        text = stringResource(R.string.by_last_played_song),
+                                        onClick = {
+                                            playEventType = PlayEventsType.LastPlayed
+                                            menuState.hide()
+                                        }
+                                    )
+                                    MenuEntry(
+                                        icon = R.drawable.random,
+                                        text = stringResource(R.string.by_casual_played_song),
+                                        onClick = {
+                                            playEventType = PlayEventsType.CasualPlayed
+                                            menuState.hide()
+                                        }
+                                    )
+                                }
                             }
-                        }
-                    },
-                    //modifier = Modifier.fillMaxWidth(0.7f)
-                )
+                        },
+                        //modifier = Modifier.fillMaxWidth(0.7f)
+                    )
 
-                BasicText(
-                    text = when (playEventType) {
-                        PlayEventsType.MostPlayed -> stringResource(R.string.by_most_played_song)
-                        PlayEventsType.LastPlayed -> stringResource(R.string.by_last_played_song)
-                        PlayEventsType.CasualPlayed -> stringResource(R.string.by_casual_played_song)
-                    },
-                    style = typography.xxs.secondary,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 8.dp)
-                )
+                    BasicText(
+                        text = when (playEventType) {
+                            PlayEventsType.MostPlayed -> stringResource(R.string.by_most_played_song)
+                            PlayEventsType.LastPlayed -> stringResource(R.string.by_last_played_song)
+                            PlayEventsType.CasualPlayed -> stringResource(R.string.by_casual_played_song)
+                        },
+                        style = typography.xxs.secondary,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = 8.dp)
+                    )
 
 
-                //relatedPageResult?.getOrNull()?.let { related ->
-                related = relatedPageResult?.getOrNull()
+                    //relatedPageResult?.getOrNull()?.let { related ->
+                    related = relatedPageResult?.getOrNull()
 
                     LazyHorizontalGrid(
                         state = quickPicksLazyGridState,
-                        rows = GridCells.Fixed(if(related != null) 3 else 1),
+                        rows = GridCells.Fixed(if (related != null) 3 else 1),
                         flingBehavior = ScrollableDefaults.flingBehavior(),
                         contentPadding = endPaddingValues,
                         modifier = Modifier
@@ -529,8 +532,8 @@ fun QuickPicksModern(
                                         if (cachedSongs.indexOf(it.asMediaItem.mediaId) < 0) true else false
                                     } else true
                                 }
-                                ?.dropLast(if (trending == null) 0 else 1)
-                                ?: emptyList(),
+                                    ?.dropLast(if (trending == null) 0 else 1)
+                                    ?: emptyList(),
                                 key = Innertube.SongItem::key
                             ) { song ->
                                 val isLocal by remember { derivedStateOf { song.asMediaItem.isLocal } }
@@ -623,7 +626,7 @@ fun QuickPicksModern(
                                 .padding(all = 16.dp)
                         )
                     }
-
+                }
 
                     discoverPage?.getOrNull()?.let { page ->
                         var newReleaseAlbumsFiltered by persistList<Innertube.AlbumItem>("discovery/newalbumsartist")
@@ -923,12 +926,6 @@ fun QuickPicksModern(
 
         }
 
-        /*
-        PullRefreshIndicator(
-            refreshing, refreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )
-         */
     }
 }
 

@@ -14,6 +14,7 @@ enum class Languages {
     ChineseTraditional,
     Czech,
     Dutch,
+    Filipino,
     Finnish,
     French,
     German,
@@ -57,6 +58,7 @@ enum class Languages {
             English -> "en"
             Esperanto -> "eo"
             Estonian -> "et"
+            Filipino -> "fil"
             Finnish -> "fi"
             Italian -> "it"
             Indonesian -> "in"
@@ -65,7 +67,7 @@ enum class Languages {
             Czech -> "cs"
             German -> "de"
             Greek -> "el"
-            Hebrew -> "he"
+            Hebrew -> "iw" //Hebrew -> "he"
             Hindi -> "hi"
             Hungarian -> "hu"
             Spanish -> "es"

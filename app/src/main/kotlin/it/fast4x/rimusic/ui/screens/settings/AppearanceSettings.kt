@@ -46,9 +46,11 @@ import androidx.media3.common.util.UnstableApi
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.BackgroundProgress
 import it.fast4x.rimusic.enums.ClickLyricsText
+import it.fast4x.rimusic.enums.IconLikeType
 import it.fast4x.rimusic.enums.NavigationBarPosition
 import it.fast4x.rimusic.enums.PlayerBackgroundColors
 import it.fast4x.rimusic.enums.PlayerControlsType
+import it.fast4x.rimusic.enums.PlayerInfoType
 import it.fast4x.rimusic.enums.PlayerPlayButtonType
 import it.fast4x.rimusic.enums.PlayerThumbnailSize
 import it.fast4x.rimusic.enums.PlayerTimelineType
@@ -65,13 +67,17 @@ import it.fast4x.rimusic.utils.clickLyricsTextKey
 import it.fast4x.rimusic.utils.disablePlayerHorizontalSwipeKey
 import it.fast4x.rimusic.utils.disableScrollingTextKey
 import it.fast4x.rimusic.utils.effectRotationKey
+import it.fast4x.rimusic.utils.iconLikeTypeKey
 import it.fast4x.rimusic.utils.isAtLeastAndroid13
 import it.fast4x.rimusic.utils.isShowingThumbnailInLockscreenKey
 import it.fast4x.rimusic.utils.lastPlayerPlayButtonTypeKey
 import it.fast4x.rimusic.utils.navigationBarPositionKey
 import it.fast4x.rimusic.utils.playerBackgroundColorsKey
 import it.fast4x.rimusic.utils.playerControlsTypeKey
+import it.fast4x.rimusic.utils.playerEnableLyricsPopupMessageKey
+import it.fast4x.rimusic.utils.playerInfoTypeKey
 import it.fast4x.rimusic.utils.playerPlayButtonTypeKey
+import it.fast4x.rimusic.utils.playerSwapControlsWithTimelineKey
 import it.fast4x.rimusic.utils.playerThumbnailSizeKey
 import it.fast4x.rimusic.utils.playerTimelineTypeKey
 import it.fast4x.rimusic.utils.playerVisualizerTypeKey
@@ -92,9 +98,11 @@ import it.fast4x.rimusic.utils.showDownloadButtonBackgroundPlayerKey
 import it.fast4x.rimusic.utils.showLikeButtonBackgroundPlayerKey
 import it.fast4x.rimusic.utils.showNextSongsInPlayerKey
 import it.fast4x.rimusic.utils.showRemainingSongTimeKey
+import it.fast4x.rimusic.utils.showTopActionsBarKey
 import it.fast4x.rimusic.utils.showTotalTimeQueueKey
 import it.fast4x.rimusic.utils.thumbnailRoundnessKey
 import it.fast4x.rimusic.utils.thumbnailTapEnabledKey
+import it.fast4x.rimusic.utils.transparentBackgroundPlayerActionBarKey
 
 
 @ExperimentalAnimationApi
@@ -183,7 +191,14 @@ fun AppearanceSettings() {
         playerBackgroundColorsKey,
         PlayerBackgroundColors.ThemeColor
     )
+
+    var showTopActionsBar by rememberPreference(showTopActionsBarKey, true)
     var playerControlsType by rememberPreference(playerControlsTypeKey, PlayerControlsType.Modern)
+    var playerInfoType by rememberPreference(playerInfoTypeKey, PlayerInfoType.Modern)
+    var transparentBackgroundActionBarPlayer by rememberPreference(transparentBackgroundPlayerActionBarKey, false)
+    var iconLikeType by rememberPreference(iconLikeTypeKey, IconLikeType.Essential)
+    var playerSwapControlsWithTimeline by rememberPreference(playerSwapControlsWithTimelineKey, false)
+    var playerEnableLyricsPopupMessage by rememberPreference(playerEnableLyricsPopupMessageKey, true)
 
     Column(
         modifier = Modifier
@@ -317,6 +332,18 @@ fun AppearanceSettings() {
         //SettingsGroupSpacer()
         SettingsEntryGroupText(title = stringResource(R.string.player))
 
+        if (filter.isNullOrBlank() || stringResource(R.string.show_player_top_actions_bar).contains(
+                filterCharSequence,
+                true
+            )
+        )
+            SwitchSettingEntry(
+                title = stringResource(R.string.show_player_top_actions_bar),
+                text = "",
+                isChecked = showTopActionsBar,
+                onCheckedChange = { showTopActionsBar = it }
+            )
+
         if (filter.isNullOrBlank() || stringResource(R.string.player_thumbnail_size).contains(
                 filterCharSequence,
                 true
@@ -370,6 +397,54 @@ fun AppearanceSettings() {
                 }
             )
 
+        if (filter.isNullOrBlank() || stringResource(R.string.pinfo_type).contains(
+                filterCharSequence,
+                true
+            )
+        )
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(R.string.pinfo_type),
+                titleSecondary = stringResource(R.string.pinfo_album_and_artist_name),
+                selectedValue = playerInfoType,
+                onValueSelected = {
+                    playerInfoType = it
+                },
+                valueText = {
+                    when (it) {
+                        PlayerInfoType.Modern -> stringResource(R.string.pcontrols_modern)
+                        PlayerInfoType.Essential -> stringResource(R.string.pcontrols_essential)
+                    }
+                },
+            )
+
+        if (filter.isNullOrBlank() || stringResource(R.string.player_swap_controls_with_timeline).contains(filterCharSequence,true))
+            SwitchSettingEntry(
+                title = stringResource(R.string.player_swap_controls_with_timeline),
+                text = "",
+                isChecked = playerSwapControlsWithTimeline,
+                onCheckedChange = { playerSwapControlsWithTimeline = it }
+            )
+
+        if (filter.isNullOrBlank() || stringResource(R.string.timeline).contains(
+                filterCharSequence,
+                true
+            )
+        )
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(R.string.timeline),
+                selectedValue = playerTimelineType,
+                onValueSelected = { playerTimelineType = it },
+                valueText = {
+                    when (it) {
+                        PlayerTimelineType.Default -> stringResource(R.string._default)
+                        PlayerTimelineType.Wavy -> stringResource(R.string.wavy_timeline)
+                        PlayerTimelineType.BodiedBar -> stringResource(R.string.bodied_bar)
+                        PlayerTimelineType.PinBar -> stringResource(R.string.pin_bar)
+                        //PlayerTimelineType.ColoredBar -> "Colored bar"
+                    }
+                }
+            )
+
         if (filter.isNullOrBlank() || stringResource(R.string.pcontrols_type).contains(
                 filterCharSequence,
                 true
@@ -417,6 +492,31 @@ fun AppearanceSettings() {
                     },
                 )
         }
+
+        if (filter.isNullOrBlank() || stringResource(R.string.play_button).contains(
+                filterCharSequence,
+                true
+            )
+        )
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(R.string.icon_like_button),
+                selectedValue = iconLikeType,
+                onValueSelected = {
+                    iconLikeType = it
+                },
+                valueText = {
+                    when (it) {
+                        IconLikeType.Essential -> stringResource(R.string.pcontrols_essential)
+                        IconLikeType.Apple -> stringResource(R.string.icon_like_apple)
+                        IconLikeType.Breaked -> stringResource(R.string.icon_like_breaked)
+                        IconLikeType.Gift -> stringResource(R.string.icon_like_gift)
+                        IconLikeType.Shape -> stringResource(R.string.icon_like_shape)
+                        IconLikeType.Striped -> stringResource(R.string.icon_like_striped)
+                        IconLikeType.Brilliant -> stringResource(R.string.icon_like_brilliant)
+                    }
+                },
+            )
+
         /*
 
         if (filter.isNullOrBlank() || stringResource(R.string.use_gradient_background).contains(filterCharSequence,true))
@@ -568,6 +668,18 @@ fun AppearanceSettings() {
                 onCheckedChange = { showBackgroundLyrics = it }
             )
 
+        if (filter.isNullOrBlank() || stringResource(R.string.player_enable_lyrics_popup_message).contains(
+                filterCharSequence,
+                true
+            )
+        )
+            SwitchSettingEntry(
+                title = stringResource(R.string.player_enable_lyrics_popup_message),
+                text = "",
+                isChecked = playerEnableLyricsPopupMessage,
+                onCheckedChange = { playerEnableLyricsPopupMessage = it }
+            )
+
         if (filter.isNullOrBlank() || stringResource(R.string.background_progress_bar).contains(
                 filterCharSequence,
                 true
@@ -587,25 +699,6 @@ fun AppearanceSettings() {
                         BackgroundProgress.Disabled -> stringResource(R.string.vt_disabled)
                     }
                 },
-            )
-
-        if (filter.isNullOrBlank() || stringResource(R.string.timeline).contains(
-                filterCharSequence,
-                true
-            )
-        )
-            EnumValueSelectorSettingsEntry(
-                title = stringResource(R.string.timeline),
-                selectedValue = playerTimelineType,
-                onValueSelected = { playerTimelineType = it },
-                valueText = {
-                    when (it) {
-                        PlayerTimelineType.Default -> stringResource(R.string._default)
-                        PlayerTimelineType.Wavy -> stringResource(R.string.wavy_timeline)
-                        PlayerTimelineType.BodiedBar -> stringResource(R.string.bodied_bar)
-                        PlayerTimelineType.PinBar -> stringResource(R.string.pin_bar)
-                    }
-                }
             )
 
 
@@ -636,6 +729,18 @@ fun AppearanceSettings() {
 
         SettingsGroupSpacer()
         SettingsEntryGroupText(title = stringResource(R.string.player_action_bar))
+
+        if (filter.isNullOrBlank() || stringResource(R.string.action_bar_transparent_background).contains(
+                filterCharSequence,
+                true
+            )
+        )
+            SwitchSettingEntry(
+                title = stringResource(R.string.action_bar_transparent_background),
+                text = "",
+                isChecked = transparentBackgroundActionBarPlayer,
+                onCheckedChange = { transparentBackgroundActionBarPlayer = it }
+            )
 
         if (filter.isNullOrBlank() || stringResource(R.string.action_bar_show_download_button).contains(
                 filterCharSequence,

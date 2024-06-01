@@ -190,9 +190,6 @@ fun  UiSettings() {
 
     var languageApp  by rememberPreference(languageAppKey, Languages.English)
     val systemLocale = LocaleListCompat.getDefault().get(0).toString()
-    languageApp.code = systemLocale
-
-    //Log.d("LanguageSystem",systemLocale.toString() +"  "+ languageApp.name)
 
     var exoPlayerMinTimeForEvent by rememberPreference(
         exoPlayerMinTimeForEventKey,
@@ -507,6 +504,7 @@ fun  UiSettings() {
                         Languages.English -> stringResource(R.string.english)
                         Languages.Esperanto -> stringResource(R.string.esperanto)
                         Languages.Estonian -> stringResource(R.string.lang_estonian)
+                        Languages.Filipino -> stringResource(R.string.lang_filipino)
                         Languages.Finnish -> stringResource(R.string.lang_finnish)
                         Languages.French -> stringResource(R.string.french)
                         Languages.German -> stringResource(R.string.german)

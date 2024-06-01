@@ -136,6 +136,7 @@ fun About() {
                     "AntoniNowak \n" +
                     "beez276 \n"+
                     "CiccioDerole \n"+
+                    "Clyde6790p_PH \n"+
                     "Conk \n"+
                     "Corotyest \n" +
                     "Crayz310 \n"+
@@ -197,6 +198,8 @@ fun About() {
         SettingsTopDescription( text ="Developer / Designer:")
         SettingsTopDescription( text =
             "25huizengek1 \n"+
+                    "821938089 \n"+
+                    "bbyeen \n"+
                 "Craeckie \n"+
                 "DanielSevillano \n"+
                 "Fast4x \n"+

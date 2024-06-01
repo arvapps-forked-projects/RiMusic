@@ -10,7 +10,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -196,6 +198,7 @@ fun Thumbnail(
         var modifierUiType by remember { mutableStateOf(modifier) }
         if (playerControlsType == PlayerControlsType.Modern)
             modifierUiType = modifier
+                .padding(vertical = 8.dp)
                 .aspectRatio(1f)
                 //.size(thumbnailSizeDp)
                 .fillMaxSize()

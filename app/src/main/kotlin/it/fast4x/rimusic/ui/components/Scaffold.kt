@@ -80,6 +80,7 @@ import androidx.navigation.NavController
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.NavRoutes
 import it.fast4x.rimusic.enums.NavigationBarPosition
+import it.fast4x.rimusic.enums.PlayerPosition
 import it.fast4x.rimusic.enums.TransitionEffect
 import it.fast4x.rimusic.enums.UiType
 import it.fast4x.rimusic.ui.components.NavigationRail
@@ -92,6 +93,7 @@ import it.fast4x.rimusic.utils.bold
 import it.fast4x.rimusic.utils.getCurrentRoute
 import it.fast4x.rimusic.utils.menuItemColors
 import it.fast4x.rimusic.utils.navigationBarPositionKey
+import it.fast4x.rimusic.utils.playerPositionKey
 import it.fast4x.rimusic.utils.rememberPreference
 import it.fast4x.rimusic.utils.semiBold
 import it.fast4x.rimusic.utils.transitionEffectKey
@@ -128,6 +130,7 @@ fun Scaffold(
     val navigationBarPosition by rememberPreference(navigationBarPositionKey, NavigationBarPosition.Left)
     val uiType  by rememberPreference(UiTypeKey, UiType.RiMusic)
     val transitionEffect by rememberPreference(transitionEffectKey, TransitionEffect.Scale)
+    val playerPosition by rememberPreference(playerPositionKey, PlayerPosition.Bottom)
 
     if (navigationBarPosition == NavigationBarPosition.Top || navigationBarPosition == NavigationBarPosition.Bottom) {
             ScaffoldTB(
@@ -161,7 +164,6 @@ fun Scaffold(
             Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
         else Modifier
 
-        //var expanded by remember { mutableStateOf(false) }
 
         androidx.compose.material3.Scaffold(
             modifier = customModifier,
@@ -173,6 +175,7 @@ fun Scaffold(
             },
 
             bottomBar = {
+                /*
                 if (playerEssential != null) {
                     Column(
                         modifier = Modifier
@@ -188,92 +191,121 @@ fun Scaffold(
                     }
 
                 }
+
+                 */
             }
 
         ) {
-            //it.calculateTopPadding()
-            //**
 
-            Row(
-                //horizontalArrangement = Arrangement.spacedBy(0.dp),
-                modifier = modifier
-                    //.border(BorderStroke(1.dp, Color.Red))
-                    //.padding(top = 50.dp)
+            //**
+            Box(
+                modifier = Modifier
                     .padding(it)
-                    .background(colorPalette.background0)
                     .fillMaxSize()
             ) {
-                val navigationRail: @Composable () -> Unit = {
-                    NavigationRail(
-                        topIconButtonId = topIconButtonId,
-                        onTopIconButtonClick = onTopIconButtonClick,
-                        showButton1 = showButton1,
-                        topIconButton2Id = topIconButton2Id,
-                        onTopIconButton2Click = onTopIconButton2Click,
-                        showButton2 = showButton2,
-                        bottomIconButtonId = bottomIconButtonId,
-                        onBottomIconButtonClick = onBottomIconButtonClick ?: {},
-                        showBottomButton = showBottomButton,
-                        tabIndex = tabIndex,
-                        onTabIndexChanged = onTabChanged,
-                        content = tabColumnContent,
-                        hideTabs = hideTabs
-                    )
-                }
 
-                if (navigationBarPosition == NavigationBarPosition.Left)
-                    navigationRail()
+                Row(
+                    modifier = modifier
+                        .background(colorPalette.background0)
+                        .fillMaxSize()
+                ) {
+                    val navigationRail: @Composable () -> Unit = {
+                        NavigationRail(
+                            topIconButtonId = topIconButtonId,
+                            onTopIconButtonClick = onTopIconButtonClick,
+                            showButton1 = showButton1,
+                            topIconButton2Id = topIconButton2Id,
+                            onTopIconButton2Click = onTopIconButton2Click,
+                            showButton2 = showButton2,
+                            bottomIconButtonId = bottomIconButtonId,
+                            onBottomIconButtonClick = onBottomIconButtonClick ?: {},
+                            showBottomButton = showBottomButton,
+                            tabIndex = tabIndex,
+                            onTabIndexChanged = onTabChanged,
+                            content = tabColumnContent,
+                            hideTabs = hideTabs
+                        )
+                    }
 
-                val topPadding = if (uiType == UiType.ViMusic) 30.dp else 0.dp
+                    if (navigationBarPosition == NavigationBarPosition.Left)
+                        navigationRail()
 
-                AnimatedContent(
-                    targetState = tabIndex,
-                    transitionSpec = {
-                        when (transitionEffect) {
-                            TransitionEffect.None-> EnterTransition.None togetherWith ExitTransition.None
-                            TransitionEffect.Expand -> expandIn(animationSpec = tween(350, easing = LinearOutSlowInEasing), expandFrom = Alignment.BottomStart).togetherWith(
-                                shrinkOut(animationSpec = tween(350, easing = FastOutSlowInEasing),shrinkTowards = Alignment.CenterStart)
-                            )
-                            TransitionEffect.Fade -> fadeIn(animationSpec = tween(350)).togetherWith(fadeOut(animationSpec = tween(350)))
-                            TransitionEffect.Scale -> scaleIn(animationSpec = tween(350)).togetherWith(scaleOut(animationSpec = tween(350)))
-                            TransitionEffect.SlideHorizontal, TransitionEffect.SlideVertical -> {
-                                val slideDirection = when (targetState > initialState) {
-                                    true -> {
-                                        if (transitionEffect == TransitionEffect.SlideHorizontal)
-                                            AnimatedContentTransitionScope.SlideDirection.Left
-                                        else AnimatedContentTransitionScope.SlideDirection.Up
-                                    }
+                    val topPadding = if (uiType == UiType.ViMusic) 30.dp else 0.dp
 
-                                    false -> {
-                                        if (transitionEffect == TransitionEffect.SlideHorizontal)
-                                            AnimatedContentTransitionScope.SlideDirection.Right
-                                        else AnimatedContentTransitionScope.SlideDirection.Down
-                                    }
-                                }
-
-                                val animationSpec = spring(
-                                    dampingRatio = 0.9f,
-                                    stiffness = Spring.StiffnessLow,
-                                    visibilityThreshold = IntOffset.VisibilityThreshold
+                    AnimatedContent(
+                        targetState = tabIndex,
+                        transitionSpec = {
+                            when (transitionEffect) {
+                                TransitionEffect.None -> EnterTransition.None togetherWith ExitTransition.None
+                                TransitionEffect.Expand -> expandIn(
+                                    animationSpec = tween(
+                                        350,
+                                        easing = LinearOutSlowInEasing
+                                    ), expandFrom = Alignment.BottomStart
+                                ).togetherWith(
+                                    shrinkOut(
+                                        animationSpec = tween(
+                                            350,
+                                            easing = FastOutSlowInEasing
+                                        ), shrinkTowards = Alignment.CenterStart
+                                    )
                                 )
 
-                                slideIntoContainer(slideDirection, animationSpec) togetherWith
-                                        slideOutOfContainer(slideDirection, animationSpec)
+                                TransitionEffect.Fade -> fadeIn(animationSpec = tween(350)).togetherWith(
+                                    fadeOut(animationSpec = tween(350))
+                                )
+
+                                TransitionEffect.Scale -> scaleIn(animationSpec = tween(350)).togetherWith(
+                                    scaleOut(animationSpec = tween(350))
+                                )
+
+                                TransitionEffect.SlideHorizontal, TransitionEffect.SlideVertical -> {
+                                    val slideDirection = when (targetState > initialState) {
+                                        true -> {
+                                            if (transitionEffect == TransitionEffect.SlideHorizontal)
+                                                AnimatedContentTransitionScope.SlideDirection.Left
+                                            else AnimatedContentTransitionScope.SlideDirection.Up
+                                        }
+
+                                        false -> {
+                                            if (transitionEffect == TransitionEffect.SlideHorizontal)
+                                                AnimatedContentTransitionScope.SlideDirection.Right
+                                            else AnimatedContentTransitionScope.SlideDirection.Down
+                                        }
+                                    }
+
+                                    val animationSpec = spring(
+                                        dampingRatio = 0.9f,
+                                        stiffness = Spring.StiffnessLow,
+                                        visibilityThreshold = IntOffset.VisibilityThreshold
+                                    )
+
+                                    slideIntoContainer(slideDirection, animationSpec) togetherWith
+                                            slideOutOfContainer(slideDirection, animationSpec)
+                                }
                             }
-                        }
-                    },
-                    content = content, label = "",
+                        },
+                        content = content, label = "",
+                        modifier = Modifier
+                            //.fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(top = topPadding)
+                    )
+
+                    if (navigationBarPosition == NavigationBarPosition.Right)
+                        navigationRail()
+
+                }
+                //**
+                Box(
                     modifier = Modifier
-                        //.fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(top = topPadding)
-                )
-
-                if (navigationBarPosition == NavigationBarPosition.Right)
-                    navigationRail()
-
+                        .padding(vertical = 5.dp)
+                        .align(if (playerPosition == PlayerPosition.Top) Alignment.TopCenter
+                        else Alignment.BottomCenter)
+                ) {
+                    playerEssential?.invoke()
+                }
             }
-            //**
         }
     }
 

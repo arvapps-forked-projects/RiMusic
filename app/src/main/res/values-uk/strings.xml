@@ -553,4 +553,18 @@
     <string name="position_bottom">Знизу</string>
     <string name="added_to_favorites">Додано до обраного</string>
     <string name="removed_from_favorites">Видалено з обраного</string>
+    <string name="lang_filipino">Filipino</string>
+    <string name="action_bar_transparent_background">Transparent background</string>
+    <string name="pinfo_type">Info type</string>
+    <string name="pinfo_album_and_artist_name">Album and artist name</string>
+    <string name="show_player_top_actions_bar">Show top actions bar</string>
+    <string name="icon_like_button">Like button</string>
+    <string name="icon_like_apple">Apple</string>
+    <string name="icon_like_breaked">Breaked</string>
+    <string name="icon_like_gift">Gift</string>
+    <string name="icon_like_shape">Shape</string>
+    <string name="icon_like_striped">Striped</string>
+    <string name="icon_like_brilliant">Brilliant</string>
+    <string name="player_swap_controls_with_timeline">Swap controls with timeline</string>
+    <string name="player_enable_lyrics_popup_message">Enable lyrics popup message</string>
 </resources>

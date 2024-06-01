@@ -1002,7 +1002,7 @@ fun BlurParamsDialog(
     darkenFactorValue: (Float) -> Unit
 ) {
     val (colorPalette) = LocalAppearance.current
-    val defaultStrength = 0.5f
+    val defaultStrength = 25f
     val defaultDarkenFactor = 0.2f
     var blurStrength  by rememberPreference(blurStrengthKey, defaultStrength)
     var blurDarkenFactor  by rememberPreference(blurDarkenFactorKey, defaultDarkenFactor)
@@ -1023,7 +1023,7 @@ fun BlurParamsDialog(
         ) {
             IconButton(
                 onClick = {
-                    blurStrength = blurDarkenFactor
+                    blurStrength = defaultStrength
                 },
                 icon = R.drawable.droplet,
                 color = colorPalette.favoritesIcon,
@@ -1040,11 +1040,11 @@ fun BlurParamsDialog(
                     blurStrength = it
                 },
                 valueRange = 1f..50f,
-                gap = 5,
+                gap = 1,
                 showIndicator = true,
                 thumb = { thumbValue ->
                     CustomSliderDefaults.Thumb(
-                        thumbValue = "%.1fx".format(blurStrength),
+                        thumbValue = "%.0f".format(blurStrength),
                         color = Color.Transparent,
                         size = 40.dp,
                         modifier = Modifier.background(
@@ -1078,6 +1078,9 @@ fun BlurParamsDialog(
             )
         }
 
+
+
+        /*
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -1108,7 +1111,7 @@ fun BlurParamsDialog(
                 showIndicator = true,
                 thumb = { thumbValue ->
                     CustomSliderDefaults.Thumb(
-                        thumbValue = "%.1fx".format(blurDarkenFactor),
+                        thumbValue = "%.2f".format(blurDarkenFactor),
                         color = Color.Transparent,
                         size = 40.dp,
                         modifier = Modifier.background(
@@ -1141,6 +1144,7 @@ fun BlurParamsDialog(
                 }
             )
         }
+         */
 
     }
 }

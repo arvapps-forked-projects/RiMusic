@@ -20,6 +20,7 @@ class MainApplication : Application(), ImageLoaderFactory {
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this)
             .crossfade(true)
+            .placeholder(R.drawable.loader)
             .respectCacheHeaders(false)
             .memoryCache(
                 MemoryCache.Builder(this)
@@ -28,7 +29,7 @@ class MainApplication : Application(), ImageLoaderFactory {
             )
             .diskCache(
                 DiskCache.Builder()
-                    .directory(cacheDir.resolve("coil"))
+                    .directory(filesDir.resolve("coil"))
                     .maxSizeBytes(
                         preferences.getEnum(
                             coilDiskCacheMaxSizeKey,

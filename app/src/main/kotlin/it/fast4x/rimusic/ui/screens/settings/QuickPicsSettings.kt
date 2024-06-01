@@ -1,6 +1,10 @@
 package it.fast4x.rimusic.ui.screens.settings
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -45,6 +49,7 @@ import it.fast4x.rimusic.utils.showNewAlbumsKey
 import it.fast4x.rimusic.utils.showPlaylistMightLikeKey
 import it.fast4x.rimusic.utils.showRelatedAlbumsKey
 import it.fast4x.rimusic.utils.showSimilarArtistsKey
+import it.fast4x.rimusic.utils.showTipsKey
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @ExperimentalAnimationApi
@@ -56,6 +61,7 @@ fun  QuickPicsSettings() {
         playEventsTypeKey,
         PlayEventsType.MostPlayed
     )
+    var showTips by rememberPreference(showTipsKey, true)
     var showRelatedAlbums by rememberPreference(showRelatedAlbumsKey, true)
     var showSimilarArtists by rememberPreference(showSimilarArtistsKey, true)
     var showNewAlbumsArtists by rememberPreference(showNewAlbumsArtistsKey, true)
@@ -133,18 +139,33 @@ fun  QuickPicsSettings() {
         )
          */
 
-        EnumValueSelectorSettingsEntry(
-            title = stringResource(R.string.tips),
-            selectedValue = playEventType,
-            onValueSelected = { playEventType = it },
-            valueText = {
-                when (it) {
-                    PlayEventsType.MostPlayed -> stringResource(R.string.by_most_played_song)
-                    PlayEventsType.LastPlayed -> stringResource(R.string.by_last_played_song)
-                    PlayEventsType.CasualPlayed -> stringResource(R.string.by_casual_played_song)
-                }
+        SwitchSettingEntry(
+            title = "${stringResource(R.string.show)} ${stringResource(R.string.tips)}",
+            text = stringResource(R.string.disable_if_you_do_not_want_to_see) + " " +stringResource(R.string.tips),
+            isChecked = showTips,
+            onCheckedChange = {
+                showTips = it
             }
         )
+
+        AnimatedVisibility(
+            visible = showTips,
+            enter = fadeIn(tween(100)),
+            exit = fadeOut(tween(100)),
+        ) {
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(R.string.tips),
+                selectedValue = playEventType,
+                onValueSelected = { playEventType = it },
+                valueText = {
+                    when (it) {
+                        PlayEventsType.MostPlayed -> stringResource(R.string.by_most_played_song)
+                        PlayEventsType.LastPlayed -> stringResource(R.string.by_last_played_song)
+                        PlayEventsType.CasualPlayed -> stringResource(R.string.by_casual_played_song)
+                    }
+                }
+            )
+        }
 
         //SettingsGroupSpacer()
 

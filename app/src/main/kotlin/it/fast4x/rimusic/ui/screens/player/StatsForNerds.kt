@@ -38,6 +38,7 @@ import it.fast4x.rimusic.LocalPlayerServiceBinder
 import it.fast4x.rimusic.R
 import it.fast4x.rimusic.enums.AudioQualityFormat
 import it.fast4x.rimusic.models.Format
+import it.fast4x.rimusic.service.LOCAL_KEY_PREFIX
 import it.fast4x.rimusic.ui.styling.LocalAppearance
 import it.fast4x.rimusic.ui.styling.onOverlay
 import it.fast4x.rimusic.ui.styling.overlay
@@ -164,14 +165,16 @@ fun StatsForNerds(
                         text = stringResource(R.string.id),
                         style = typography.xs.medium.color(colorPalette.onOverlay)
                     )
-                    BasicText(
-                        text = stringResource(R.string.itag),
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
-                    BasicText(
-                        text = "Quality",
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
+                    if (format?.songId?.startsWith(LOCAL_KEY_PREFIX) == false) {
+                        BasicText(
+                            text = stringResource(R.string.itag),
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                        BasicText(
+                            text = "Quality",
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                    }
                     BasicText(
                         text = stringResource(R.string.bitrate),
                         style = typography.xs.medium.color(colorPalette.onOverlay)
@@ -181,16 +184,24 @@ fun StatsForNerds(
                         style = typography.xs.medium.color(colorPalette.onOverlay)
                     )
 
-                    BasicText(
-                        text = if (cachedBytes > downloadCachedBytes) stringResource(R.string.cached)
-                        else stringResource( R.string.downloaded ),
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
+                    if (format?.songId?.startsWith(LOCAL_KEY_PREFIX) == true)
+                        BasicText(
+                            text = stringResource(R.string.cached),
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
 
-                    BasicText(
-                        text = stringResource(R.string.loudness),
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
+                    if (format?.songId?.startsWith(LOCAL_KEY_PREFIX) == false) {
+                        BasicText(
+                            text = if (cachedBytes > downloadCachedBytes) stringResource(R.string.cached)
+                            else stringResource(R.string.downloaded),
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+
+                        BasicText(
+                            text = stringResource(R.string.loudness),
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                    }
                 }
 
                 Column {
@@ -199,55 +210,73 @@ fun StatsForNerds(
                         maxLines = 1,
                         style = typography.xs.medium.color(colorPalette.onOverlay)
                     )
+                    if (format?.songId?.startsWith(LOCAL_KEY_PREFIX) == false) {
+                        BasicText(
+                            text = format?.itag?.toString()
+                                ?: stringResource(R.string.audio_quality_format_unknown),
+                            maxLines = 1,
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                        BasicText(
+                            text = when (format?.itag?.toString()) {
+                                "251" -> stringResource(R.string.audio_quality_format_high)
+                                "141" -> stringResource(R.string.audio_quality_format_high)
+                                "250" -> stringResource(R.string.audio_quality_format_medium)
+                                "140" -> stringResource(R.string.audio_quality_format_medium)
+                                "249" -> stringResource(R.string.audio_quality_format_low)
+                                "139" -> stringResource(R.string.audio_quality_format_low)
+                                else -> stringResource(R.string.audio_quality_format_unknown)
+                            },
+                            maxLines = 1,
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                    }
                     BasicText(
-                        text = format?.itag?.toString() ?: "Unknown",
-                        maxLines = 1,
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
-                    BasicText(
-                        text = when (format?.itag?.toString()) {
-                            "251" -> stringResource(R.string.audio_quality_format_high)
-                            "141" -> stringResource(R.string.audio_quality_format_high)
-                            "250" -> stringResource(R.string.audio_quality_format_medium)
-                            "140" -> stringResource(R.string.audio_quality_format_medium)
-                            "249" -> stringResource(R.string.audio_quality_format_low)
-                            "139" -> stringResource(R.string.audio_quality_format_low)
-                            else -> stringResource(R.string.audio_quality_format_unknown)
-                        },
-                        maxLines = 1,
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
-                    BasicText(
-                        text = format?.bitrate?.let { "${it / 1000} kbps" } ?: "Unknown",
+                        text = format?.bitrate?.let { "${it / 1000} kbps" } ?: stringResource(R.string.audio_quality_format_unknown),
                         maxLines = 1,
                         style = typography.xs.medium.color(colorPalette.onOverlay)
                     )
                     BasicText(
                         text = format?.contentLength
-                            ?.let { Formatter.formatShortFileSize(context, it) } ?: "Unknown",
+                            ?.let { Formatter.formatShortFileSize(context, it) } ?: stringResource(R.string.audio_quality_format_unknown),
                         maxLines = 1,
                         style = typography.xs.medium.color(colorPalette.onOverlay)
                     )
-                    BasicText(
-                        text = buildString {
-                            if (cachedBytes > downloadCachedBytes)
-                            append(Formatter.formatShortFileSize(context, cachedBytes))
-                            else append(Formatter.formatShortFileSize(context, downloadCachedBytes))
-
-                            format?.contentLength?.let {
+                    if (format?.songId?.startsWith(LOCAL_KEY_PREFIX) == true) {
+                        BasicText(
+                            text = "100%",
+                            maxLines = 1,
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                    }
+                    if (format?.songId?.startsWith(LOCAL_KEY_PREFIX) == false) {
+                        BasicText(
+                            text = buildString {
                                 if (cachedBytes > downloadCachedBytes)
-                                append(" (${(cachedBytes.toFloat() / it * 100).roundToInt()}%)")
-                                else append(" (${(downloadCachedBytes.toFloat() / it * 100).roundToInt()}%)")
-                            }
-                        },
-                        maxLines = 1,
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
-                    BasicText(
-                        text = format?.loudnessDb?.let { "%.2f dB".format(it) } ?: "Unknown",
-                        maxLines = 1,
-                        style = typography.xs.medium.color(colorPalette.onOverlay)
-                    )
+                                    append(Formatter.formatShortFileSize(context, cachedBytes))
+                                else append(
+                                    Formatter.formatShortFileSize(
+                                        context,
+                                        downloadCachedBytes
+                                    )
+                                )
+
+                                format?.contentLength?.let {
+                                    if (cachedBytes > downloadCachedBytes)
+                                        append(" (${(cachedBytes.toFloat() / it * 100).roundToInt()}%)")
+                                    else append(" (${(downloadCachedBytes.toFloat() / it * 100).roundToInt()}%)")
+                                }
+                            },
+                            maxLines = 1,
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                        BasicText(
+                            text = format?.loudnessDb?.let { "%.2f dB".format(it) }
+                                ?: stringResource(R.string.audio_quality_format_unknown),
+                            maxLines = 1,
+                            style = typography.xs.medium.color(colorPalette.onOverlay)
+                        )
+                    }
                 }
             }
         }

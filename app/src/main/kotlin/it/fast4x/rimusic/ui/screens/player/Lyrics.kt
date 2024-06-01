@@ -105,6 +105,7 @@ import it.fast4x.rimusic.utils.isShowingSynchronizedLyricsKey
 import it.fast4x.rimusic.utils.languageDestination
 import it.fast4x.rimusic.utils.lyricsFontSizeKey
 import it.fast4x.rimusic.utils.medium
+import it.fast4x.rimusic.utils.playerEnableLyricsPopupMessageKey
 import it.fast4x.rimusic.utils.rememberPreference
 import it.fast4x.rimusic.utils.semiBold
 import it.fast4x.rimusic.utils.showBackgroundLyricsKey
@@ -197,6 +198,7 @@ fun Lyrics(
 
         var fontSize by rememberPreference(lyricsFontSizeKey, LyricsFontSize.Medium)
         val showBackgroundLyrics by rememberPreference(showBackgroundLyricsKey, false)
+        val playerEnableLyricsPopupMessage by rememberPreference(playerEnableLyricsPopupMessageKey, true)
 
         LaunchedEffect(mediaId, isShowingSynchronizedLyrics) {
             withContext(Dispatchers.IO) {
@@ -222,7 +224,8 @@ fun Lyrics(
                             duration = duration.milliseconds,
                             album = mediaMetadata.albumTitle?.toString()
                         )?.onSuccess {
-                            if (it?.text?.isNotEmpty() == true || it?.sentences?.isNotEmpty() == true)
+                            if ((it?.text?.isNotEmpty() == true || it?.sentences?.isNotEmpty() == true)
+                                && playerEnableLyricsPopupMessage)
                                 coroutineScope.launch {
                                     SmartToast(
                                         context.getString(R.string.info_lyrics_found_on_s).format("LrcLib.net"),
@@ -230,13 +233,14 @@ fun Lyrics(
                                     )
                                 }
                             else
-                                coroutineScope.launch {
-                                    SmartToast(
-                                        context.getString(R.string.info_lyrics_not_found_on_s).format("LrcLib.net"),
-                                        type = PopupType.Error,
-                                        durationLong = true
-                                    )
-                                }
+                                if (playerEnableLyricsPopupMessage)
+                                    coroutineScope.launch {
+                                        SmartToast(
+                                            context.getString(R.string.info_lyrics_not_found_on_s).format("LrcLib.net"),
+                                            type = PopupType.Error,
+                                            durationLong = true
+                                        )
+                                    }
 
                             isError = false
                             Database.upsert(
@@ -247,19 +251,22 @@ fun Lyrics(
                                 )
                             )
                         }?.onFailure {
-                            coroutineScope.launch {
-                                SmartToast(
-                                    context.getString(R.string.info_lyrics_not_found_on_s_try_on_s).format("LrcLib.net", "KuGou.com"),
-                                    type = PopupType.Error,
-                                    durationLong = true
-                                )
-                            }
+                            if (playerEnableLyricsPopupMessage)
+                                coroutineScope.launch {
+                                    SmartToast(
+                                        context.getString(R.string.info_lyrics_not_found_on_s_try_on_s).format("LrcLib.net", "KuGou.com"),
+                                        type = PopupType.Error,
+                                        durationLong = true
+                                    )
+                                }
+
                             KuGou.lyrics(
                                 artist = mediaMetadata.artist?.toString() ?: "",
                                 title = mediaMetadata.title?.toString() ?: "",
                                 duration = duration / 1000
                             )?.onSuccess {
-                                if (it?.value?.isNotEmpty() == true || it?.sentences?.isNotEmpty() == true)
+                                if ((it?.value?.isNotEmpty() == true || it?.sentences?.isNotEmpty() == true)
+                                    && playerEnableLyricsPopupMessage)
                                     coroutineScope.launch {
                                         SmartToast(
                                             context.getString(R.string.info_lyrics_found_on_s).format("KuGou.com"),
@@ -267,13 +274,14 @@ fun Lyrics(
                                         )
                                     }
                                 else
-                                    coroutineScope.launch {
-                                        SmartToast(
-                                            context.getString(R.string.info_lyrics_not_found_on_s).format("KuGou.com"),
-                                            type = PopupType.Error,
-                                            durationLong = true
-                                        )
-                                    }
+                                    if (playerEnableLyricsPopupMessage)
+                                        coroutineScope.launch {
+                                            SmartToast(
+                                                context.getString(R.string.info_lyrics_not_found_on_s).format("KuGou.com"),
+                                                type = PopupType.Error,
+                                                durationLong = true
+                                            )
+                                        }
 
                                 isError = false
                                 Database.upsert(
@@ -284,13 +292,15 @@ fun Lyrics(
                                     )
                                 )
                             }?.onFailure {
-                                coroutineScope.launch {
-                                    SmartToast(
-                                        context.getString(R.string.info_lyrics_not_found_on_s).format("KuGou.com"),
-                                        type = PopupType.Error,
-                                        durationLong = true
-                                    )
-                                }
+                                if (playerEnableLyricsPopupMessage)
+                                    coroutineScope.launch {
+                                        SmartToast(
+                                            context.getString(R.string.info_lyrics_not_found_on_s).format("KuGou.com"),
+                                            type = PopupType.Error,
+                                            durationLong = true
+                                        )
+                                    }
+
                                 isError = true
                             }
                         }
@@ -354,7 +364,7 @@ fun Lyrics(
                     artist = mediaMetadata.artist?.toString().orEmpty(),
                     title = mediaMetadata.title?.toString().orEmpty()
                 )?.onSuccess {
-                    if (it.isNotEmpty())
+                    if (it.isNotEmpty() && playerEnableLyricsPopupMessage)
                         coroutineScope.launch {
                             SmartToast(
                                 context.getString(R.string.info_lyrics_tracks_found_on_s).format("LrcLib.net"),
@@ -362,25 +372,29 @@ fun Lyrics(
                             )
                         }
                     else
-                        coroutineScope.launch {
-                            SmartToast(
-                                context.getString(R.string.info_lyrics_tracks_not_found_on_s).format("LrcLib.net"),
-                                type = PopupType.Error,
-                                durationLong = true
-                            )
-                        }
+                        if (playerEnableLyricsPopupMessage)
+                            coroutineScope.launch {
+                                SmartToast(
+                                    context.getString(R.string.info_lyrics_tracks_not_found_on_s).format("LrcLib.net"),
+                                    type = PopupType.Error,
+                                    durationLong = true
+                                )
+                            }
+
                     tracks.clear()
                     tracks.addAll(it)
                     loading = false
                     error = false
                 }?.onFailure {
-                    coroutineScope.launch {
-                        SmartToast(
-                            context.getString(R.string.an_error_has_occurred_while_fetching_the_lyrics).format("LrcLib.net"),
-                            type = PopupType.Error,
-                            durationLong = true
-                        )
-                    }
+                    if (playerEnableLyricsPopupMessage)
+                        coroutineScope.launch {
+                            SmartToast(
+                                context.getString(R.string.an_error_has_occurred_while_fetching_the_lyrics).format("LrcLib.net"),
+                                type = PopupType.Error,
+                                durationLong = true
+                            )
+                        }
+
                     loading = false
                     error = true
                 } ?: run { loading = false }

@@ -26,6 +26,7 @@ fun languageDestination (
         Languages.English -> Language.ENGLISH
         Languages.Esperanto -> Language.ESPERANTO
         Languages.Estonian -> Language.ESTONIAN
+        Languages.Filipino -> Language.FILIPINO
         Languages.Finnish -> Language.FINNISH
         Languages.French -> Language.FRENCH
         Languages.German -> Language.GERMAN

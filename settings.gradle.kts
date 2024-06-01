@@ -28,7 +28,7 @@ dependencyResolutionManagement {
 
             library("compose-activity", "androidx.activity", "activity-compose").versionRef("compose")  //.version("1.6.1")
 
-            library("compose-coil", "io.coil-kt", "coil-compose").version("2.2.2")
+            library("compose-coil", "io.coil-kt", "coil-compose").version("2.6.0")
 
             version("room", "2.6.0")
             library("room", "androidx.room", "room-ktx").versionRef("room")

@@ -3,8 +3,10 @@ package it.fast4x.rimusic.ui.components
 import androidx.annotation.OptIn
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -116,7 +118,7 @@ inline fun NavigationRailTB(
                 verticalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Dimensions.navigationBarHeight)
+                    .height(Dimensions.navigationBarHeight-10.dp)
                     .padding(horizontal = 5.dp)
             ) {
                 val transition = updateTransition(targetState = tabIndex, label = null)
@@ -130,6 +132,7 @@ inline fun NavigationRailTB(
                     }
 
                     val contentModifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
                         .clickable(onClick = { onTabIndexChanged(index) })
 
                     val itemContent: @Composable () -> Unit = {
@@ -197,9 +200,11 @@ inline fun NavigationRailTB(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .fillMaxSize()
                         .horizontalScroll(scrollState)
                         //.padding(horizontal = 5.dp)
-                        .padding(top = 4.dp, bottom = 4.dp)
+                        //.padding(top = 4.dp, bottom = 4.dp)
+                        //.padding(top = 1.dp, bottom = 1.dp)
 
                 ) {
 

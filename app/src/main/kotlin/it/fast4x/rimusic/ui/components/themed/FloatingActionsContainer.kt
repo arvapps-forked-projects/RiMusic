@@ -9,12 +9,14 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -30,10 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import it.fast4x.rimusic.LocalPlayerAwareWindowInsets
@@ -46,6 +50,8 @@ import it.fast4x.rimusic.ui.screens.settings.SettingsScreen
 import it.fast4x.rimusic.ui.screens.settingsRoute
 import it.fast4x.rimusic.ui.styling.Dimensions
 import it.fast4x.rimusic.utils.ScrollingInfo
+import it.fast4x.rimusic.utils.floatActionIconOffsetXkey
+import it.fast4x.rimusic.utils.floatActionIconOffsetYkey
 import it.fast4x.rimusic.utils.navigationBarPositionKey
 import it.fast4x.rimusic.utils.rememberPreference
 import it.fast4x.rimusic.utils.scrollingInfo
@@ -208,6 +214,30 @@ fun BoxScope.FloatingActions(
     val playerSheetState = LocalPlayerSheetState.current
     val bottomPadding = if (playerSheetState.isCollapsed) bottomDp + Dimensions.collapsedPlayer else bottomDp
 
+    var offsetX = rememberPreference(floatActionIconOffsetXkey, 0F )
+    var offsetY = rememberPreference(floatActionIconOffsetYkey, 0F )
+
+    val modifierActions = Modifier
+        .padding(bottom = 16.dp)
+        .padding(bottom = bottomPadding)
+        .offset {
+            IntOffset(offsetX.value.toInt(), offsetY.value.toInt())
+        }
+        .pointerInput(Unit) {
+            /*
+            detectDragGestures { change, dragAmount ->
+                change.consume()
+                offsetX += dragAmount.x
+                offsetY += dragAmount.y
+            }
+             */
+            detectDragGesturesAfterLongPress { change, dragAmount ->
+                change.consume()
+                offsetX.value += dragAmount.x
+                offsetY.value += dragAmount.y
+
+            }
+        }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -238,12 +268,8 @@ fun BoxScope.FloatingActions(
                             onScrollToTop()
                         }
                     },
-                    enabled = transition.targetState?.isScrollingDown == false,
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        //.padding(bottomPaddingValues)
-                        //.padding(bottom = bottomDp)
-                        .padding(bottom = bottomPadding)
+                    enabled = transition.targetState?.isScrollingDown == false && transition.targetState?.isFar == true, //transition.targetState?.isScrollingDown == false,
+                    modifier = modifierActions
                 )
                 /*
                 SecondaryCircleButton(
@@ -276,10 +302,7 @@ fun BoxScope.FloatingActions(
                         iconId = iconId,
                         onClick = onClick,
                         enabled = true, //transition.targetState?.isScrollingDown == false,
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            //.padding(bottomPaddingValues)
-                            .padding(bottom = bottomPadding)
+                        modifier = modifierActions
                     )
                 }
             }

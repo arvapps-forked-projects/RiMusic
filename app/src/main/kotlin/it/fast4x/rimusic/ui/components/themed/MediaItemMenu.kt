@@ -526,7 +526,18 @@ fun MiniMediaItemMenu(
                 onGoToPlaylist(it)
             }
         },
-        onShare = {},
+        onShare = {
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                type = "text/plain"
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "https://music.youtube.com/watch?v=${mediaItem.mediaId}"
+                )
+            }
+
+            context.startActivity(Intent.createChooser(sendIntent, null))
+        },
         modifier = modifier
     )
 }

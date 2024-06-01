@@ -1003,7 +1003,10 @@ fun Context.musicFilesAsFlow(sortBy: OnDeviceSongSortBy, order: SortOrder, conte
                     MediaStore.Audio.Media.DATA
                 },
                 MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.IS_MUSIC
+                MediaStore.Audio.Media.IS_MUSIC,
+                MediaStore.Audio.Media.MIME_TYPE,
+                MediaStore.Audio.Media.BITRATE,
+                MediaStore.Audio.Media.DATE_MODIFIED
             )
 
             val sortOrderSQL = when (order) {
@@ -1035,6 +1038,11 @@ fun Context.musicFilesAsFlow(sortBy: OnDeviceSongSortBy, order: SortOrder, conte
                     }
                     val titleIdx = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
                     val isMusicIdx = cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC)
+
+                    val mimeTypeIdx = cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)
+                    val bitrateIdx = cursor.getColumnIndex(MediaStore.Audio.Media.BITRATE)
+                    val dateModifiedIdx = cursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED)
+
                     val blacklist = OnDeviceBlacklist(context = context)
 
 
@@ -1048,6 +1056,11 @@ fun Context.musicFilesAsFlow(sortBy: OnDeviceSongSortBy, order: SortOrder, conte
                             if (duration == 0) continue
                             val artist = cursor.getString(artistIdx)
                             val albumId = cursor.getLong(albumIdIdx)
+
+                            val mimeType = cursor.getString(mimeTypeIdx)
+                            val bitrate = cursor.getInt(bitrateIdx)
+                            val dateModified = cursor.getLong(dateModifiedIdx)
+
                             val relativePath = if (isAtLeastAndroid10) {
                                 cursor.getString(relativePathIdx)
                             } else {
@@ -1073,6 +1086,18 @@ fun Context.musicFilesAsFlow(sortBy: OnDeviceSongSortBy, order: SortOrder, conte
                                     Database.insert(
                                         song.toSong()
                                     )
+                                    
+                                    Database.insert(
+                                        it.fast4x.rimusic.models.Format(
+                                            songId = song.id,
+                                            itag = 0,
+                                            mimeType = mimeType,
+                                            bitrate = bitrate.toLong(),
+                                            contentLength = duration.toLong(),
+                                            lastModified = dateModified
+                                        )
+                                    )
+
                                     add(
                                         song
                                     )
